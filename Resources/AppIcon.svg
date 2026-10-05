@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <title>Argus</title>
+  <desc>A black three-line index mark on a white tile with large rounded corners.</desc>
+  <rect x="72" y="72" width="880" height="880" rx="220" fill="#FFFFFF" stroke="#E6E6E6" stroke-width="2"/>
+  <g fill="#000000">
+    <rect x="288" y="328" width="448" height="80" rx="40"/>
+    <rect x="288" y="472" width="448" height="80" rx="40"/>
+    <rect x="288" y="616" width="280" height="80" rx="40"/>
+  </g>
+</svg>

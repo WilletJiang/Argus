@@ -1,0 +1,122 @@
+{
+  "measured_at_utc": "2026-10-03T18:00:54.621619+00:00",
+  "environment": {
+    "processor": "Apple M2",
+    "machine": "Mac14,2",
+    "memory_bytes": 17179869184,
+    "macos": "26.5.2",
+    "macos_build": "25F84",
+    "sqlite": "3.51.0",
+    "compiler": "Apple clang 21.0.0 (clang-2100.1.1.101)",
+    "architecture": "arm64"
+  },
+  "harness": "Tests/SearchCoreTests.c",
+  "compile_command": "clang -std=c11 -O2 -Wall -Wextra -Werror Sources/SearchCore/SearchCore.c Sources/SearchCore/SearchQuery.c Sources/SearchCore/SearchTokenizer.c Tests/SearchCoreTests.c -I Sources/SearchCore -lsqlite3 -framework CoreFoundation -o /tmp/argus-core-tests",
+  "optimized": {
+    "metadata_rows": 100000,
+    "index_seconds": 3.21,
+    "fulltext_search": {
+      "document_rows": 1000,
+      "bytes_per_body": 32704,
+      "total_raw_body_bytes": 32704000,
+      "samples": 50,
+      "result_limit": 32,
+      "p50_ms": 0.92,
+      "p95_ms": 1.07,
+      "queries": [
+        "orbital align",
+        "lunar navigation"
+      ],
+      "text": "Repeated English sentence; tests first-indexed-match excerpts on common terms."
+    },
+    "database_mib_with_metadata_and_bodies": 88.5,
+    "database_mib_after_prune_and_compact": 0.05,
+    "full_search": {
+      "samples": 200,
+      "result_limit": 32,
+      "p50_ms": 4.13,
+      "p95_ms": 14.23,
+      "maximum_ms": 15.06,
+      "queries": [
+        "project123",
+        "report 001234",
+        "group017 project",
+        "porject123",
+        "report",
+        "1234",
+        "zzzzzz",
+        "p",
+        "proj report",
+        "project999"
+      ]
+    },
+    "metadata_only_search": {
+      "samples": 200,
+      "result_limit": 32,
+      "p50_ms": 3.16,
+      "p95_ms": 11.91,
+      "maximum_ms": 12.21,
+      "queries": [
+        "project123",
+        "report 001234",
+        "group017 project",
+        "porject123",
+        "report",
+        "1234",
+        "zzzzzz",
+        "p",
+        "proj report",
+        "project999"
+      ],
+      "scope": "Name prefixes, exact/substrings, metadata/pinyin aliases; excludes fuzzy and body stages."
+    }
+  },
+  "sanitized": {
+    "flags": "-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer",
+    "completed": true,
+    "findings": 0,
+    "index_seconds": 6.69,
+    "full_search_p50_ms": 8.65,
+    "full_search_p95_ms": 26.06,
+    "full_search_maximum_ms": 29.3,
+    "metadata_only_p50_ms": 5.37,
+    "metadata_only_p95_ms": 14.74,
+    "metadata_only_maximum_ms": 16.28,
+    "fulltext_p50_ms": 2.7,
+    "fulltext_p95_ms": 6.85
+  },
+  "correctness_checks": [
+    "Empty and singleton queries; literal punctuation; SQL injection input; invalid UTF-8; term limit",
+    "Case, accents, full-width normalization; Chinese one-character and substring matches; pinyin aliases",
+    "Transposed and first-letter typos; spaced initial subsequences; multiple keywords and path terms",
+    "File/folder/application filters; exact-name priority; NUL-terminated UTF-8 buffers",
+    "Content timestamp persistence; changed-file invalidation; empty extraction; 32 KiB UTF-8 cap",
+    "Chinese gram false-positive rejection; late diacritic and Chinese excerpt byte offsets",
+    "Separate WAL handles: uncommitted rows hidden, committed rows visible, rollback preserved",
+    "Cross-thread sqlite interruption observed; subsequent reader query succeeds",
+    "Directory-prefix boundaries; streaming exclusion predicate; 100k-row missing-file prune",
+    "Text clearing, content-byte counter, FTS compaction, VACUUM and WAL truncation",
+    "Metadata-only API shares validation and cancellation recovery; body-only and typo-only hits arrive only in full search."
+  ],
+  "bounded_work": {
+    "maximum_hits": 256,
+    "name_prefix_candidates": 512,
+    "metadata_candidates_per_stage": 4096,
+    "fulltext_candidates": 512,
+    "maximum_content_utf8_bytes_per_entry": 32768,
+    "query_utf8_bytes_less_than": 2048,
+    "maximum_query_terms": 24,
+    "sqlite_cache_kib_per_handle": 2048,
+    "sqlite_mmap_bytes_per_handle": 8388608
+  },
+  "limitations": [
+    "Timings are this synthetic workload on warm local storage, not a guaranteed bound for every query or dataset.",
+    "Candidate caps trade exhaustive recall for bounded work on very broad and fuzzy queries.",
+    "Fulltext returns tied body matches in candidate order and stops when requested result capacity is filled.",
+    "CJK fulltext candidates are checked for contiguous normalized keywords; more than 512 false-positive gram candidates can hide later valid rows.",
+    "Pinyin aliases are supplied for metadata; bodies are not transliterated.",
+    "Single-character non-CJK metadata queries scan rows; rare characters can cost more than indexed multi-character queries.",
+    "The caller enforces the global extracted-text budget and filesystem scope.",
+    "App memory footprint and cold-cache searches were not measured by this C harness."
+  ]
+}
