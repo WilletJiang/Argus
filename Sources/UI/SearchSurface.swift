@@ -13,23 +13,44 @@ final class SearchPanel: NSPanel {
 final class SearchSurface {
     static let width: CGFloat = 620
     static let inputHeight: CGFloat = 68
-    static let expandedHeight: CGFloat = 312
     static let rowHeight: CGFloat = 52
     static let listInset: CGFloat = 10
+    static let listTop: CGFloat = 8
+    static let footerHeight: CGFloat = 28
+    static let emptyRows = 2
+    static let rowLimit = 3...8
+    static let screenMargin: CGFloat = 24
+    /// The body fades in over this much of the expansion so a collapsing list never shows a hard edge.
+    static let bodyFadeDistance: CGFloat = 48
+
+    static func height(rows: Int) -> CGFloat {
+        rows <= 0 ? inputHeight : inputHeight + listTop + CGFloat(rows) * rowHeight + footerHeight
+    }
+
     let panel: SearchPanel
     let field = SearchField()
-    let table = NSTableView()
+    let table = ResultTable()
     let scroll = NSScrollView()
     let empty = NSTextField(labelWithString: "")
     let footer = NSTextField(labelWithString: "")
     let scopeLabel = NSTextField(labelWithString: "")
-    private let root = FlippedView()
+    /// The visible rounded surface. The window stays at its largest size and only this view resizes,
+    /// so expansion never round-trips through the window server.
+    let shape = FlippedView()
+    private(set) var maxRows = rowLimit.upperBound
+    private(set) var height = inputHeight
+    private var scale: CGFloat = 1
+    private let container = PanelContainer()
     private let glass = NSGlassEffectView()
     private let content = GlassContentView()
     private let body = FlippedView()
+    private let divider = NSBox()
+
+    var maxHeight: CGFloat { Self.height(rows: maxRows) }
 
     init() {
-        panel = SearchPanel(contentRect: NSRect(x: 0, y: 0, width: Self.width, height: Self.inputHeight), styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
+        let initialHeight = Self.height(rows: maxRows)
+        panel = SearchPanel(contentRect: NSRect(x: 0, y: 0, width: Self.width, height: initialHeight), styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
         panel.level = .floating
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .transient, .ignoresCycle]
         panel.isOpaque = false
@@ -39,20 +60,24 @@ final class SearchSurface {
         panel.isReleasedWhenClosed = false
         panel.animationBehavior = .none
         panel.alphaValue = 0
-        root.frame = NSRect(x: 0, y: 0, width: Self.width, height: Self.inputHeight)
-        root.wantsLayer = true
-        root.layer?.cornerRadius = GlassContentView.cornerRadius
-        root.layer?.cornerCurve = .continuous
-        root.layer?.masksToBounds = true
-        panel.contentView = root
-        glass.frame = root.bounds
+        container.frame = NSRect(x: 0, y: 0, width: Self.width, height: initialHeight)
+        container.wantsLayer = true
+        panel.contentView = container
+        shape.frame = NSRect(x: 0, y: 0, width: Self.width, height: Self.inputHeight)
+        shape.wantsLayer = true
+        shape.layer?.cornerRadius = GlassContentView.cornerRadius
+        shape.layer?.cornerCurve = .continuous
+        shape.layer?.masksToBounds = true
+        container.hitShape = shape
+        container.addSubview(shape)
+        glass.frame = shape.bounds
         glass.autoresizingMask = [.width, .height]
         glass.style = .clear
         glass.cornerRadius = GlassContentView.cornerRadius
         content.frame = glass.bounds
         content.autoresizingMask = [.width, .height]
         glass.contentView = content
-        root.addSubview(glass)
+        shape.addSubview(glass)
 
         let symbol = NSImageView(frame: NSRect(x: 25, y: 18, width: 32, height: 32))
         let font = NSFont.systemFont(ofSize: 30, weight: .regular)
@@ -75,17 +100,16 @@ final class SearchSurface {
         field.translatesAutoresizingMaskIntoConstraints = false
         content.addSubview(field)
         NSLayoutConstraint.activate([
-            field.leadingAnchor.constraint(equalTo: root.leadingAnchor, constant: 76),
-            field.trailingAnchor.constraint(equalTo: root.trailingAnchor, constant: -24),
-            field.firstBaselineAnchor.constraint(equalTo: root.topAnchor, constant: Self.inputHeight / 2 + font.capHeight / 2),
+            field.leadingAnchor.constraint(equalTo: shape.leadingAnchor, constant: 76),
+            field.trailingAnchor.constraint(equalTo: shape.trailingAnchor, constant: -24),
+            field.firstBaselineAnchor.constraint(equalTo: shape.topAnchor, constant: Self.inputHeight / 2 + font.capHeight / 2),
             field.heightAnchor.constraint(equalToConstant: (font.ascender * 2 - font.capHeight).rounded())
         ])
 
-        body.frame = NSRect(x: 0, y: Self.inputHeight, width: Self.width, height: Self.expandedHeight - Self.inputHeight)
         body.alphaValue = 0
         body.isHidden = true
         content.addSubview(body)
-        let divider = NSBox(frame: NSRect(x: 16, y: 0, width: Self.width - 32, height: 1))
+        divider.frame = NSRect(x: 16, y: 0, width: Self.width - 32, height: 1)
         divider.boxType = .separator
         body.addSubview(divider)
         let column = NSTableColumn(identifier: NSUserInterfaceItemIdentifier("result"))
@@ -98,44 +122,87 @@ final class SearchSurface {
         table.style = .plain
         table.selectionHighlightStyle = .regular
         table.setAccessibilityLabel("Search results")
-        scroll.frame = NSRect(x: Self.listInset, y: 8, width: Self.width - Self.listInset * 2, height: Self.rowHeight * 4)
         scroll.documentView = table
         scroll.drawsBackground = false
         scroll.hasVerticalScroller = true
         scroll.autohidesScrollers = true
         scroll.scrollerStyle = .overlay
-        table.frame.size.width = scroll.contentSize.width
         body.addSubview(scroll)
-        empty.frame = NSRect(x: 28, y: 65, width: Self.width - 56, height: 32)
         empty.font = .systemFont(ofSize: 13)
         empty.textColor = .secondaryLabelColor
         empty.alignment = .center
         empty.isHidden = true
         body.addSubview(empty)
-        footer.frame = NSRect(x: 24, y: body.bounds.height - 23, width: 330, height: 16)
-        scopeLabel.frame = NSRect(x: Self.width - 230, y: body.bounds.height - 23, width: 206, height: 16)
         scopeLabel.alignment = .right
         for label in [footer, scopeLabel] {
             label.font = .systemFont(ofSize: 11)
             label.textColor = .secondaryLabelColor
             body.addSubview(label)
         }
+        layoutBody()
         updateAccessibility()
-        root.layoutSubtreeIfNeeded()
+        shape.layoutSubtreeIfNeeded()
     }
 
-    func setExpansion(_ progress: CGFloat) {
-        let height = (Self.inputHeight + (Self.expandedHeight - Self.inputHeight) * progress).rounded()
-        let frame = panel.frame
-        if frame.height != height {
-            panel.setFrame(NSRect(x: frame.minX, y: frame.maxY - height, width: Self.width, height: height), display: false)
-            root.frame.size = panel.contentRect(forFrameRect: panel.frame).size
-            glass.frame = root.bounds
-            content.frame = root.bounds
-            root.layoutSubtreeIfNeeded()
+    /// The list keeps its full capacity; the shape clips it, so changing the row count never re-tiles the table.
+    private func layoutBody() {
+        body.frame = NSRect(x: 0, y: Self.inputHeight, width: Self.width, height: maxHeight - Self.inputHeight)
+        scroll.frame = NSRect(x: Self.listInset, y: Self.listTop, width: Self.width - Self.listInset * 2, height: Self.rowHeight * CGFloat(maxRows))
+        table.frame.size.width = scroll.contentSize.width
+        let listHeight = Self.rowHeight * CGFloat(Self.emptyRows)
+        empty.frame = NSRect(x: 28, y: Self.listTop + (listHeight - 32) / 2, width: Self.width - 56, height: 32)
+        footer.frame = NSRect(x: 24, y: 0, width: 330, height: 16)
+        scopeLabel.frame = NSRect(x: Self.width - 230, y: 0, width: 206, height: 16)
+        placeFooter()
+    }
+
+    private func placeFooter() {
+        let y = height - Self.inputHeight - 23
+        footer.setFrameOrigin(NSPoint(x: footer.frame.minX, y: y))
+        scopeLabel.setFrameOrigin(NSPoint(x: scopeLabel.frame.minX, y: y))
+    }
+
+    /// Returns whether the visible outline changed, so the caller can refresh the window shadow once per frame.
+    @discardableResult
+    func setHeight(_ value: CGFloat) -> Bool {
+        let backing = panel.backingScaleFactor > 0 ? panel.backingScaleFactor : 2
+        let value = min(max((value * backing).rounded() / backing, Self.inputHeight), maxHeight)
+        guard value != height else { return false }
+        height = value
+        shape.setFrameSize(NSSize(width: Self.width, height: value))
+        let reveal = value - Self.inputHeight
+        body.alphaValue = min(reveal / Self.bodyFadeDistance, 1)
+        body.isHidden = reveal <= 0
+        placeFooter()
+        updateTransform()
+        return true
+    }
+
+    @discardableResult
+    func setPresence(_ alpha: CGFloat, scale: CGFloat) -> Bool {
+        if panel.alphaValue != alpha { panel.alphaValue = alpha }
+        guard scale != self.scale else { return false }
+        self.scale = scale
+        updateTransform()
+        return true
+    }
+
+    /// Scales the surface about its own center. AppKit owns the shape layer's transform, so the scale lives on the
+    /// container's sublayer transform, expressed relative to the container layer's anchor point.
+    private func updateTransform() {
+        guard let layer = container.layer else { return }
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        if scale == 1 { layer.sublayerTransform = CATransform3DIdentity }
+        else {
+            let frame = shape.layer?.frame ?? shape.frame
+            let anchor = CGPoint(x: layer.bounds.minX + layer.anchorPoint.x * layer.bounds.width, y: layer.bounds.minY + layer.anchorPoint.y * layer.bounds.height)
+            let dx = frame.midX - anchor.x, dy = frame.midY - anchor.y
+            var transform = CATransform3DMakeTranslation(dx, dy, 0)
+            transform = CATransform3DScale(transform, scale, scale, 1)
+            layer.sublayerTransform = CATransform3DTranslate(transform, -dx, -dy, 0)
         }
-        body.alphaValue = progress
-        body.isHidden = progress == 0
+        CATransaction.commit()
     }
 
     func position() {
@@ -143,11 +210,17 @@ final class SearchSurface {
         guard let screen = NSScreen.screens.first(where: { $0.frame.contains(mouse) }) ?? NSScreen.main else { return }
         let frame = screen.visibleFrame
         let top = frame.maxY - frame.height * 0.18
-        panel.setFrameOrigin(NSPoint(x: frame.midX - Self.width / 2, y: top - panel.frame.height))
+        let available = top - frame.minY - Self.screenMargin - Self.inputHeight - Self.listTop - Self.footerHeight
+        let rows = min(max(Int(available / Self.rowHeight), Self.rowLimit.lowerBound), Self.rowLimit.upperBound)
+        if rows != maxRows {
+            maxRows = rows
+            layoutBody()
+        }
+        panel.setFrame(NSRect(x: frame.midX - Self.width / 2, y: top - maxHeight, width: Self.width, height: maxHeight), display: false)
     }
 
     func updateAccessibility() {
-        glass.style = NSWorkspace.shared.accessibilityDisplayShouldReduceTransparency ? .regular : .clear
+        glass.style = .clear
         content.needsDisplay = true
         table.needsDisplay = true
     }

@@ -12,6 +12,8 @@ final class SearchCoordinator {
     private var query = ""
     private var elapsed = 0.0
     private var pending: DispatchWorkItem?
+    private var hasPublished = false
+    private var flushScheduled = false
 
     init(index: FileIndex, providers: SystemProviders) {
         self.index = index
@@ -23,6 +25,7 @@ final class SearchCoordinator {
         let token = generation
         query = text.trimmingCharacters(in: .whitespacesAndNewlines)
         local = []; supplemental = []; contentMatches = []; elapsed = 0
+        hasPublished = false; flushScheduled = false
         pending?.cancel()
         providers.cancelSearch()
         metadata.cancel()
@@ -67,7 +70,20 @@ final class SearchCoordinator {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.035, execute: work)
     }
 
+    /// The first batch is delivered at once; later batches of the same query share one frame.
     private func publish() {
+        guard hasPublished else { hasPublished = true; flush(); return }
+        guard !flushScheduled else { return }
+        flushScheduled = true
+        let token = generation
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0 / 60) { [weak self] in
+            guard let self, self.generation == token else { return }
+            self.flushScheduled = false
+            self.flush()
+        }
+    }
+
+    private func flush() {
         let values = ResultRanking.merge(local: local, supplemental: supplemental, content: contentMatches)
         onResults?(Array(values.prefix(48)), elapsed)
     }

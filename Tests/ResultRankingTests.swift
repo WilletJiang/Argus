@@ -21,6 +21,17 @@ enum ResultRankingTests {
         let filename = hit("notes", .file, 900)
         let detailed = ResultRanking.merge(local: [filename, body], supplemental: [], content: [metadata])
         precondition(detailed.first?.score == 900 && detailed.first?.snippet == body.snippet)
-        print("Result ranking tests passed: best-score deduplication, body evidence, fuzzy rescue")
+
+        let shown = [hit("Safari", .application, 850), hit("Safe", .file, 650)]
+        let sameTier = ResultRanking.stabilized([hit("Safety", .file, 900), shown[0], shown[1]], after: shown)
+        precondition(sameTier.map(\.id) == ["Safari", "Safety", "Safe"], "A late result within one tier must not displace the visible top hit")
+        let clearlyBetter = ResultRanking.stabilized([hit("web", .web, 1200), shown[0], shown[1]], after: shown)
+        precondition(clearlyBetter.map(\.id) == ["web", "Safari", "Safe"], "A late result a full tier higher must take the top")
+        let reordered = ResultRanking.stabilized([shown[1], shown[0], hit("tail", .file, 100)], after: shown)
+        precondition(reordered.map(\.id) == ["Safari", "Safe", "tail"], "Visible rows keep their order; weaker newcomers append")
+        let dropped = ResultRanking.stabilized([shown[1]], after: shown)
+        precondition(dropped.map(\.id) == ["Safe"], "Rows missing from the new batch disappear")
+        precondition(ResultRanking.stabilized(shown, after: []).map(\.id) == shown.map(\.id))
+        print("Result ranking tests passed: best-score deduplication, body evidence, fuzzy rescue, stable late batches")
     }
 }

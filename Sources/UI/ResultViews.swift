@@ -4,6 +4,16 @@ final class FlippedView: NSView {
     override var isFlipped: Bool { true }
 }
 
+/// The window stays at its largest size; hits outside the rounded surface must fall through to apps below.
+final class PanelContainer: NSView {
+    var hitShape: NSView?
+    override var isFlipped: Bool { true }
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        guard let hitShape, hitShape.frame.contains(point) else { return nil }
+        return super.hitTest(point)
+    }
+}
+
 final class GlassContentView: NSView {
     static let cornerRadius: CGFloat = 34
     override var isFlipped: Bool { true }
@@ -27,7 +37,10 @@ final class ResultCell: NSTableCellView {
     private let icon = NSImageView()
     private let titleLabel = NSTextField(labelWithString: "")
     private let subtitleLabel = NSTextField(labelWithString: "")
-    static let icons = NSCache<NSString, NSImage>()
+    /// A plain bounded cache: NSCache evicts under its own policy, which re-rendered icons on every keystroke.
+    private static var icons: [String: NSImage] = [:]
+    private static var iconOrder: [String] = []
+    static let iconLimit = 256
 
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
@@ -39,19 +52,29 @@ final class ResultCell: NSTableCellView {
         for label in [titleLabel, subtitleLabel] { label.maximumNumberOfLines = 1 }
         icon.imageScaling = .scaleProportionallyUpOrDown
         [icon, titleLabel, subtitleLabel].forEach { addSubview($0) }
-        Self.icons.countLimit = 128
     }
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
-    func configure(_ result: SearchResult) {
+    /// `nil` turns the cell into an invisible placeholder that keeps its row view in the table.
+    /// Hidden views are recycled by NSTableView, so placeholders stay in the hierarchy at zero alpha.
+    func configure(_ result: SearchResult?) {
+        guard let result else {
+            alphaValue = 0
+            setAccessibilityElement(false)
+            return
+        }
+        alphaValue = 1
+        setAccessibilityElement(true)
         titleLabel.stringValue = result.title
         subtitleLabel.stringValue = result.snippet.isEmpty ? result.subtitle : result.snippet.replacingOccurrences(of: "\n", with: " ")
         if [.application, .file, .folder, .content].contains(result.kind) {
-            if let cached = Self.icons.object(forKey: result.target as NSString) { icon.image = cached }
+            if let cached = Self.icons[result.target] { icon.image = cached }
             else {
                 let path = result.kind == .application ? URL(fileURLWithPath: result.target).resolvingSymlinksInPath().path : result.target
                 let image = Self.thumbnail(for: path)
-                Self.icons.setObject(image, forKey: result.target as NSString)
+                if Self.iconOrder.count >= Self.iconLimit { Self.icons[Self.iconOrder.removeFirst()] = nil }
+                Self.icons[result.target] = image
+                Self.iconOrder.append(result.target)
                 icon.image = image
             }
         } else { icon.image = NSImage(systemSymbolName: result.symbol ?? result.kind.symbol, accessibilityDescription: result.kind.label) }
@@ -79,6 +102,37 @@ final class ResultCell: NSTableCellView {
         icon.frame = NSRect(x: 17, y: 12, width: 28, height: 28)
         titleLabel.frame = NSRect(x: 64, y: 28, width: bounds.width - 80, height: 21)
         subtitleLabel.frame = NSRect(x: 64, y: 8, width: bounds.width - 80, height: 18)
+    }
+}
+
+final class ResultTable: NSTableView {
+    var onHover: ((Int) -> Void)?
+    /// Rows past this index are placeholders kept only so result changes never add or remove row views.
+    var liveRows = 0
+
+    override func accessibilityRows() -> [any NSAccessibilityRow]? { super.accessibilityRows()?.filter(isLive) }
+    override func accessibilityVisibleRows() -> [any NSAccessibilityRow]? { super.accessibilityVisibleRows()?.filter(isLive) }
+    override func accessibilityRowCount() -> Int { liveRows }
+    private func isLive(_ element: any NSAccessibilityRow) -> Bool { (element as? NSView).map { row(for: $0) < liveRows } ?? true }
+    private var hoverArea: NSTrackingArea?
+    private var lastMouse = NSPoint(x: CGFloat.nan, y: CGFloat.nan)
+
+    override func updateTrackingAreas() {
+        super.updateTrackingAreas()
+        guard hoverArea == nil else { return }
+        let area = NSTrackingArea(rect: .zero, options: [.mouseMoved, .activeInKeyWindow, .inVisibleRect], owner: self)
+        addTrackingArea(area)
+        hoverArea = area
+    }
+
+    // Rows sliding under a stationary pointer must not steal the keyboard selection, so only real movement counts.
+    override func mouseMoved(with event: NSEvent) {
+        super.mouseMoved(with: event)
+        let mouse = NSEvent.mouseLocation
+        guard mouse != lastMouse else { return }
+        lastMouse = mouse
+        let row = row(at: convert(event.locationInWindow, from: nil))
+        if row >= 0, row < liveRows { onHover?(row) }
     }
 }
 

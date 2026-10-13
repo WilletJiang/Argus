@@ -53,4 +53,13 @@ final class Preferences {
         guard let index = recentTargets.firstIndex(of: target) else { return 0 }
         return Double(max(0, 40 - index)) * 1.5
     }
+
+    /// One defaults read per ranking pass instead of one per comparison.
+    func boosts() -> [String: Double] {
+        var values: [String: Double] = [:]
+        for (index, target) in recentTargets.enumerated() where values[target] == nil {
+            values[target] = Double(max(0, 40 - index)) * 1.5
+        }
+        return values
+    }
 }
