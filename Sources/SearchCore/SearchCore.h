@@ -8,6 +8,7 @@ extern "C" {
 #endif
 
 typedef struct ArgusIndex ArgusIndex;
+typedef struct ArgusSearch ArgusSearch;
 typedef int (*ArgusPathPredicate)(const char *path, void *context);
 
 typedef struct {
@@ -18,6 +19,38 @@ typedef struct {
     double score;
     int content_match;
 } ArgusHit;
+
+/* Presentation strings remain valid until the next read or search close. */
+typedef struct {
+    const char *path, *name, *snippet;
+    int kind;
+    double score;
+    int content_match;
+} ArgusResult;
+
+/* Reuse one read snapshot and candidate/ranking state across progressive stages. */
+ArgusSearch *argus_search_open(ArgusIndex *index, const char *query, int kind_filter, int limit);
+int argus_search_metadata(ArgusSearch *search);
+int argus_search_complete(ArgusSearch *search);
+int argus_search_finished(ArgusSearch *search);
+int argus_search_read(ArgusSearch *search, int ordinal, ArgusResult *result);
+void argus_search_close(ArgusSearch *search);
+/* Run on the writer/reader queues respectively; old body indexes remain searchable until commit. */
+int argus_index_upgrade(ArgusIndex *index);
+/* 1: ready or not needed, 0: unavailable (SQL remains usable), -1: interrupted.
+   The optional metadata snapshot bounds its builder and file to 64 MiB each. */
+int argus_index_prepare_snapshot(ArgusIndex *index);
+
+typedef struct {
+    char path[4096];
+    int64_t id, size;
+    int mode, applications_only;
+} ArgusScanItem;
+/* Filename jobs spill to SQLite; pending bodies are paged from their existing metadata. */
+int argus_index_queue_scan(ArgusIndex *index, const char *path, int mode, int applications_only);
+int argus_index_next_scan(ArgusIndex *index, ArgusScanItem *item);
+int argus_index_next_content(ArgusIndex *index, int64_t after_id, ArgusScanItem *item);
+int argus_index_clear_scan_jobs(ArgusIndex *index);
 
 /* Use each handle on one serial queue. Separate reader/writer handles use WAL.
    Mutators return 1 on success and 0 on failure. Errors survive until next call.
@@ -30,6 +63,9 @@ int argus_index_commit(ArgusIndex *index);
 int argus_index_rollback(ArgusIndex *index);
 int argus_index_upsert(ArgusIndex *index, const char *path, const char *name,
                        const char *aliases, int kind, double mtime, int64_t size);
+int argus_index_upsert_scanned(ArgusIndex *index, const char *path, const char *name,
+                              const char *aliases, int kind, double mtime, int64_t size,
+                              int content_eligible);
 int argus_index_set_content(ArgusIndex *index, const char *path, const char *text);
 /* Content is truncated at 32 KiB without splitting UTF-8. */
 int argus_index_clear_content(ArgusIndex *index);

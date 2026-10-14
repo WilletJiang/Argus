@@ -11,7 +11,7 @@ done
 TASK_SWIFT_SOURCES=(Sources/App/*.swift Sources/UI/*.swift Sources/Search/*.swift Sources/System/*.swift)
 TASK_SWIFT_FLAGS=()
 if [[ "${1:-}" == "--benchmark" ]]; then
-  TASK_SWIFT_SOURCES+=(Tests/AppPerformance.swift)
+  TASK_SWIFT_SOURCES+=(Tests/AppPerformance.swift Tests/BenchmarkMemory.swift)
   TASK_SWIFT_FLAGS+=(-DARGUS_BENCHMARK)
 fi
 xcrun swiftc -O -whole-module-optimization -swift-version 5 -sdk "$TASK_SDK" -target arm64-apple-macos26.0 \

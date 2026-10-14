@@ -22,6 +22,8 @@ if [[ "${1:-}" == "--sanitize" ]]; then TASK_C_FLAGS=(-O1 -g -fsanitize=address,
 if [[ "${1:-}" != "--index-only" ]]; then
 xcrun clang "${TASK_C_FLAGS[@]}" -I Sources/SearchCore "${TASK_C_SOURCES[@]}" Tests/SearchCoreTests.c -lsqlite3 -framework CoreFoundation -o "$TASK_TEST_DIR/core-tests"
 "$TASK_TEST_DIR/core-tests"
+xcrun clang "${TASK_C_FLAGS[@]}" -I Sources/SearchCore "${TASK_C_SOURCES[@]}" Tests/SearchOptimizationTests.c -lsqlite3 -framework CoreFoundation -o "$TASK_TEST_DIR/optimization-tests"
+"$TASK_TEST_DIR/optimization-tests"
 xcrun swiftc -O -swift-version 5 Sources/App/Models.swift Sources/System/*.swift Sources/Search/ScanWorker.swift Sources/Search/ContentExtractor.swift Tests/SystemProviderTests.swift -framework AppKit -framework Contacts -framework CoreServices -framework PDFKit -o "$TASK_TEST_DIR/provider-tests"
 "$TASK_TEST_DIR/provider-tests"
 xcrun swiftc -O -swift-version 5 Sources/App/Models.swift Sources/Search/MetadataSearch.swift Tests/MetadataSearchTests.swift -framework AppKit -framework CoreServices -o "$TASK_TEST_DIR/metadata-tests"
@@ -31,6 +33,6 @@ xcrun swiftc -O -swift-version 5 Sources/App/Models.swift Sources/App/Preference
 fi
 for source in "${TASK_C_SOURCES[@]}"; do xcrun clang -O2 -c "$source" -o "$TASK_TEST_DIR/${source:t:r}.o"; done
 xcrun swiftc -Onone -g -swift-version 5 -import-objc-header Sources/SearchCore/SearchCore.h \
-  Sources/App/Models.swift Sources/App/Preferences.swift Sources/Search/FileIndex.swift Sources/Search/FileWatcher.swift Sources/Search/ContentExtractor.swift Sources/Search/ScanWorker.swift Tests/FileIndexTests.swift \
+  Sources/App/Models.swift Sources/App/Preferences.swift Sources/Search/FileIndex.swift Sources/Search/IndexSearch.swift Sources/Search/FileWatcher.swift Sources/Search/ContentExtractor.swift Sources/Search/ScanWorker.swift Tests/FileIndexTests.swift \
   "$TASK_TEST_DIR"/*.o -lsqlite3 -framework AppKit -framework CoreServices -framework CoreFoundation -framework PDFKit -o "$TASK_TEST_DIR/index-tests"
 "$TASK_TEST_DIR/index-tests"

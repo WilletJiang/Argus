@@ -17,7 +17,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.setActivationPolicy(.accessory)
         Preferences.shared.appearanceMode.apply()
         searchMenuItem = AppMenu.install(target: self, search: #selector(toggleSearch), settings: #selector(showPreferences), quit: #selector(quit))
+        let arguments = CommandLine.arguments
+#if ARGUS_BENCHMARK
+        func option(_ name: String) -> String? {
+            guard let flag = arguments.firstIndex(of: name), arguments.indices.contains(flag + 1) else { return nil }
+            return arguments[flag + 1]
+        }
+        let benchmarkHome = option("--benchmark-home").map { URL(fileURLWithPath: $0) }
+        index = FileIndex(home: benchmarkHome ?? FileManager.default.homeDirectoryForCurrentUser,
+                          storage: option("--benchmark-storage").map { URL(fileURLWithPath: $0) } ?? FileIndex.storageURL,
+                          applications: benchmarkHome == nil ? nil : [])
+#else
         index = FileIndex()
+#endif
         providers = SystemProviders()
         coordinator = SearchCoordinator(index: index, providers: providers)
         panel = PanelController(coordinator: coordinator)
@@ -43,8 +55,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         item.menu = menu
         updateHotkey()
         providers.prepare()
-        index.start()
-        let arguments = CommandLine.arguments
 #if ARGUS_BENCHMARK
         panel.onMetric = { [weak self] name, value in
             self?.benchmark?.record(name, value)
@@ -52,9 +62,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if let flag = arguments.firstIndex(of: "--benchmark"), arguments.indices.contains(flag + 1) {
             benchmark = AppPerformance(panel: panel, index: index, output: arguments[flag + 1])
             benchmark?.start()
+            if arguments.contains("--benchmark-no-scan") { index.prepareBenchmarkIndex() }
+            else { index.start() }
             return
         }
 #endif
+        index.start()
         if let flag = arguments.firstIndex(of: "--query"), arguments.indices.contains(flag + 1) { panel.show(query: arguments[flag + 1]) }
         else if !arguments.contains("--background") { panel.show() }
     }

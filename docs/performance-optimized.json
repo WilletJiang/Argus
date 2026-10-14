@@ -1,0 +1,3203 @@
+{
+  "baseline_ref": "7135353a34a82d8cd71b8affb6367289c50a3530",
+  "hardware": {
+    "chip": "Apple M2",
+    "memory_bytes": 17179869184,
+    "macOS": "26.5.2"
+  },
+  "core": {
+    "baseline": [
+      {
+        "query": "Safari",
+        "hits": 18,
+        "metadata_p50_ms": 0.330999,
+        "metadata_p95_ms": 0.357999,
+        "complete_p50_ms": 8.077,
+        "complete_p95_ms": 8.252
+      },
+      {
+        "query": "Terminal",
+        "hits": 48,
+        "metadata_p50_ms": 0.919,
+        "metadata_p95_ms": 1.047,
+        "complete_p50_ms": 15.893,
+        "complete_p95_ms": 17.529
+      },
+      {
+        "query": "README",
+        "hits": 48,
+        "metadata_p50_ms": 0.603,
+        "metadata_p95_ms": 0.607,
+        "complete_p50_ms": 0.603,
+        "complete_p95_ms": 0.607
+      },
+      {
+        "query": "swift",
+        "hits": 48,
+        "metadata_p50_ms": 0.512,
+        "metadata_p95_ms": 0.519,
+        "complete_p50_ms": 0.512,
+        "complete_p95_ms": 0.519
+      },
+      {
+        "query": "项目",
+        "hits": 44,
+        "metadata_p50_ms": 0.07,
+        "metadata_p95_ms": 0.085,
+        "complete_p50_ms": 37.341,
+        "complete_p95_ms": 37.913
+      },
+      {
+        "query": "中文",
+        "hits": 42,
+        "metadata_p50_ms": 0.071,
+        "metadata_p95_ms": 0.11,
+        "complete_p50_ms": 17.667,
+        "complete_p95_ms": 17.973999
+      },
+      {
+        "query": "orbital",
+        "hits": 18,
+        "metadata_p50_ms": 0.402001,
+        "metadata_p95_ms": 0.437001,
+        "complete_p50_ms": 4.33,
+        "complete_p95_ms": 4.639
+      },
+      {
+        "query": "Argus",
+        "hits": 48,
+        "metadata_p50_ms": 0.442999,
+        "metadata_p95_ms": 0.448,
+        "complete_p50_ms": 0.442999,
+        "complete_p95_ms": 0.448001
+      }
+    ],
+    "optimized": [
+      {
+        "query": "Safari",
+        "hits": 18,
+        "metadata_p50_ms": 0.014001,
+        "metadata_p95_ms": 0.019,
+        "complete_p50_ms": 6.465,
+        "complete_p95_ms": 7.178
+      },
+      {
+        "query": "Terminal",
+        "hits": 48,
+        "metadata_p50_ms": 0.031999,
+        "metadata_p95_ms": 0.037,
+        "complete_p50_ms": 8.146,
+        "complete_p95_ms": 8.609001
+      },
+      {
+        "query": "README",
+        "hits": 48,
+        "metadata_p50_ms": 0.128,
+        "metadata_p95_ms": 0.130001,
+        "complete_p50_ms": 0.132,
+        "complete_p95_ms": 0.134
+      },
+      {
+        "query": "swift",
+        "hits": 48,
+        "metadata_p50_ms": 0.123,
+        "metadata_p95_ms": 0.129,
+        "complete_p50_ms": 0.125,
+        "complete_p95_ms": 0.132999
+      },
+      {
+        "query": "项目",
+        "hits": 44,
+        "metadata_p50_ms": 0.034,
+        "metadata_p95_ms": 0.037,
+        "complete_p50_ms": 0.514,
+        "complete_p95_ms": 0.538999
+      },
+      {
+        "query": "中文",
+        "hits": 42,
+        "metadata_p50_ms": 0.034001,
+        "metadata_p95_ms": 0.035999,
+        "complete_p50_ms": 0.382001,
+        "complete_p95_ms": 0.39
+      },
+      {
+        "query": "orbital",
+        "hits": 18,
+        "metadata_p50_ms": 0.009,
+        "metadata_p95_ms": 0.01,
+        "complete_p50_ms": 3.06,
+        "complete_p95_ms": 3.126
+      },
+      {
+        "query": "Argus",
+        "hits": 48,
+        "metadata_p50_ms": 0.112,
+        "metadata_p95_ms": 0.115001,
+        "complete_p50_ms": 0.115,
+        "complete_p95_ms": 0.119001
+      }
+    ]
+  },
+  "ui": {
+    "baseline": {
+      "active_memory": {
+        "peak_physical_footprint_bytes": 103334944,
+        "physical_footprint_bytes": 49972256,
+        "resident_bytes": 135102464
+      },
+      "distributions": {
+        "reopenEngineSearchMs": {
+          "count": 48,
+          "max_ms": 249.69937512651086,
+          "p50_ms": 11.563791893422604,
+          "p95_ms": 192.56216660141945
+        },
+        "reopenFirstResultsMs": {
+          "count": 48,
+          "max_ms": 280.38275009021163,
+          "p50_ms": 21.226583514362574,
+          "p95_ms": 233.4167086519301
+        },
+        "reopenResultUpdateMs": {
+          "count": 48,
+          "max_ms": 7.346958387643099,
+          "p50_ms": 1.1130417697131634,
+          "p95_ms": 2.774124965071678
+        },
+        "reopenShowReadyMs": {
+          "count": 48,
+          "max_ms": 31.992708332836628,
+          "p50_ms": 12.587500270456076,
+          "p95_ms": 22.54012506455183
+        },
+        "typingEngineSearchMs": {
+          "count": 48,
+          "max_ms": 186.86774978414178,
+          "p50_ms": 12.871125247329473,
+          "p95_ms": 161.04962537065148
+        },
+        "typingFirstResultsMs": {
+          "count": 48,
+          "max_ms": 209.11920815706253,
+          "p50_ms": 15.489666722714901,
+          "p95_ms": 167.06091677770019
+        },
+        "typingResultUpdateMs": {
+          "count": 48,
+          "max_ms": 4.258458502590656,
+          "p50_ms": 0.8610831573605537,
+          "p95_ms": 1.7319582402706146
+        }
+      },
+      "failures": [],
+      "hidden_memory": {
+        "peak_physical_footprint_bytes": 103334944,
+        "physical_footprint_bytes": 44205088,
+        "resident_bytes": 134086656
+      },
+      "index_ready_seconds": 0.2511047082953155,
+      "index_status": "Index ready · frozen benchmark corpus",
+      "indexed_rows": 14639,
+      "mach_timebase_denom": 3,
+      "mach_timebase_numer": 125,
+      "measured_at": "2026-10-14T03:09:11Z",
+      "memory_sample_interval_ms": 10,
+      "method": "NSTextInputClient.insertText through the native field editor and AppKit textDidChange; includes editing, search, cells/icons/layout. External ScreenCaptureKit observer measures the first changed result-region window frame after the result view commit. Excludes physical keyboard/OS event delivery and monitor photon latency. Capture observer runs outside the app/worker process tree. Hidden/active memory is proc_pid_rusage physical footprint and RSS; parent lifetime peak is exact, combined app+worker peak is sampled every 10ms. Index timing starts after FileIndex initialization.",
+      "queries": [
+        "Safari",
+        "Terminal",
+        "Finder",
+        "README",
+        "swift",
+        "Argus",
+        "项目",
+        "中文"
+      ],
+      "sampled_peak_app_and_children_footprint_bytes": 102581280,
+      "samples_ms": {
+        "reopenEngineSearchMs": [
+          4.172583110630512,
+          11.562916450202465,
+          5.851374939084053,
+          7.069124840199947,
+          1.8971250392496586,
+          4.364625085145235,
+          0,
+          28.09795830398798,
+          13.764875009655952,
+          27.83899987116456,
+          3.3867917954921722,
+          14.101000037044287,
+          10.644500143826008,
+          12.651749886572361,
+          0,
+          28.31199998036027,
+          11.936708353459835,
+          18.07616651058197,
+          2.9642083682119846,
+          14.416958205401897,
+          1.6813748516142368,
+          11.831250041723251,
+          249.69937512651086,
+          77.05199997872114,
+          17.93800015002489,
+          5.457583349198103,
+          13.81920836865902,
+          6.188125349581242,
+          2.337416633963585,
+          2.139208372682333,
+          192.56216660141945,
+          58.251624926924706,
+          31.841458287090063,
+          22.300041746348143,
+          4.983874969184399,
+          24.056749884039164,
+          20.7311250269413,
+          19.650916568934917,
+          0,
+          56.87837488949299,
+          1.0865414515137672,
+          2.1921666339039803,
+          5.780208390206099,
+          2.4897917173802853,
+          11.563791893422604,
+          6.477166898548603,
+          230.703332927078,
+          115.49145868048072
+        ],
+        "reopenFirstResultsMs": [
+          11.679291725158691,
+          12.283624615520239,
+          10.271625127643347,
+          8.473499678075314,
+          7.850666530430317,
+          10.677291546016932,
+          189.35004156082869,
+          30.117624904960394,
+          24.065500125288963,
+          41.723249945789576,
+          13.44770798459649,
+          29.6465833671391,
+          20.462083164602518,
+          37.6121667213738,
+          205.9484999626875,
+          32.42841688916087,
+          14.941916335374117,
+          18.96616630256176,
+          10.281875263899565,
+          18.420416861772537,
+          6.853333208709955,
+          14.533208683133125,
+          280.38275009021163,
+          79.14133323356509,
+          21.226583514362574,
+          22.57358329370618,
+          14.349333476275206,
+          22.436624858528376,
+          10.839374735951424,
+          14.33529146015644,
+          197.97445833683014,
+          60.9486666508019,
+          33.73208316043019,
+          23.71312491595745,
+          16.47416688501835,
+          27.211375068873167,
+          28.377666603773832,
+          21.767166908830404,
+          245.3525415621698,
+          60.09837472811341,
+          15.719749964773655,
+          22.37841673195362,
+          11.896166484802961,
+          19.045999739319086,
+          13.641583267599344,
+          12.775333598256111,
+          233.4167086519301,
+          127.44008330628276
+        ],
+        "reopenResultUpdateMs": [
+          1.4756666496396065,
+          0.4569999873638153,
+          0.32462459057569504,
+          0.6094169802963734,
+          1.1620833538472652,
+          0.8267085067927837,
+          2.5286669842898846,
+          1.1130417697131634,
+          2.1055000834167004,
+          0.43354183435440063,
+          0.6555416621267796,
+          0.7149581797420979,
+          2.277874853461981,
+          0.8934587240219116,
+          4.610875155776739,
+          0.9609167464077473,
+          1.868000254034996,
+          0.4148334264755249,
+          0.26904139667749405,
+          1.1567920446395874,
+          1.0092915035784245,
+          0.6646248511970043,
+          1.6309167258441448,
+          1.220041885972023,
+          2.774124965071678,
+          0.46683335676789284,
+          0.3370414488017559,
+          0.9598336182534695,
+          1.5922500751912594,
+          0.636375043541193,
+          1.5933332033455372,
+          1.1064163409173489,
+          1.6708332113921642,
+          0.5218335427343845,
+          0.35187508910894394,
+          1.422249712049961,
+          2.058833371847868,
+          1.2935418635606766,
+          7.346958387643099,
+          1.6543329693377018,
+          1.5145828947424889,
+          0.6542499177157879,
+          1.715583261102438,
+          0.7031252607703209,
+          1.6233748756349087,
+          0.9213746525347233,
+          1.2616249732673168,
+          1.2437496334314346
+        ],
+        "reopenShowReadyMs": [
+          12.704791966825724,
+          11.127457953989506,
+          9.997458662837744,
+          7.0374999195337296,
+          6.08083326369524,
+          13.91920866444707,
+          18.039333168417215,
+          15.40179131552577,
+          14.597666449844837,
+          16.892291605472565,
+          16.77429163828492,
+          31.992708332836628,
+          13.224083464592695,
+          12.587500270456076,
+          22.523666732013226,
+          17.96824997290969,
+          10.791458189487457,
+          15.251250006258488,
+          12.301916722208261,
+          11.090999934822321,
+          6.204250268638134,
+          12.136041652411222,
+          11.985458433628082,
+          10.722541715949774,
+          14.050791505724192,
+          22.54012506455183,
+          11.28329150378704,
+          16.25783322378993,
+          9.013916365802288,
+          12.369916308671236,
+          13.61020840704441,
+          9.808916598558426,
+          13.035083655267954,
+          10.391375049948692,
+          11.336791329085827,
+          10.363874956965446,
+          13.11916671693325,
+          14.518208336085081,
+          14.385249931365252,
+          11.82674989104271,
+          19.961333367973566,
+          12.329083401709795,
+          14.000916853547096,
+          30.58891650289297,
+          9.696208406239748,
+          9.81612503528595,
+          10.88025001809001,
+          14.04154160991311
+        ],
+        "typingEngineSearchMs": [
+          9.75966639816761,
+          14.790499582886696,
+          12.871125247329473,
+          22.61941647157073,
+          1.6713747754693031,
+          5.456166807562113,
+          0,
+          101.06374975293875,
+          1.2527499347925186,
+          34.36779184266925,
+          15.566916670650244,
+          34.51841650530696,
+          1.9274167716503143,
+          6.87337527051568,
+          114.34424994513392,
+          31.53345827013254,
+          1.1287499219179153,
+          8.099458180367947,
+          33.237166702747345,
+          3.512375056743622,
+          3.5924999974668026,
+          2.0673335529863834,
+          123.86141670867801,
+          38.81750022992492,
+          1.1274167336523533,
+          2.165416721254587,
+          19.06154165044427,
+          16.648124903440475,
+          1.6073333099484444,
+          5.457750055938959,
+          186.86774978414178,
+          31.293666921555996,
+          1.1654999107122421,
+          60.00400008633733,
+          6.112375296652317,
+          33.670833334326744,
+          3.852458205074072,
+          8.603791706264019,
+          161.04962537065148,
+          48.36837528273463,
+          1.2152916751801968,
+          25.110583286732435,
+          13.748874887824059,
+          32.2998333722353,
+          2.5512082502245903,
+          11.746666859835386,
+          165.05062533542514,
+          39.94025010615587
+        ],
+        "typingFirstResultsMs": [
+          11.106958612799644,
+          15.921916346997023,
+          13.673374895006418,
+          30.688833445310593,
+          3.4852083772420883,
+          8.713624905794859,
+          203.76891689375043,
+          105.20150000229478,
+          9.12224967032671,
+          42.75387478992343,
+          16.35362533852458,
+          40.19504180178046,
+          3.4469165839254856,
+          10.187750216573477,
+          116.69283313676715,
+          32.84808341413736,
+          4.151583183556795,
+          9.973000269383192,
+          41.74987506121397,
+          8.841041941195726,
+          8.100000210106373,
+          11.40183350071311,
+          126.95387518033385,
+          44.25020841881633,
+          7.862166967242956,
+          6.718416698276997,
+          27.907458133995533,
+          21.578500047326088,
+          3.1407917849719524,
+          11.469833087176085,
+          209.11920815706253,
+          32.88487484678626,
+          9.500749874860048,
+          66.62995833903551,
+          8.4864585660398,
+          35.413833335042,
+          6.128458306193352,
+          9.917167015373707,
+          163.11608348041773,
+          51.05954175814986,
+          8.027083706110716,
+          27.987458277493715,
+          14.493583235889673,
+          41.24687472358346,
+          5.729250144213438,
+          15.489666722714901,
+          167.06091677770019,
+          41.828916408121586
+        ],
+        "typingResultUpdateMs": [
+          0.653708353638649,
+          0.8881250396370888,
+          0.6085415370762348,
+          0.6501665338873863,
+          0.21895812824368477,
+          0.6116670556366444,
+          1.7319582402706146,
+          0.971000175923109,
+          0.516833271831274,
+          0.9514582343399525,
+          0.6044162437319756,
+          4.258458502590656,
+          0.21674996241927147,
+          0.9234584867954254,
+          0.8610831573605537,
+          0.6937086582183838,
+          0.4257913678884506,
+          1.0748333297669888,
+          1.1582085862755775,
+          1.2646252289414406,
+          0.2171248197555542,
+          1.4437916688621044,
+          1.2098331935703754,
+          0.8343332447111607,
+          0.5167080089449883,
+          0.7530413568019867,
+          0.550874974578619,
+          0.8023749105632305,
+          0.20791636779904366,
+          0.9267502464354038,
+          1.4239163137972355,
+          0.8884584531188011,
+          1.9702501595020294,
+          1.1000833474099636,
+          0.747916754335165,
+          1.112000085413456,
+          0.23300014436244965,
+          0.6440002471208572,
+          1.0565831325948238,
+          1.1997083202004433,
+          0.540624838322401,
+          1.062958501279354,
+          0.5540000274777412,
+          1.2920000590384007,
+          0.22516679018735886,
+          0.9247916750609875,
+          1.147291623055935,
+          0.9842501021921635
+        ]
+      },
+      "trials": [
+        {
+          "event_start_mach": 57557635080891,
+          "measured": false,
+          "mode": "reopen",
+          "query": "Safari",
+          "result_commit_mach": 57557635828471,
+          "sequence": 1
+        },
+        {
+          "event_start_mach": 57557647962375,
+          "measured": false,
+          "mode": "reopen",
+          "query": "Terminal",
+          "result_commit_mach": 57557649723983,
+          "sequence": 2
+        },
+        {
+          "event_start_mach": 57557661908567,
+          "measured": false,
+          "mode": "reopen",
+          "query": "Finder",
+          "result_commit_mach": 57557662471140,
+          "sequence": 3
+        },
+        {
+          "event_start_mach": 57557674594999,
+          "measured": false,
+          "mode": "reopen",
+          "query": "README",
+          "result_commit_mach": 57557675140071,
+          "sequence": 4
+        },
+        {
+          "event_start_mach": 57557687350096,
+          "measured": false,
+          "mode": "reopen",
+          "query": "swift",
+          "result_commit_mach": 57557687887428,
+          "sequence": 5
+        },
+        {
+          "event_start_mach": 57557701576312,
+          "measured": false,
+          "mode": "reopen",
+          "query": "Argus",
+          "result_commit_mach": 57557703353075,
+          "sequence": 6
+        },
+        {
+          "event_start_mach": 57557715470661,
+          "measured": false,
+          "mode": "reopen",
+          "query": "项目",
+          "result_commit_mach": 57557720409719,
+          "sequence": 7
+        },
+        {
+          "event_start_mach": 57557732582574,
+          "measured": false,
+          "mode": "reopen",
+          "query": "中文",
+          "result_commit_mach": 57557735613694,
+          "sequence": 8
+        },
+        {
+          "event_start_mach": 57557747668466,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Safari",
+          "result_commit_mach": 57557748357430,
+          "sequence": 9
+        },
+        {
+          "event_start_mach": 57557761225557,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Terminal",
+          "result_commit_mach": 57557761936084,
+          "sequence": 10
+        },
+        {
+          "event_start_mach": 57557774834076,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Finder",
+          "result_commit_mach": 57557775404128,
+          "sequence": 11
+        },
+        {
+          "event_start_mach": 57557789152300,
+          "measured": true,
+          "mode": "reopen",
+          "query": "README",
+          "result_commit_mach": 57557789620421,
+          "sequence": 12
+        },
+        {
+          "event_start_mach": 57557801942588,
+          "measured": true,
+          "mode": "reopen",
+          "query": "swift",
+          "result_commit_mach": 57557802379792,
+          "sequence": 13
+        },
+        {
+          "event_start_mach": 57557815580307,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Argus",
+          "result_commit_mach": 57557816297973,
+          "sequence": 14
+        },
+        {
+          "event_start_mach": 57557828752108,
+          "measured": true,
+          "mode": "reopen",
+          "query": "项目",
+          "result_commit_mach": 57557833943636,
+          "sequence": 15
+        },
+        {
+          "event_start_mach": 57557846300354,
+          "measured": true,
+          "mode": "reopen",
+          "query": "中文",
+          "result_commit_mach": 57557847507777,
+          "sequence": 16
+        },
+        {
+          "event_start_mach": 57557861133226,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Safari",
+          "result_commit_mach": 57557862257415,
+          "sequence": 17
+        },
+        {
+          "event_start_mach": 57557875669123,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Terminal",
+          "result_commit_mach": 57557877462731,
+          "sequence": 18
+        },
+        {
+          "event_start_mach": 57557889599879,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Finder",
+          "result_commit_mach": 57557890459684,
+          "sequence": 19
+        },
+        {
+          "event_start_mach": 57557902678643,
+          "measured": true,
+          "mode": "reopen",
+          "query": "README",
+          "result_commit_mach": 57557904327629,
+          "sequence": 20
+        },
+        {
+          "event_start_mach": 57557916590933,
+          "measured": true,
+          "mode": "reopen",
+          "query": "swift",
+          "result_commit_mach": 57557917690119,
+          "sequence": 21
+        },
+        {
+          "event_start_mach": 57557930270680,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Argus",
+          "result_commit_mach": 57557931650952,
+          "sequence": 22
+        },
+        {
+          "event_start_mach": 57557944694516,
+          "measured": true,
+          "mode": "reopen",
+          "query": "项目",
+          "result_commit_mach": 57557950414352,
+          "sequence": 23
+        },
+        {
+          "event_start_mach": 57557962791049,
+          "measured": true,
+          "mode": "reopen",
+          "query": "中文",
+          "result_commit_mach": 57557964112775,
+          "sequence": 24
+        },
+        {
+          "event_start_mach": 57557976931288,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Safari",
+          "result_commit_mach": 57557977674913,
+          "sequence": 25
+        },
+        {
+          "event_start_mach": 57557990913660,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Terminal",
+          "result_commit_mach": 57557991857390,
+          "sequence": 26
+        },
+        {
+          "event_start_mach": 57558005742214,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Finder",
+          "result_commit_mach": 57558006361399,
+          "sequence": 27
+        },
+        {
+          "event_start_mach": 57558019306297,
+          "measured": true,
+          "mode": "reopen",
+          "query": "README",
+          "result_commit_mach": 57558020224391,
+          "sequence": 28
+        },
+        {
+          "event_start_mach": 57558032300039,
+          "measured": true,
+          "mode": "reopen",
+          "query": "swift",
+          "result_commit_mach": 57558032701272,
+          "sequence": 29
+        },
+        {
+          "event_start_mach": 57558045120321,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Argus",
+          "result_commit_mach": 57558045863278,
+          "sequence": 30
+        },
+        {
+          "event_start_mach": 57558058489093,
+          "measured": true,
+          "mode": "reopen",
+          "query": "项目",
+          "result_commit_mach": 57558065702437,
+          "sequence": 31
+        },
+        {
+          "event_start_mach": 57558078375516,
+          "measured": true,
+          "mode": "reopen",
+          "query": "中文",
+          "result_commit_mach": 57558080660021,
+          "sequence": 32
+        },
+        {
+          "event_start_mach": 57558093069945,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Safari",
+          "result_commit_mach": 57558094054214,
+          "sequence": 33
+        },
+        {
+          "event_start_mach": 57558108352757,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Terminal",
+          "result_commit_mach": 57558109589177,
+          "sequence": 34
+        },
+        {
+          "event_start_mach": 57558122841061,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Finder",
+          "result_commit_mach": 57558123549711,
+          "sequence": 35
+        },
+        {
+          "event_start_mach": 57558136152408,
+          "measured": true,
+          "mode": "reopen",
+          "query": "README",
+          "result_commit_mach": 57558137202584,
+          "sequence": 36
+        },
+        {
+          "event_start_mach": 57558150350665,
+          "measured": true,
+          "mode": "reopen",
+          "query": "swift",
+          "result_commit_mach": 57558150956355,
+          "sequence": 37
+        },
+        {
+          "event_start_mach": 57558164785798,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Argus",
+          "result_commit_mach": 57558165610215,
+          "sequence": 38
+        },
+        {
+          "event_start_mach": 57558178567549,
+          "measured": true,
+          "mode": "reopen",
+          "query": "项目",
+          "result_commit_mach": 57558183814526,
+          "sequence": 39
+        },
+        {
+          "event_start_mach": 57558197398920,
+          "measured": true,
+          "mode": "reopen",
+          "query": "中文",
+          "result_commit_mach": 57558199212066,
+          "sequence": 40
+        },
+        {
+          "event_start_mach": 57558212502221,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Safari",
+          "result_commit_mach": 57558213763603,
+          "sequence": 41
+        },
+        {
+          "event_start_mach": 57558230134752,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Terminal",
+          "result_commit_mach": 57558231085188,
+          "sequence": 42
+        },
+        {
+          "event_start_mach": 57558244950480,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Finder",
+          "result_commit_mach": 57558245704351,
+          "sequence": 43
+        },
+        {
+          "event_start_mach": 57558257987287,
+          "measured": true,
+          "mode": "reopen",
+          "query": "README",
+          "result_commit_mach": 57558258993707,
+          "sequence": 44
+        },
+        {
+          "event_start_mach": 57558271970694,
+          "measured": true,
+          "mode": "reopen",
+          "query": "swift",
+          "result_commit_mach": 57558273142996,
+          "sequence": 45
+        },
+        {
+          "event_start_mach": 57558285763598,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Argus",
+          "result_commit_mach": 57558286741372,
+          "sequence": 46
+        },
+        {
+          "event_start_mach": 57558300555797,
+          "measured": true,
+          "mode": "reopen",
+          "query": "项目",
+          "result_commit_mach": 57558307117761,
+          "sequence": 47
+        },
+        {
+          "event_start_mach": 57558319622026,
+          "measured": true,
+          "mode": "reopen",
+          "query": "中文",
+          "result_commit_mach": 57558321477998,
+          "sequence": 48
+        },
+        {
+          "event_start_mach": 57558333949832,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Safari",
+          "result_commit_mach": 57558334959562,
+          "sequence": 49
+        },
+        {
+          "event_start_mach": 57558348349845,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Terminal",
+          "result_commit_mach": 57558349308242,
+          "sequence": 50
+        },
+        {
+          "event_start_mach": 57558362804599,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Finder",
+          "result_commit_mach": 57558363609598,
+          "sequence": 51
+        },
+        {
+          "event_start_mach": 57558376401452,
+          "measured": true,
+          "mode": "reopen",
+          "query": "README",
+          "result_commit_mach": 57558377880879,
+          "sequence": 52
+        },
+        {
+          "event_start_mach": 57558390460244,
+          "measured": true,
+          "mode": "reopen",
+          "query": "swift",
+          "result_commit_mach": 57558391185136,
+          "sequence": 53
+        },
+        {
+          "event_start_mach": 57558404067747,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Argus",
+          "result_commit_mach": 57558404711459,
+          "sequence": 54
+        },
+        {
+          "event_start_mach": 57558419142316,
+          "measured": true,
+          "mode": "reopen",
+          "query": "项目",
+          "result_commit_mach": 57558425111624,
+          "sequence": 55
+        },
+        {
+          "event_start_mach": 57558437550965,
+          "measured": true,
+          "mode": "reopen",
+          "query": "中文",
+          "result_commit_mach": 57558441153082,
+          "sequence": 56
+        },
+        {
+          "event_start_mach": 57558451551022,
+          "measured": false,
+          "mode": "typing",
+          "query": "Safari",
+          "result_commit_mach": 57558453543014,
+          "sequence": 57
+        },
+        {
+          "event_start_mach": 57558463399496,
+          "measured": false,
+          "mode": "typing",
+          "query": "Terminal",
+          "result_commit_mach": 57558464260763,
+          "sequence": 58
+        },
+        {
+          "event_start_mach": 57558474320861,
+          "measured": false,
+          "mode": "typing",
+          "query": "Finder",
+          "result_commit_mach": 57558475845178,
+          "sequence": 59
+        },
+        {
+          "event_start_mach": 57558485813583,
+          "measured": false,
+          "mode": "typing",
+          "query": "README",
+          "result_commit_mach": 57558487216150,
+          "sequence": 60
+        },
+        {
+          "event_start_mach": 57558497161662,
+          "measured": false,
+          "mode": "typing",
+          "query": "swift",
+          "result_commit_mach": 57558497946105,
+          "sequence": 61
+        },
+        {
+          "event_start_mach": 57558507561190,
+          "measured": false,
+          "mode": "typing",
+          "query": "Argus",
+          "result_commit_mach": 57558508218651,
+          "sequence": 62
+        },
+        {
+          "event_start_mach": 57558517961197,
+          "measured": false,
+          "mode": "typing",
+          "query": "项目",
+          "result_commit_mach": 57558525762482,
+          "sequence": 63
+        },
+        {
+          "event_start_mach": 57558535549172,
+          "measured": false,
+          "mode": "typing",
+          "query": "中文",
+          "result_commit_mach": 57558539375523,
+          "sequence": 64
+        },
+        {
+          "event_start_mach": 57558549019097,
+          "measured": true,
+          "mode": "typing",
+          "query": "Safari",
+          "result_commit_mach": 57558549712074,
+          "sequence": 65
+        },
+        {
+          "event_start_mach": 57558559455653,
+          "measured": true,
+          "mode": "typing",
+          "query": "Terminal",
+          "result_commit_mach": 57558560615488,
+          "sequence": 66
+        },
+        {
+          "event_start_mach": 57558570361783,
+          "measured": true,
+          "mode": "typing",
+          "query": "Finder",
+          "result_commit_mach": 57558571123221,
+          "sequence": 67
+        },
+        {
+          "event_start_mach": 57558581148230,
+          "measured": true,
+          "mode": "typing",
+          "query": "README",
+          "result_commit_mach": 57558582677845,
+          "sequence": 68
+        },
+        {
+          "event_start_mach": 57558592432266,
+          "measured": true,
+          "mode": "typing",
+          "query": "swift",
+          "result_commit_mach": 57558592873308,
+          "sequence": 69
+        },
+        {
+          "event_start_mach": 57558602507942,
+          "measured": true,
+          "mode": "typing",
+          "query": "Argus",
+          "result_commit_mach": 57558603284646,
+          "sequence": 70
+        },
+        {
+          "event_start_mach": 57558613160567,
+          "measured": true,
+          "mode": "typing",
+          "query": "项目",
+          "result_commit_mach": 57558618563910,
+          "sequence": 71
+        },
+        {
+          "event_start_mach": 57558628181217,
+          "measured": true,
+          "mode": "typing",
+          "query": "中文",
+          "result_commit_mach": 57558631661431,
+          "sequence": 72
+        },
+        {
+          "event_start_mach": 57558641348318,
+          "measured": true,
+          "mode": "typing",
+          "query": "Safari",
+          "result_commit_mach": 57558642359440,
+          "sequence": 73
+        },
+        {
+          "event_start_mach": 57558652147864,
+          "measured": true,
+          "mode": "typing",
+          "query": "Terminal",
+          "result_commit_mach": 57558653799825,
+          "sequence": 74
+        },
+        {
+          "event_start_mach": 57558663547787,
+          "measured": true,
+          "mode": "typing",
+          "query": "Finder",
+          "result_commit_mach": 57558664846680,
+          "sequence": 75
+        },
+        {
+          "event_start_mach": 57558674747929,
+          "measured": true,
+          "mode": "typing",
+          "query": "README",
+          "result_commit_mach": 57558676337368,
+          "sequence": 76
+        },
+        {
+          "event_start_mach": 57558686036031,
+          "measured": true,
+          "mode": "typing",
+          "query": "swift",
+          "result_commit_mach": 57558686458875,
+          "sequence": 77
+        },
+        {
+          "event_start_mach": 57558696115841,
+          "measured": true,
+          "mode": "typing",
+          "query": "Argus",
+          "result_commit_mach": 57558697401560,
+          "sequence": 78
+        },
+        {
+          "event_start_mach": 57558707156048,
+          "measured": true,
+          "mode": "typing",
+          "query": "项目",
+          "result_commit_mach": 57558711307521,
+          "sequence": 79
+        },
+        {
+          "event_start_mach": 57558720996678,
+          "measured": true,
+          "mode": "typing",
+          "query": "中文",
+          "result_commit_mach": 57558722328942,
+          "sequence": 80
+        },
+        {
+          "event_start_mach": 57558731988315,
+          "measured": true,
+          "mode": "typing",
+          "query": "Safari",
+          "result_commit_mach": 57558732425363,
+          "sequence": 81
+        },
+        {
+          "event_start_mach": 57558742147648,
+          "measured": true,
+          "mode": "typing",
+          "query": "Terminal",
+          "result_commit_mach": 57558743336323,
+          "sequence": 82
+        },
+        {
+          "event_start_mach": 57558753164930,
+          "measured": true,
+          "mode": "typing",
+          "query": "Finder",
+          "result_commit_mach": 57558755282063,
+          "sequence": 83
+        },
+        {
+          "event_start_mach": 57558764995555,
+          "measured": true,
+          "mode": "typing",
+          "query": "README",
+          "result_commit_mach": 57558765888390,
+          "sequence": 84
+        },
+        {
+          "event_start_mach": 57558775559482,
+          "measured": true,
+          "mode": "typing",
+          "query": "swift",
+          "result_commit_mach": 57558776141518,
+          "sequence": 85
+        },
+        {
+          "event_start_mach": 57558785909514,
+          "measured": true,
+          "mode": "typing",
+          "query": "Argus",
+          "result_commit_mach": 57558786678586,
+          "sequence": 86
+        },
+        {
+          "event_start_mach": 57558796359046,
+          "measured": true,
+          "mode": "typing",
+          "query": "项目",
+          "result_commit_mach": 57558800426544,
+          "sequence": 87
+        },
+        {
+          "event_start_mach": 57558810116322,
+          "measured": true,
+          "mode": "typing",
+          "query": "中文",
+          "result_commit_mach": 57558811903889,
+          "sequence": 88
+        },
+        {
+          "event_start_mach": 57558821631139,
+          "measured": true,
+          "mode": "typing",
+          "query": "Safari",
+          "result_commit_mach": 57558822373497,
+          "sequence": 89
+        },
+        {
+          "event_start_mach": 57558832172850,
+          "measured": true,
+          "mode": "typing",
+          "query": "Terminal",
+          "result_commit_mach": 57558833575404,
+          "sequence": 90
+        },
+        {
+          "event_start_mach": 57558843236264,
+          "measured": true,
+          "mode": "typing",
+          "query": "Finder",
+          "result_commit_mach": 57558844322937,
+          "sequence": 91
+        },
+        {
+          "event_start_mach": 57558854146636,
+          "measured": true,
+          "mode": "typing",
+          "query": "README",
+          "result_commit_mach": 57558855273126,
+          "sequence": 92
+        },
+        {
+          "event_start_mach": 57558864995660,
+          "measured": true,
+          "mode": "typing",
+          "query": "swift",
+          "result_commit_mach": 57558865469336,
+          "sequence": 93
+        },
+        {
+          "event_start_mach": 57558875159566,
+          "measured": true,
+          "mode": "typing",
+          "query": "Argus",
+          "result_commit_mach": 57558876101517,
+          "sequence": 94
+        },
+        {
+          "event_start_mach": 57558885728268,
+          "measured": true,
+          "mode": "typing",
+          "query": "项目",
+          "result_commit_mach": 57558891931702,
+          "sequence": 95
+        },
+        {
+          "event_start_mach": 57558901559768,
+          "measured": true,
+          "mode": "typing",
+          "query": "中文",
+          "result_commit_mach": 57558903030069,
+          "sequence": 96
+        },
+        {
+          "event_start_mach": 57558913050505,
+          "measured": true,
+          "mode": "typing",
+          "query": "Safari",
+          "result_commit_mach": 57558913802676,
+          "sequence": 97
+        },
+        {
+          "event_start_mach": 57558923679833,
+          "measured": true,
+          "mode": "typing",
+          "query": "Terminal",
+          "result_commit_mach": 57558925794457,
+          "sequence": 98
+        },
+        {
+          "event_start_mach": 57558935419743,
+          "measured": true,
+          "mode": "typing",
+          "query": "Finder",
+          "result_commit_mach": 57558936282841,
+          "sequence": 99
+        },
+        {
+          "event_start_mach": 57558946063464,
+          "measured": true,
+          "mode": "typing",
+          "query": "README",
+          "result_commit_mach": 57558948105295,
+          "sequence": 100
+        },
+        {
+          "event_start_mach": 57558957734676,
+          "measured": true,
+          "mode": "typing",
+          "query": "swift",
+          "result_commit_mach": 57558958246080,
+          "sequence": 101
+        },
+        {
+          "event_start_mach": 57558968030544,
+          "measured": true,
+          "mode": "typing",
+          "query": "Argus",
+          "result_commit_mach": 57558968869726,
+          "sequence": 102
+        },
+        {
+          "event_start_mach": 57558978595284,
+          "measured": true,
+          "mode": "typing",
+          "query": "项目",
+          "result_commit_mach": 57558983332743,
+          "sequence": 103
+        },
+        {
+          "event_start_mach": 57558993230734,
+          "measured": true,
+          "mode": "typing",
+          "query": "中文",
+          "result_commit_mach": 57558995750905,
+          "sequence": 104
+        },
+        {
+          "event_start_mach": 57559005471542,
+          "measured": true,
+          "mode": "typing",
+          "query": "Safari",
+          "result_commit_mach": 57559006137652,
+          "sequence": 105
+        },
+        {
+          "event_start_mach": 57559015773166,
+          "measured": true,
+          "mode": "typing",
+          "query": "Terminal",
+          "result_commit_mach": 57559016953955,
+          "sequence": 106
+        },
+        {
+          "event_start_mach": 57559026758656,
+          "measured": true,
+          "mode": "typing",
+          "query": "Finder",
+          "result_commit_mach": 57559027872665,
+          "sequence": 107
+        },
+        {
+          "event_start_mach": 57559037675691,
+          "measured": true,
+          "mode": "typing",
+          "query": "README",
+          "result_commit_mach": 57559039338159,
+          "sequence": 108
+        },
+        {
+          "event_start_mach": 57559049158272,
+          "measured": true,
+          "mode": "typing",
+          "query": "swift",
+          "result_commit_mach": 57559049709771,
+          "sequence": 109
+        },
+        {
+          "event_start_mach": 57559059523767,
+          "measured": true,
+          "mode": "typing",
+          "query": "Argus",
+          "result_commit_mach": 57559060526120,
+          "sequence": 110
+        },
+        {
+          "event_start_mach": 57559070261377,
+          "measured": true,
+          "mode": "typing",
+          "query": "项目",
+          "result_commit_mach": 57559075245725,
+          "sequence": 111
+        },
+        {
+          "event_start_mach": 57559085152799,
+          "measured": true,
+          "mode": "typing",
+          "query": "中文",
+          "result_commit_mach": 57559087023156,
+          "sequence": 112
+        }
+      ],
+      "warmup_queries_per_mode": 8,
+      "window_frames": {
+        "method": "NSTextInputClient entry to first changed result-region window frame after result view display/CA commit; region x18...600,y85...135. Excludes keyboard/OS event delivery and photons. Capture cadence/animation/glass composition remain in this measurement; identical visible first-row pixels can delay change detection.",
+        "distributions": {
+          "typing": {
+            "count": 48,
+            "p50_ms": 66.06166666666667,
+            "p95_ms": 222.97366666666665,
+            "p99_ms": 270.6046666666667,
+            "max_ms": 270.6046666666667
+          },
+          "reopen": {
+            "count": 48,
+            "p50_ms": 76.26416666666667,
+            "p95_ms": 281.3187916666667,
+            "p99_ms": 369.02816666666666,
+            "max_ms": 369.02816666666666
+          }
+        },
+        "samples_ms": {
+          "typing": [
+            31.636916666666668,
+            98.71375,
+            42.92854166666667,
+            75.82491666666667,
+            36.15470833333334,
+            36.31125,
+            260.70325,
+            150.02504166666665,
+            52.14745833333333,
+            99.33454166666667,
+            59.59325,
+            74.28629166666667,
+            38.547,
+            69.3865,
+            190.69004166666664,
+            62.527625,
+            39.863083333333336,
+            202.38791666666665,
+            95.65145833333332,
+            47.059666666666665,
+            38.77441666666667,
+            46.32791666666667,
+            173.38404166666666,
+            83.48366666666668,
+            40.41008333333333,
+            66.06166666666667,
+            53.37316666666666,
+            98.577625,
+            35.532875,
+            43.035375,
+            270.6046666666667,
+            74.386875,
+            44.23083333333334,
+            102.24795833333333,
+            45.84095833333333,
+            103.25183333333332,
+            33.08475,
+            38.40975,
+            202.12545833333334,
+            122.47316666666667,
+            44.56420833333333,
+            86.33145833333333,
+            208.06104166666665,
+            222.97366666666665,
+            38.871875,
+            62.06454166666666,
+            212.58525,
+            90.491875
+          ],
+          "reopen": [
+            63.09875,
+            52.84758333333333,
+            188.49091666666666,
+            43.035041666666665,
+            42.850791666666666,
+            59.22645833333333,
+            224.00258333333335,
+            59.87116666666667,
+            93.067875,
+            103.36195833333333,
+            74.06104166666667,
+            78.90370833333333,
+            65.91483333333333,
+            60.58479166666667,
+            258.72029166666664,
+            106.36708333333333,
+            51.39125,
+            134.15325,
+            67.704125,
+            71.10641666666668,
+            25.268416666666667,
+            125.96995833333332,
+            369.02816666666666,
+            107.58466666666668,
+            66.65166666666667,
+            76.26416666666667,
+            43.088458333333335,
+            51.0425,
+            42.876958333333334,
+            82.83741666666667,
+            231.88141666666667,
+            82.88183333333333,
+            122.96270833333332,
+            268.03445833333336,
+            51.168083333333335,
+            43.95845833333333,
+            90.10295833333333,
+            66.82966666666667,
+            281.3187916666667,
+            106.85683333333333,
+            112.3945,
+            59.27333333333333,
+            76.37820833333333,
+            76.94154166666667,
+            35.5825,
+            53.992041666666665,
+            326.48245833333334,
+            244.90575
+          ]
+        },
+        "unobserved_sequences": []
+      }
+    },
+    "optimized": {
+      "active_memory": {
+        "peak_physical_footprint_bytes": 104891448,
+        "physical_footprint_bytes": 48727096,
+        "resident_bytes": 138018816
+      },
+      "distributions": {
+        "reopenEngineSearchMs": {
+          "count": 48,
+          "max_ms": 36.25616664066911,
+          "p50_ms": 3.8775415159761906,
+          "p95_ms": 23.20075035095215
+        },
+        "reopenFirstResultsMs": {
+          "count": 48,
+          "max_ms": 51.38695798814297,
+          "p50_ms": 11.489625088870525,
+          "p95_ms": 28.513708617538214
+        },
+        "reopenResultUpdateMs": {
+          "count": 48,
+          "max_ms": 2.228666562587023,
+          "p50_ms": 0.978624913841486,
+          "p95_ms": 1.9245832227170467
+        },
+        "reopenShowReadyMs": {
+          "count": 48,
+          "max_ms": 70.80262526869774,
+          "p50_ms": 11.565624736249447,
+          "p95_ms": 18.93870858475566
+        },
+        "typingEngineSearchMs": {
+          "count": 48,
+          "max_ms": 18.62874999642372,
+          "p50_ms": 2.6402496732771397,
+          "p95_ms": 14.023832976818085
+        },
+        "typingFirstResultsMs": {
+          "count": 48,
+          "max_ms": 28.647458646446466,
+          "p50_ms": 8.715250063687563,
+          "p95_ms": 19.885750021785498
+        },
+        "typingResultUpdateMs": {
+          "count": 48,
+          "max_ms": 2.210583072155714,
+          "p50_ms": 0.727625098079443,
+          "p95_ms": 1.6756663098931313
+        }
+      },
+      "failures": [],
+      "hidden_memory": {
+        "peak_physical_footprint_bytes": 104891448,
+        "physical_footprint_bytes": 42927136,
+        "resident_bytes": 136937472
+      },
+      "index_ready_seconds": 0.2511230004020035,
+      "index_status": "Index ready · frozen benchmark corpus",
+      "indexed_rows": 14639,
+      "mach_timebase_denom": 3,
+      "mach_timebase_numer": 125,
+      "measured_at": "2026-10-14T03:08:07Z",
+      "memory_sample_interval_ms": 10,
+      "method": "NSTextInputClient.insertText through the native field editor and AppKit textDidChange; includes editing, search, cells/icons/layout. External ScreenCaptureKit observer measures the first changed result-region window frame after the result view commit. Excludes physical keyboard/OS event delivery and monitor photon latency. Capture observer runs outside the app/worker process tree. Hidden/active memory is proc_pid_rusage physical footprint and RSS; parent lifetime peak is exact, combined app+worker peak is sampled every 10ms. Index timing starts after FileIndex initialization.",
+      "queries": [
+        "Safari",
+        "Terminal",
+        "Finder",
+        "README",
+        "swift",
+        "Argus",
+        "项目",
+        "中文"
+      ],
+      "sampled_peak_app_and_children_footprint_bytes": 102564872,
+      "samples_ms": {
+        "reopenEngineSearchMs": [
+          0.25179143995046616,
+          0.5346247926354408,
+          0.8543748408555984,
+          2.7149170637130737,
+          1.2536249123513699,
+          7.6442500576376915,
+          3.781749866902828,
+          11.002166662365198,
+          3.9774165488779545,
+          4.453041590750217,
+          2.6869582943618298,
+          23.181375116109848,
+          5.238875281065702,
+          1.7369166016578674,
+          5.5830832570791245,
+          18.747250083833933,
+          0.31733326613903046,
+          0.4858747124671936,
+          0.51837507635355,
+          2.261000219732523,
+          5.8681252412498,
+          3.8775415159761906,
+          23.20075035095215,
+          2.823874820023775,
+          3.232041373848915,
+          1.188958529382944,
+          0.40345825254917145,
+          8.459624834358692,
+          4.034749697893858,
+          35.270499996840954,
+          17.472666688263416,
+          2.1987915970385075,
+          4.220666829496622,
+          0.5029579624533653,
+          0.43854163959622383,
+          6.534375250339508,
+          1.5293331816792488,
+          18.2799999602139,
+          10.949791874736547,
+          6.218166556209326,
+          0.454791821539402,
+          16.67566644027829,
+          2.612125128507614,
+          4.470749758183956,
+          1.0080831125378609,
+          4.302291665226221,
+          15.404458623379469,
+          36.25616664066911
+        ],
+        "reopenFirstResultsMs": [
+          2.6848330162465572,
+          12.797416653484106,
+          9.481791872531176,
+          15.7302082516253,
+          3.512375056743622,
+          15.28037479147315,
+          11.27362484112382,
+          14.299958478659391,
+          12.553874868899584,
+          11.369124986231327,
+          9.51545825228095,
+          24.929416831582785,
+          6.891999859362841,
+          15.818375162780285,
+          10.507499799132347,
+          26.168958749622107,
+          11.427624616771936,
+          10.478791315108538,
+          10.403999593108892,
+          12.502499856054783,
+          11.732083279639482,
+          16.121916472911835,
+          26.12633304670453,
+          11.489625088870525,
+          14.770041685551405,
+          10.300041642040014,
+          2.0545003935694695,
+          14.472041744738817,
+          11.229041498154402,
+          51.38695798814297,
+          23.291833233088255,
+          11.088666506111622,
+          13.867041561752558,
+          9.571791626513004,
+          7.856708485633135,
+          10.94512501731515,
+          7.678541820496321,
+          28.513708617538214,
+          22.806708235293627,
+          12.347000185400248,
+          10.97975019365549,
+          17.427791841328144,
+          12.446333654224873,
+          6.300166714936495,
+          2.9919585213065147,
+          10.109416674822569,
+          21.733291912823915,
+          48.756999894976616
+        ],
+        "reopenResultUpdateMs": [
+          1.307500060647726,
+          0.5651670508086681,
+          0.2531670033931732,
+          1.0316669940948486,
+          1.3109580613672733,
+          0.6837914697825909,
+          0.9089168161153793,
+          1.2679998762905598,
+          1.5520001761615276,
+          0.617708545178175,
+          0.23787515237927437,
+          0.9211250580847263,
+          1.281624659895897,
+          0.8682496845722198,
+          0.9127501398324966,
+          1.096375286579132,
+          1.9245832227170467,
+          0.478583388030529,
+          0.25408342480659485,
+          0.9181667119264603,
+          2.228666562587023,
+          1.5451246872544289,
+          0.978624913841486,
+          1.5735416673123837,
+          1.4517498202621937,
+          0.4176669754087925,
+          0.5155415274202824,
+          0.6627920083701611,
+          1.4778333716094494,
+          1.2548333033919334,
+          1.3412917032837868,
+          0.9081251919269562,
+          1.769833266735077,
+          0.5164169706404209,
+          0.22145826369524002,
+          0.8383747190237045,
+          1.1836253106594086,
+          0.8249585516750813,
+          1.1684997007250786,
+          2.093291375786066,
+          1.4144997112452984,
+          0.4529999569058418,
+          0.24145841598510742,
+          1.1664996854960918,
+          1.127708237618208,
+          0.8342498913407326,
+          1.0400833562016487,
+          1.6970415599644184
+        ],
+        "reopenShowReadyMs": [
+          9.78504167869687,
+          17.18304166570306,
+          22.73570792749524,
+          13.241041917353868,
+          7.038499694317579,
+          70.80262526869774,
+          9.215666446834803,
+          12.904958333820105,
+          11.225416325032711,
+          18.93870858475566,
+          11.489416938275099,
+          11.565624736249447,
+          8.337416686117649,
+          18.256541807204485,
+          16.383124981075525,
+          11.520166415721178,
+          13.4959165006876,
+          10.764708276838064,
+          8.387124631553888,
+          9.67575004324317,
+          13.873917050659657,
+          12.284166645258665,
+          11.102458462119102,
+          10.487416759133339,
+          10.565833654254675,
+          9.955791756510735,
+          11.784333270043135,
+          9.451375342905521,
+          9.16520832106471,
+          11.781083419919014,
+          13.84516665711999,
+          13.077499810606241,
+          13.116583693772554,
+          11.96612510830164,
+          9.089916944503784,
+          10.08349983021617,
+          6.0674999840557575,
+          13.155000284314156,
+          13.956041540950537,
+          11.454875115305185,
+          12.033999897539616,
+          10.272208601236343,
+          14.87533375620842,
+          9.195874910801649,
+          5.401624832302332,
+          12.116083409637213,
+          13.160041999071836,
+          14.680208172649145
+        ],
+        "typingEngineSearchMs": [
+          0.16587506979703903,
+          7.082041818648577,
+          0.5227499641478062,
+          16.572250053286552,
+          0.8015413768589497,
+          2.559083513915539,
+          12.346291914582253,
+          4.991124849766493,
+          0.27250032871961594,
+          0.5137082189321518,
+          0.47520827502012253,
+          14.023832976818085,
+          1.7709163948893547,
+          5.494375247508287,
+          8.821333292871714,
+          10.660083033144474,
+          3.9913333021104336,
+          0.4105418920516968,
+          0.3657913766801357,
+          10.924624744802713,
+          8.292083628475666,
+          3.558000084012747,
+          2.6402496732771397,
+          4.054458346217871,
+          0.32620830461382866,
+          0.6217500194907188,
+          0.3969999961555004,
+          10.158041957765818,
+          2.603958360850811,
+          1.112957950681448,
+          7.459166459739208,
+          3.5701249726116657,
+          0.4575834609568119,
+          8.448583073914051,
+          0.5257083103060722,
+          18.62874999642372,
+          0.8794167079031467,
+          1.8790001049637794,
+          3.4287916496396065,
+          2.3817913606762886,
+          0.233333557844162,
+          3.6440836265683174,
+          2.6430413126945496,
+          1.6448330134153366,
+          0.9498335421085358,
+          2.8390418738126755,
+          13.753166887909174,
+          2.755541354417801
+        ],
+        "typingFirstResultsMs": [
+          4.072125069797039,
+          8.185208309441805,
+          4.6334583312273026,
+          17.923541367053986,
+          3.002624958753586,
+          4.408208187669516,
+          14.46087472140789,
+          10.816249996423721,
+          6.2484582886099815,
+          15.647250227630138,
+          8.95587494596839,
+          19.885750021785498,
+          2.7275835163891315,
+          9.71749983727932,
+          10.825625155121088,
+          12.933916412293911,
+          10.072083678096533,
+          8.453499991446733,
+          9.708750061690807,
+          14.789791777729988,
+          13.023916631937027,
+          16.106583643704653,
+          28.647458646446466,
+          6.609249860048294,
+          8.169458713382483,
+          15.235916711390018,
+          7.793083321303129,
+          13.327999971807003,
+          3.683708142489195,
+          5.283874925225973,
+          11.665416415780783,
+          8.402083534747362,
+          4.259166773408651,
+          9.399583097547293,
+          6.7845000885427,
+          20.539666526019573,
+          2.956999931484461,
+          4.108000081032515,
+          8.715250063687563,
+          12.478833552449942,
+          4.365375265479088,
+          9.533499833196402,
+          6.003666669130325,
+          6.429041735827923,
+          3.4307497553527355,
+          7.704541552811861,
+          15.729000326246023,
+          10.257416404783726
+        ],
+        "typingResultUpdateMs": [
+          0.41241664439439774,
+          0.884499866515398,
+          0.5084583535790443,
+          0.8362084627151489,
+          0.1932918094098568,
+          0.5040415562689304,
+          1.1457917280495167,
+          0.7769996300339699,
+          0.6992500275373459,
+          0.8881250396370888,
+          0.5048750899732113,
+          0.8531669154763222,
+          0.18195807933807373,
+          0.607458408921957,
+          1.057374756783247,
+          1.4096247032284737,
+          1.8504583276808262,
+          0.8803750388324261,
+          0.6927917711436749,
+          0.9720413945615292,
+          0.40687480941414833,
+          1.032333355396986,
+          1.6756663098931313,
+          1.0339166037738323,
+          0.815083272755146,
+          2.210583072155714,
+          0.5244165658950806,
+          0.6932918913662434,
+          0.24858349934220314,
+          0.5650832317769527,
+          0.851999968290329,
+          0.7671667262911797,
+          0.4481663927435875,
+          0.597500242292881,
+          0.5084583535790443,
+          1.0422500781714916,
+          0.18804194405674934,
+          0.5905004218220711,
+          0.7634167559444904,
+          0.97287492826581,
+          0.46837469562888145,
+          0.8499999530613422,
+          0.43070828542113304,
+          0.727625098079443,
+          0.20633311942219734,
+          0.6103748455643654,
+          0.8684583008289337,
+          0.8330419659614563
+        ]
+      },
+      "trials": [
+        {
+          "event_start_mach": 57556209195704,
+          "measured": false,
+          "mode": "reopen",
+          "query": "Safari",
+          "result_commit_mach": 57556210395122,
+          "sequence": 1
+        },
+        {
+          "event_start_mach": 57556222769666,
+          "measured": false,
+          "mode": "reopen",
+          "query": "Terminal",
+          "result_commit_mach": 57556223294270,
+          "sequence": 2
+        },
+        {
+          "event_start_mach": 57556235584072,
+          "measured": false,
+          "mode": "reopen",
+          "query": "Finder",
+          "result_commit_mach": 57556235909999,
+          "sequence": 3
+        },
+        {
+          "event_start_mach": 57556248369853,
+          "measured": false,
+          "mode": "reopen",
+          "query": "README",
+          "result_commit_mach": 57556249021801,
+          "sequence": 4
+        },
+        {
+          "event_start_mach": 57556261249878,
+          "measured": false,
+          "mode": "reopen",
+          "query": "swift",
+          "result_commit_mach": 57556261949583,
+          "sequence": 5
+        },
+        {
+          "event_start_mach": 57556274898436,
+          "measured": false,
+          "mode": "reopen",
+          "query": "Argus",
+          "result_commit_mach": 57556275848944,
+          "sequence": 6
+        },
+        {
+          "event_start_mach": 57556287901110,
+          "measured": false,
+          "mode": "reopen",
+          "query": "项目",
+          "result_commit_mach": 57556289940524,
+          "sequence": 7
+        },
+        {
+          "event_start_mach": 57556302441094,
+          "measured": false,
+          "mode": "reopen",
+          "query": "中文",
+          "result_commit_mach": 57556303915996,
+          "sequence": 8
+        },
+        {
+          "event_start_mach": 57556316772852,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Safari",
+          "result_commit_mach": 57556317280223,
+          "sequence": 9
+        },
+        {
+          "event_start_mach": 57556330669866,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Terminal",
+          "result_commit_mach": 57556331485426,
+          "sequence": 10
+        },
+        {
+          "event_start_mach": 57556344965346,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Finder",
+          "result_commit_mach": 57556345808619,
+          "sequence": 11
+        },
+        {
+          "event_start_mach": 57556359202983,
+          "measured": true,
+          "mode": "reopen",
+          "query": "README",
+          "result_commit_mach": 57556360086573,
+          "sequence": 12
+        },
+        {
+          "event_start_mach": 57556372497405,
+          "measured": true,
+          "mode": "reopen",
+          "query": "swift",
+          "result_commit_mach": 57556372925878,
+          "sequence": 13
+        },
+        {
+          "event_start_mach": 57556385545726,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Argus",
+          "result_commit_mach": 57556387962870,
+          "sequence": 14
+        },
+        {
+          "event_start_mach": 57556400497215,
+          "measured": true,
+          "mode": "reopen",
+          "query": "项目",
+          "result_commit_mach": 57556401096238,
+          "sequence": 15
+        },
+        {
+          "event_start_mach": 57556415268583,
+          "measured": true,
+          "mode": "reopen",
+          "query": "中文",
+          "result_commit_mach": 57556416071892,
+          "sequence": 16
+        },
+        {
+          "event_start_mach": 57556428420785,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Safari",
+          "result_commit_mach": 57556429107479,
+          "sequence": 17
+        },
+        {
+          "event_start_mach": 57556441987456,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Terminal",
+          "result_commit_mach": 57556442860740,
+          "sequence": 18
+        },
+        {
+          "event_start_mach": 57556455221342,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Finder",
+          "result_commit_mach": 57556455794364,
+          "sequence": 19
+        },
+        {
+          "event_start_mach": 57556469163492,
+          "measured": true,
+          "mode": "reopen",
+          "query": "README",
+          "result_commit_mach": 57556470306374,
+          "sequence": 20
+        },
+        {
+          "event_start_mach": 57556483171178,
+          "measured": true,
+          "mode": "reopen",
+          "query": "swift",
+          "result_commit_mach": 57556483709694,
+          "sequence": 21
+        },
+        {
+          "event_start_mach": 57556496562607,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Argus",
+          "result_commit_mach": 57556497498649,
+          "sequence": 22
+        },
+        {
+          "event_start_mach": 57556509972690,
+          "measured": true,
+          "mode": "reopen",
+          "query": "项目",
+          "result_commit_mach": 57556510753035,
+          "sequence": 23
+        },
+        {
+          "event_start_mach": 57556524390048,
+          "measured": true,
+          "mode": "reopen",
+          "query": "中文",
+          "result_commit_mach": 57556525412445,
+          "sequence": 24
+        },
+        {
+          "event_start_mach": 57556538961040,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Safari",
+          "result_commit_mach": 57556539677424,
+          "sequence": 25
+        },
+        {
+          "event_start_mach": 57556554559022,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Terminal",
+          "result_commit_mach": 57556555169809,
+          "sequence": 26
+        },
+        {
+          "event_start_mach": 57556568869366,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Finder",
+          "result_commit_mach": 57556569399199,
+          "sequence": 27
+        },
+        {
+          "event_start_mach": 57556583632276,
+          "measured": true,
+          "mode": "reopen",
+          "query": "README",
+          "result_commit_mach": 57556584291825,
+          "sequence": 28
+        },
+        {
+          "event_start_mach": 57556596549678,
+          "measured": true,
+          "mode": "reopen",
+          "query": "swift",
+          "result_commit_mach": 57556597307095,
+          "sequence": 29
+        },
+        {
+          "event_start_mach": 57556610044006,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Argus",
+          "result_commit_mach": 57556610858236,
+          "sequence": 30
+        },
+        {
+          "event_start_mach": 57556624038921,
+          "measured": true,
+          "mode": "reopen",
+          "query": "项目",
+          "result_commit_mach": 57556625111325,
+          "sequence": 31
+        },
+        {
+          "event_start_mach": 57556637469306,
+          "measured": true,
+          "mode": "reopen",
+          "query": "中文",
+          "result_commit_mach": 57556638131096,
+          "sequence": 32
+        },
+        {
+          "event_start_mach": 57556650869333,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Safari",
+          "result_commit_mach": 57556651599038,
+          "sequence": 33
+        },
+        {
+          "event_start_mach": 57556665159852,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Terminal",
+          "result_commit_mach": 57556665766716,
+          "sequence": 34
+        },
+        {
+          "event_start_mach": 57556678395862,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Finder",
+          "result_commit_mach": 57556678916321,
+          "sequence": 35
+        },
+        {
+          "event_start_mach": 57556692786575,
+          "measured": true,
+          "mode": "reopen",
+          "query": "README",
+          "result_commit_mach": 57556693450864,
+          "sequence": 36
+        },
+        {
+          "event_start_mach": 57556706073547,
+          "measured": true,
+          "mode": "reopen",
+          "query": "swift",
+          "result_commit_mach": 57556706691268,
+          "sequence": 37
+        },
+        {
+          "event_start_mach": 57556719585541,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Argus",
+          "result_commit_mach": 57556721261218,
+          "sequence": 38
+        },
+        {
+          "event_start_mach": 57556733571035,
+          "measured": true,
+          "mode": "reopen",
+          "query": "项目",
+          "result_commit_mach": 57556734747687,
+          "sequence": 39
+        },
+        {
+          "event_start_mach": 57556748701413,
+          "measured": true,
+          "mode": "reopen",
+          "query": "中文",
+          "result_commit_mach": 57556749502382,
+          "sequence": 40
+        },
+        {
+          "event_start_mach": 57556762757682,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Safari",
+          "result_commit_mach": 57556763528110,
+          "sequence": 41
+        },
+        {
+          "event_start_mach": 57556776393491,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Terminal",
+          "result_commit_mach": 57556777009429,
+          "sequence": 42
+        },
+        {
+          "event_start_mach": 57556789718576,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Finder",
+          "result_commit_mach": 57556790202235,
+          "sequence": 43
+        },
+        {
+          "event_start_mach": 57556803061205,
+          "measured": true,
+          "mode": "reopen",
+          "query": "README",
+          "result_commit_mach": 57556803661356,
+          "sequence": 44
+        },
+        {
+          "event_start_mach": 57556816605535,
+          "measured": true,
+          "mode": "reopen",
+          "query": "swift",
+          "result_commit_mach": 57556817046542,
+          "sequence": 45
+        },
+        {
+          "event_start_mach": 57556829568954,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Argus",
+          "result_commit_mach": 57556830678746,
+          "sequence": 46
+        },
+        {
+          "event_start_mach": 57556844015442,
+          "measured": true,
+          "mode": "reopen",
+          "query": "项目",
+          "result_commit_mach": 57556845060323,
+          "sequence": 47
+        },
+        {
+          "event_start_mach": 57556857698846,
+          "measured": true,
+          "mode": "reopen",
+          "query": "中文",
+          "result_commit_mach": 57556858421318,
+          "sequence": 48
+        },
+        {
+          "event_start_mach": 57556871125107,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Safari",
+          "result_commit_mach": 57556871789740,
+          "sequence": 49
+        },
+        {
+          "event_start_mach": 57556885966163,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Terminal",
+          "result_commit_mach": 57556886731380,
+          "sequence": 50
+        },
+        {
+          "event_start_mach": 57556899088802,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Finder",
+          "result_commit_mach": 57556899827298,
+          "sequence": 51
+        },
+        {
+          "event_start_mach": 57556913969017,
+          "measured": true,
+          "mode": "reopen",
+          "query": "README",
+          "result_commit_mach": 57556914553453,
+          "sequence": 52
+        },
+        {
+          "event_start_mach": 57556926964757,
+          "measured": true,
+          "mode": "reopen",
+          "query": "swift",
+          "result_commit_mach": 57556927308841,
+          "sequence": 53
+        },
+        {
+          "event_start_mach": 57556940014365,
+          "measured": true,
+          "mode": "reopen",
+          "query": "Argus",
+          "result_commit_mach": 57556940672508,
+          "sequence": 54
+        },
+        {
+          "event_start_mach": 57556952906414,
+          "measured": true,
+          "mode": "reopen",
+          "query": "项目",
+          "result_commit_mach": 57556953874193,
+          "sequence": 55
+        },
+        {
+          "event_start_mach": 57556966755388,
+          "measured": true,
+          "mode": "reopen",
+          "query": "中文",
+          "result_commit_mach": 57556968441063,
+          "sequence": 56
+        },
+        {
+          "event_start_mach": 57556979220363,
+          "measured": false,
+          "mode": "typing",
+          "query": "Safari",
+          "result_commit_mach": 57556980034513,
+          "sequence": 57
+        },
+        {
+          "event_start_mach": 57556989803231,
+          "measured": false,
+          "mode": "typing",
+          "query": "Terminal",
+          "result_commit_mach": 57556991180890,
+          "sequence": 58
+        },
+        {
+          "event_start_mach": 57557000944765,
+          "measured": false,
+          "mode": "typing",
+          "query": "Finder",
+          "result_commit_mach": 57557001868842,
+          "sequence": 59
+        },
+        {
+          "event_start_mach": 57557011525310,
+          "measured": false,
+          "mode": "typing",
+          "query": "README",
+          "result_commit_mach": 57557012809144,
+          "sequence": 60
+        },
+        {
+          "event_start_mach": 57557022564450,
+          "measured": false,
+          "mode": "typing",
+          "query": "swift",
+          "result_commit_mach": 57557022985105,
+          "sequence": 61
+        },
+        {
+          "event_start_mach": 57557032644550,
+          "measured": false,
+          "mode": "typing",
+          "query": "Argus",
+          "result_commit_mach": 57557033628853,
+          "sequence": 62
+        },
+        {
+          "event_start_mach": 57557043428220,
+          "measured": false,
+          "mode": "typing",
+          "query": "项目",
+          "result_commit_mach": 57557044450131,
+          "sequence": 63
+        },
+        {
+          "event_start_mach": 57557054221055,
+          "measured": false,
+          "mode": "typing",
+          "query": "中文",
+          "result_commit_mach": 57557055092076,
+          "sequence": 64
+        },
+        {
+          "event_start_mach": 57557064780751,
+          "measured": true,
+          "mode": "typing",
+          "query": "Safari",
+          "result_commit_mach": 57557065224243,
+          "sequence": 65
+        },
+        {
+          "event_start_mach": 57557074954688,
+          "measured": true,
+          "mode": "typing",
+          "query": "Terminal",
+          "result_commit_mach": 57557075884083,
+          "sequence": 66
+        },
+        {
+          "event_start_mach": 57557085559719,
+          "measured": true,
+          "mode": "typing",
+          "query": "Finder",
+          "result_commit_mach": 57557086050997,
+          "sequence": 67
+        },
+        {
+          "event_start_mach": 57557095754186,
+          "measured": true,
+          "mode": "typing",
+          "query": "README",
+          "result_commit_mach": 57557096855389,
+          "sequence": 68
+        },
+        {
+          "event_start_mach": 57557106541097,
+          "measured": true,
+          "mode": "typing",
+          "query": "swift",
+          "result_commit_mach": 57557106943744,
+          "sequence": 69
+        },
+        {
+          "event_start_mach": 57557116860227,
+          "measured": true,
+          "mode": "typing",
+          "query": "Argus",
+          "result_commit_mach": 57557117539351,
+          "sequence": 70
+        },
+        {
+          "event_start_mach": 57557127180425,
+          "measured": true,
+          "mode": "typing",
+          "query": "项目",
+          "result_commit_mach": 57557128270256,
+          "sequence": 71
+        },
+        {
+          "event_start_mach": 57557137981290,
+          "measured": true,
+          "mode": "typing",
+          "query": "中文",
+          "result_commit_mach": 57557138900639,
+          "sequence": 72
+        },
+        {
+          "event_start_mach": 57557148554426,
+          "measured": true,
+          "mode": "typing",
+          "query": "Safari",
+          "result_commit_mach": 57557149140156,
+          "sequence": 73
+        },
+        {
+          "event_start_mach": 57557159097632,
+          "measured": true,
+          "mode": "typing",
+          "query": "Terminal",
+          "result_commit_mach": 57557160432875,
+          "sequence": 74
+        },
+        {
+          "event_start_mach": 57557170322219,
+          "measured": true,
+          "mode": "typing",
+          "query": "Finder",
+          "result_commit_mach": 57557171058083,
+          "sequence": 75
+        },
+        {
+          "event_start_mach": 57557180755690,
+          "measured": true,
+          "mode": "typing",
+          "query": "README",
+          "result_commit_mach": 57557181768042,
+          "sequence": 76
+        },
+        {
+          "event_start_mach": 57557191500867,
+          "measured": true,
+          "mode": "typing",
+          "query": "swift",
+          "result_commit_mach": 57557191893837,
+          "sequence": 77
+        },
+        {
+          "event_start_mach": 57557201581112,
+          "measured": true,
+          "mode": "typing",
+          "query": "Argus",
+          "result_commit_mach": 57557202324475,
+          "sequence": 78
+        },
+        {
+          "event_start_mach": 57557212148452,
+          "measured": true,
+          "mode": "typing",
+          "query": "项目",
+          "result_commit_mach": 57557213530595,
+          "sequence": 79
+        },
+        {
+          "event_start_mach": 57557223420577,
+          "measured": true,
+          "mode": "typing",
+          "query": "中文",
+          "result_commit_mach": 57557224692367,
+          "sequence": 80
+        },
+        {
+          "event_start_mach": 57557234553361,
+          "measured": true,
+          "mode": "typing",
+          "query": "Safari",
+          "result_commit_mach": 57557235426154,
+          "sequence": 81
+        },
+        {
+          "event_start_mach": 57557245290965,
+          "measured": true,
+          "mode": "typing",
+          "query": "Terminal",
+          "result_commit_mach": 57557246191010,
+          "sequence": 82
+        },
+        {
+          "event_start_mach": 57557255844726,
+          "measured": true,
+          "mode": "typing",
+          "query": "Finder",
+          "result_commit_mach": 57557256704971,
+          "sequence": 83
+        },
+        {
+          "event_start_mach": 57557266644750,
+          "measured": true,
+          "mode": "typing",
+          "query": "README",
+          "result_commit_mach": 57557267990416,
+          "sequence": 84
+        },
+        {
+          "event_start_mach": 57557277673332,
+          "measured": true,
+          "mode": "typing",
+          "query": "swift",
+          "result_commit_mach": 57557278740615,
+          "sequence": 85
+        },
+        {
+          "event_start_mach": 57557288653953,
+          "measured": true,
+          "mode": "typing",
+          "query": "Argus",
+          "result_commit_mach": 57557290036456,
+          "sequence": 86
+        },
+        {
+          "event_start_mach": 57557299765104,
+          "measured": true,
+          "mode": "typing",
+          "query": "项目",
+          "result_commit_mach": 57557301222637,
+          "sequence": 87
+        },
+        {
+          "event_start_mach": 57557311026920,
+          "measured": true,
+          "mode": "typing",
+          "query": "中文",
+          "result_commit_mach": 57557312175785,
+          "sequence": 88
+        },
+        {
+          "event_start_mach": 57557321834410,
+          "measured": true,
+          "mode": "typing",
+          "query": "Safari",
+          "result_commit_mach": 57557322579027,
+          "sequence": 89
+        },
+        {
+          "event_start_mach": 57557332354932,
+          "measured": true,
+          "mode": "typing",
+          "query": "Terminal",
+          "result_commit_mach": 57557333276883,
+          "sequence": 90
+        },
+        {
+          "event_start_mach": 57557343000837,
+          "measured": true,
+          "mode": "typing",
+          "query": "Finder",
+          "result_commit_mach": 57557344017848,
+          "sequence": 91
+        },
+        {
+          "event_start_mach": 57557354177469,
+          "measured": true,
+          "mode": "typing",
+          "query": "README",
+          "result_commit_mach": 57557355204498,
+          "sequence": 92
+        },
+        {
+          "event_start_mach": 57557365021279,
+          "measured": true,
+          "mode": "typing",
+          "query": "swift",
+          "result_commit_mach": 57557365494839,
+          "sequence": 93
+        },
+        {
+          "event_start_mach": 57557375116930,
+          "measured": true,
+          "mode": "typing",
+          "query": "Argus",
+          "result_commit_mach": 57557375909185,
+          "sequence": 94
+        },
+        {
+          "event_start_mach": 57557385608113,
+          "measured": true,
+          "mode": "typing",
+          "query": "项目",
+          "result_commit_mach": 57557386860998,
+          "sequence": 95
+        },
+        {
+          "event_start_mach": 57557396599896,
+          "measured": true,
+          "mode": "typing",
+          "query": "中文",
+          "result_commit_mach": 57557397524249,
+          "sequence": 96
+        },
+        {
+          "event_start_mach": 57557407404652,
+          "measured": true,
+          "mode": "typing",
+          "query": "Safari",
+          "result_commit_mach": 57557407860549,
+          "sequence": 97
+        },
+        {
+          "event_start_mach": 57557417650853,
+          "measured": true,
+          "mode": "typing",
+          "query": "Terminal",
+          "result_commit_mach": 57557418503953,
+          "sequence": 98
+        },
+        {
+          "event_start_mach": 57557428164768,
+          "measured": true,
+          "mode": "typing",
+          "query": "Finder",
+          "result_commit_mach": 57557428855141,
+          "sequence": 99
+        },
+        {
+          "event_start_mach": 57557438601378,
+          "measured": true,
+          "mode": "typing",
+          "query": "README",
+          "result_commit_mach": 57557439739253,
+          "sequence": 100
+        },
+        {
+          "event_start_mach": 57557449399449,
+          "measured": true,
+          "mode": "typing",
+          "query": "swift",
+          "result_commit_mach": 57557449783350,
+          "sequence": 101
+        },
+        {
+          "event_start_mach": 57557459604642,
+          "measured": true,
+          "mode": "typing",
+          "query": "Argus",
+          "result_commit_mach": 57557460228441,
+          "sequence": 102
+        },
+        {
+          "event_start_mach": 57557470133480,
+          "measured": true,
+          "mode": "typing",
+          "query": "项目",
+          "result_commit_mach": 57557471072577,
+          "sequence": 103
+        },
+        {
+          "event_start_mach": 57557480768834,
+          "measured": true,
+          "mode": "typing",
+          "query": "中文",
+          "result_commit_mach": 57557481759879,
+          "sequence": 104
+        },
+        {
+          "event_start_mach": 57557491500949,
+          "measured": true,
+          "mode": "typing",
+          "query": "Safari",
+          "result_commit_mach": 57557491919515,
+          "sequence": 105
+        },
+        {
+          "event_start_mach": 57557501751813,
+          "measured": true,
+          "mode": "typing",
+          "query": "Terminal",
+          "result_commit_mach": 57557502562907,
+          "sequence": 106
+        },
+        {
+          "event_start_mach": 57557512382254,
+          "measured": true,
+          "mode": "typing",
+          "query": "Finder",
+          "result_commit_mach": 57557513202116,
+          "sequence": 107
+        },
+        {
+          "event_start_mach": 57557522996299,
+          "measured": true,
+          "mode": "typing",
+          "query": "README",
+          "result_commit_mach": 57557523751888,
+          "sequence": 108
+        },
+        {
+          "event_start_mach": 57557533519171,
+          "measured": true,
+          "mode": "typing",
+          "query": "swift",
+          "result_commit_mach": 57557533943934,
+          "sequence": 109
+        },
+        {
+          "event_start_mach": 57557543580498,
+          "measured": true,
+          "mode": "typing",
+          "query": "Argus",
+          "result_commit_mach": 57557544399630,
+          "sequence": 110
+        },
+        {
+          "event_start_mach": 57557554198736,
+          "measured": true,
+          "mode": "typing",
+          "query": "项目",
+          "result_commit_mach": 57557555441727,
+          "sequence": 111
+        },
+        {
+          "event_start_mach": 57557565180452,
+          "measured": true,
+          "mode": "typing",
+          "query": "中文",
+          "result_commit_mach": 57557566080810,
+          "sequence": 112
+        }
+      ],
+      "warmup_queries_per_mode": 8,
+      "window_frames": {
+        "method": "NSTextInputClient entry to first changed result-region window frame after result view display/CA commit; region x18...600,y85...135. Excludes keyboard/OS event delivery and photons. Capture cadence/animation/glass composition remain in this measurement; identical visible first-row pixels can delay change detection.",
+        "distributions": {
+          "typing": {
+            "count": 48,
+            "p50_ms": 50.3085,
+            "p95_ms": 83.25383333333333,
+            "p99_ms": 179.21770833333335,
+            "max_ms": 179.21770833333335
+          },
+          "reopen": {
+            "count": 48,
+            "p50_ms": 62.30883333333333,
+            "p95_ms": 187.237625,
+            "p99_ms": 190.841125,
+            "max_ms": 190.841125
+          }
+        },
+        "samples_ms": {
+          "typing": [
+            39.81758333333334,
+            49.296791666666664,
+            46.838875,
+            69.83379166666667,
+            34.810833333333335,
+            37.403666666666666,
+            65.58170833333334,
+            57.486875,
+            31.766166666666667,
+            59.823625,
+            44.265708333333336,
+            123.23195833333332,
+            30.900166666666667,
+            44.833333333333336,
+            83.25383333333333,
+            67.92041666666667,
+            51.83804166666666,
+            54.843833333333336,
+            45.219125,
+            63.642625,
+            53.68454166666666,
+            77.68808333333332,
+            65.63875,
+            64.728125,
+            54.10025,
+            56.665166666666664,
+            50.552,
+            65.26904166666667,
+            32.07441666666667,
+            44.101333333333336,
+            57.18691666666666,
+            51.64925,
+            36.26808333333334,
+            35.84225,
+            34.127833333333335,
+            179.21770833333335,
+            30.98979166666667,
+            45.10241666666666,
+            50.3085,
+            57.13758333333334,
+            26.267875,
+            33.83108333333334,
+            39.80833333333334,
+            65.84791666666666,
+            27.61116666666667,
+            45.288041666666665,
+            70.37079166666668,
+            44.740458333333336
+          ],
+          "reopen": [
+            57.81641666666666,
+            130.93995833333332,
+            67.8635,
+            56.567083333333336,
+            56.682,
+            129.3132916666667,
+            118.27458333333333,
+            60.429541666666665,
+            90.95945833333333,
+            58.02741666666667,
+            57.16408333333334,
+            58.4945,
+            60.57866666666666,
+            69.93295833333333,
+            58.77908333333333,
+            56.90475,
+            86.10495833333333,
+            65.89383333333333,
+            35.657333333333334,
+            188.30741666666665,
+            67.71483333333333,
+            59.974875,
+            137.67125,
+            63.663833333333336,
+            53.64758333333334,
+            61.12991666666667,
+            156.15175,
+            90.85025,
+            54.259125,
+            126.63525,
+            62.64904166666666,
+            61.825916666666664,
+            93.50966666666667,
+            90.54704166666667,
+            52.03516666666666,
+            46.132416666666664,
+            48.01054166666666,
+            190.841125,
+            58.23941666666666,
+            187.237625,
+            62.30883333333333,
+            58.12766666666666,
+            64.51520833333333,
+            55.78820833333334,
+            48.292125,
+            92.28079166666667,
+            70.73058333333333,
+            115.51229166666667
+          ]
+        },
+        "unobserved_sequences": []
+      }
+    }
+  },
+  "build": {
+    "baseline": {
+      "active_memory": {
+        "peak_physical_footprint_bytes": 76170104,
+        "physical_footprint_bytes": 47104888,
+        "resident_bytes": 133890048
+      },
+      "distributions": {},
+      "failures": [],
+      "hidden_memory": {
+        "peak_physical_footprint_bytes": 76170104,
+        "physical_footprint_bytes": 47268728,
+        "resident_bytes": 134676480
+      },
+      "index_ready_seconds": 113.14210987463593,
+      "index_status": "Index ready",
+      "indexed_rows": 101000,
+      "mach_timebase_denom": 3,
+      "mach_timebase_numer": 125,
+      "measured_at": "2026-10-14T03:02:59Z",
+      "memory_sample_interval_ms": 10,
+      "method": "NSTextInputClient.insertText through the native field editor and AppKit textDidChange; includes editing, search, cells/icons/layout. External ScreenCaptureKit observer measures the first changed result-region window frame after the result view commit. Excludes physical keyboard/OS event delivery and monitor photon latency. Capture observer runs outside the app/worker process tree. Hidden/active memory is proc_pid_rusage physical footprint and RSS; parent lifetime peak is exact, combined app+worker peak is sampled every 10ms. Index timing starts after FileIndex initialization.",
+      "queries": [
+        "Safari",
+        "Terminal",
+        "Finder",
+        "README",
+        "swift",
+        "Argus",
+        "项目",
+        "中文"
+      ],
+      "sampled_peak_app_and_children_footprint_bytes": 79742344,
+      "samples_ms": {},
+      "trials": [],
+      "warmup_queries_per_mode": 8,
+      "persisted_rows": 101000,
+      "persisted_bodies": 100000,
+      "persisted_body_bytes": 17200000
+    },
+    "optimized": {
+      "active_memory": {
+        "peak_physical_footprint_bytes": 55247760,
+        "physical_footprint_bytes": 52577168,
+        "resident_bytes": 95059968
+      },
+      "distributions": {},
+      "failures": [],
+      "hidden_memory": {
+        "peak_physical_footprint_bytes": 55247760,
+        "physical_footprint_bytes": 52626320,
+        "resident_bytes": 88915968
+      },
+      "index_ready_seconds": 116.12867474975064,
+      "index_status": "Index ready",
+      "indexed_rows": 101000,
+      "mach_timebase_denom": 3,
+      "mach_timebase_numer": 125,
+      "measured_at": "2026-10-14T03:04:56Z",
+      "memory_sample_interval_ms": 10,
+      "method": "NSTextInputClient.insertText through the native field editor and AppKit textDidChange; includes editing, search, cells/icons/layout. External ScreenCaptureKit observer measures the first changed result-region window frame after the result view commit. Excludes physical keyboard/OS event delivery and monitor photon latency. Capture observer runs outside the app/worker process tree. Hidden/active memory is proc_pid_rusage physical footprint and RSS; parent lifetime peak is exact, combined app+worker peak is sampled every 10ms. Index timing starts after FileIndex initialization.",
+      "queries": [
+        "Safari",
+        "Terminal",
+        "Finder",
+        "README",
+        "swift",
+        "Argus",
+        "项目",
+        "中文"
+      ],
+      "sampled_peak_app_and_children_footprint_bytes": 58492320,
+      "samples_ms": {},
+      "trials": [],
+      "warmup_queries_per_mode": 8,
+      "persisted_rows": 101000,
+      "persisted_bodies": 100000,
+      "persisted_body_bytes": 17200000
+    }
+  },
+  "build_fixture": {
+    "files": 100000,
+    "directories": 1000,
+    "body_bytes_per_file": 172
+  },
+  "measurement_notes": [
+    "Primary UI run used reverse order optimized then baseline, no other benchmark/compile/test processes active. Earlier concurrent compiler UI run discarded.",
+    "Window frames fingerprint an existing result-row area; no visual marker or production UI change. Excludes keyboard/OS event delivery, IME composition time, display photons and animation settling.",
+    "10ms combined app+worker peak uses proc_listchildpids count (not byte count), checked against live child process.",
+    "Index builds start from empty databases and finish all 100000 document bodies; filesystem caches are warm. Includes native snapshot preparation.",
+    "Index timer begins after FileIndex constructor; parent lifetime physical-footprint peak includes constructor. Combined peak sampling begins in AppPerformance.start.",
+    "Capture observer is external to app/worker tree. RSS includes shared/clean mapped pages; physical footprint is separately reported. Single hardware/workload comparison, not proof of a global optimum."
+  ],
+  "verification": {
+    "production_ui_changed": false,
+    "core": true,
+    "providers": true,
+    "metadata_parser": true,
+    "system_metadata_fixture_match": "not exposed by host system index; importer passed",
+    "ranking": true,
+    "file_index": true,
+    "panel_presentation": true,
+    "sanitizers": "ASan + UBSan core and optimization cases",
+    "phrase_oracle_cases": 1800,
+    "snapshot_query_filter_equivalence_cases": 648,
+    "idle_snapshot_release": true
+  },
+  "real_corpus": {
+    "baseline": {
+      "rows": 14639,
+      "bodies": 6566,
+      "body_bytes": 49564890
+    },
+    "optimized": {
+      "rows": 14639,
+      "bodies": 6566,
+      "body_bytes": 49564890
+    }
+  },
+  "disk_files": {
+    "baseline": {
+      "corpus": {
+        "database_bytes": 86618112,
+        "metadata_snapshot_bytes": 0
+      },
+      "build": {
+        "database_bytes": 125751296,
+        "metadata_snapshot_bytes": 0
+      }
+    },
+    "optimized": {
+      "corpus": {
+        "database_bytes": 98807808,
+        "metadata_snapshot_bytes": 2011648
+      },
+      "build": {
+        "database_bytes": 125767680,
+        "metadata_snapshot_bytes": 14885600
+      }
+    }
+  },
+  "production_ui_sha256": {
+    "PanelController.swift": "a4a43003f57464ffd5b22e3628cbd18f244458948d9cff9f7cf101877dd44bb7",
+    "PanelMotion.swift": "8da93dd876c7dc7180dfcb0bf18adc53aa8d13a1a794b49bfc11261be6682d8c",
+    "PreferencesController.swift": "0af9f9c51b61a450f8a659bdceefbd6bd63a047b686c53ff214259f24360f068",
+    "ResultPreview.swift": "3e8d3fa9eec32b39badd128e8ed43f62a16ed2f9d63816cd637b1e8ee5fa7432",
+    "ResultViews.swift": "8b7b5b17bf9cfc807cb6c732b96ca73468a9cffcf32529179042edb26eedaa58",
+    "SearchSurface.swift": "89f01c0cf39314645c4900014e0cde71e2f59affab93e31ef416d099d1b38034"
+  },
+  "implementation": [
+    "Progressive ArgusSearch read snapshot and small rank records; SQLite statement reuse; winner-only string materialization.",
+    "Versioned positional CJK body tokenizer and compact persisted position-to-source-byte maps; eager snippets preserve existing scrolling UX.",
+    "Read-only mapped metadata snapshot with adaptive dense/sparse postings, interned parent paths/strings, generation+UUID validation, SHA-256 payload validation and SQL fallback.",
+    "Disk-spooled filename jobs and row-ID cursor for pending bodies; constant-time row count; mtime/size validation before accepting extraction.",
+    "Atomic schema extension and fulltext migration; interruption and rollback preserve usable SQLite path. Builder arenas freed before snapshot pages are loaded.",
+    "Benchmark instrumentation only in ARGUS_BENCHMARK; production UI/animation sources unchanged."
+  ],
+  "memory_tradeoff": {
+    "hidden_footprint_change_bytes": -1277952,
+    "hidden_rss_change_bytes": 2850816
+  }
+}

@@ -13,6 +13,7 @@ int argus_query_parse(SearchQuery *query, const char *text) {
     size_t bytes = strlen(folded);
     if (bytes >= sizeof(query->text)) { free(folded); return 0; }
     memcpy(query->text, folded, bytes + 1);
+    memcpy(query->prefix, folded, bytes + 1);
     free(folded);
     char *current = query->text;
     while (*current && query->count < ARGUS_MAX_TERMS) {
@@ -42,7 +43,7 @@ static void append_token(sqlite3_str *builder, char prefix, const char *text, in
     sqlite3_str_appendall(builder, wildcard ? "\"*" : "\"");
 }
 
-char *argus_query_match(SearchQuery *query, int body, int fuzzy) {
+static char *match_expression(SearchQuery *query, int body, int fuzzy, int positional) {
     sqlite3_str *builder = sqlite3_str_new(NULL);
     if (fuzzy) sqlite3_str_appendall(builder, "{nname naliases} : (");
     for (int t = 0; t < query->count; ++t) {
@@ -71,22 +72,32 @@ char *argus_query_match(SearchQuery *query, int body, int fuzzy) {
             append_token(builder, 'w', term, bytes, 1);
         } else {
             int offset = 0, emitted = 0;
+            if (positional) sqlite3_str_appendchar(builder, 1, '(');
             /* Cap gram conjunctions for long pasted paths, without losing correctness:
                ranking validates every complete term after candidate retrieval. */
-            while (offset < bytes && emitted < 24) {
+            while (offset < bytes && (positional || emitted < 24)) {
                 int first_width, second_width;
                 argus_codepoint(term + offset, bytes - offset, &first_width);
                 int next = offset + first_width;
                 if (next >= bytes) break;
                 argus_codepoint(term + next, bytes - next, &second_width);
-                if (emitted++) sqlite3_str_appendall(builder, " AND ");
+                if (emitted++) sqlite3_str_appendall(builder, positional ? " + " : " AND ");
                 append_token(builder, 'b', term + offset, first_width + second_width, 0);
                 offset = next;
             }
+            if (positional) sqlite3_str_appendchar(builder, 1, ')');
         }
     }
     if (fuzzy) sqlite3_str_appendall(builder, ")");
     return sqlite3_str_finish(builder);
+}
+
+char *argus_query_match(SearchQuery *query, int body, int fuzzy) {
+    return match_expression(query, body, fuzzy, 0);
+}
+
+char *argus_query_body_expression(SearchQuery *query, int positional) {
+    return match_expression(query, 1, 0, positional);
 }
 
 static int codepoints(const char *text, uint32_t *out, int capacity) {

@@ -71,7 +71,7 @@ static int tokenizer_create(void *context, const char **args, int count, Fts5Tok
     (void)args; (void)count;
     int *mode = malloc(sizeof(*mode));
     if (!mode) return SQLITE_NOMEM;
-    *mode = context != NULL;
+    *mode = (int)(intptr_t)context;
     *out = (Fts5Tokenizer *)mode;
     return SQLITE_OK;
 }
@@ -82,7 +82,8 @@ static int tokenize(Fts5Tokenizer *tokenizer, void *context, int flags,
                     const char *text, int bytes,
                     int (*emit)(void *, int, const char *, int, int, int)) {
     if (flags & FTS5_TOKENIZE_QUERY) return emit(context, 0, text, bytes, 0, bytes);
-    int body = *(int *)tokenizer;
+    int mode = *(int *)tokenizer;
+    int body = mode != 0;
     int offset = 0;
     while (offset < bytes) {
         int width;
@@ -129,33 +130,65 @@ static int tokenize(Fts5Tokenizer *tokenizer, void *context, int flags,
             for (int i = 0; i < length; ++i) token[i + 1] = (char)tolower((unsigned char)folded[i]);
         } else memcpy(token + 1, folded, (size_t)folded_length);
         int result = emit(context, 0, token, folded_length + 1, start, offset);
-        if (result == SQLITE_OK && has_cjk) {
+
+        if (result == SQLITE_OK && mode == 2 && has_cjk) {
             int current = 0;
             while (current < folded_length) {
                 int width;
                 uint32_t point = argus_codepoint(folded + current, folded_length - current, &width);
+                int next = current + width;
+                int flags = current == 0 ? FTS5_TOKEN_COLOCATED : 0;
                 if (argus_cjk_character(point)) {
-                    token[0] = 'u'; memcpy(token + 1, folded + current, (size_t)width);
-                    result = emit(context, FTS5_TOKEN_COLOCATED, token, width + 1, start, offset);
+                    token[0] = 'u';
+                    memcpy(token + 1, folded + current, (size_t)width);
+                    result = emit(context, flags, token, width + 1, start, offset);
+                    flags = FTS5_TOKEN_COLOCATED;
                     if (result != SQLITE_OK) break;
                 }
-                current += width;
-            }
-        }
-        if (result == SQLITE_OK && (!body || has_cjk)) {
-            int current = 0;
-            while (current < folded_length) {
-                int first, second;
-                argus_codepoint(folded + current, folded_length - current, &first);
-                int next = current + first;
-                if (next >= folded_length) break;
-                argus_codepoint(folded + next, folded_length - next, &second);
-                token[0] = 'b';
-                memcpy(token + 1, folded + current, (size_t)(first + second));
-                result = emit(context, FTS5_TOKEN_COLOCATED, token, first + second + 1,
-                              start, offset);
-                if (result != SQLITE_OK) break;
+                if (next < folded_length) {
+                    int second;
+                    argus_codepoint(folded + next, folded_length - next, &second);
+                    token[0] = 'b';
+                    memcpy(token + 1, folded + current, (size_t)(width + second));
+                    result = emit(context, flags, token, width + second + 1, start, offset);
+                    if (result != SQLITE_OK) break;
+                } else if (!argus_cjk_character(point)) {
+                    /* Retain the final character position across a following word boundary. */
+                    token[0] = 'x';
+                    result = emit(context, flags, token, 1, start, offset);
+                    if (result != SQLITE_OK) break;
+                }
                 current = next;
+            }
+        } else {
+            if (result == SQLITE_OK && has_cjk) {
+                int current = 0;
+                while (current < folded_length) {
+                    int width;
+                    uint32_t point = argus_codepoint(folded + current, folded_length - current, &width);
+                    if (argus_cjk_character(point)) {
+                        token[0] = 'u'; memcpy(token + 1, folded + current, (size_t)width);
+                        result = emit(context, FTS5_TOKEN_COLOCATED, token, width + 1, start, offset);
+                        if (result != SQLITE_OK) break;
+                    }
+                    current += width;
+                }
+            }
+            if (result == SQLITE_OK && (!body || has_cjk)) {
+                int current = 0;
+                while (current < folded_length) {
+                    int first, second;
+                    argus_codepoint(folded + current, folded_length - current, &first);
+                    int next = current + first;
+                    if (next >= folded_length) break;
+                    argus_codepoint(folded + next, folded_length - next, &second);
+                    token[0] = 'b';
+                    memcpy(token + 1, folded + current, (size_t)(first + second));
+                    result = emit(context, FTS5_TOKEN_COLOCATED, token, first + second + 1,
+                                  start, offset);
+                    if (result != SQLITE_OK) break;
+                    current = next;
+                }
             }
         }
         if (token != token_stack) free(token);
@@ -163,6 +196,25 @@ static int tokenize(Fts5Tokenizer *tokenizer, void *context, int flags,
         if (result != SQLITE_OK) return result;
     }
     return SQLITE_OK;
+}
+
+int argus_tokenize_body(const char *text, int bytes, void *context,
+                       int (*emit)(void *, int, const char *, int, int, int)) {
+    int mode = 2;
+    return tokenize((Fts5Tokenizer *)&mode, context, FTS5_TOKENIZE_DOCUMENT, text, bytes, emit);
+}
+
+static void excerpt(const Fts5ExtensionApi *api, Fts5Context *fts, sqlite3_context *result,
+                    int count, sqlite3_value **values);
+
+static void match_position(const Fts5ExtensionApi *api, Fts5Context *fts, sqlite3_context *result,
+                           int count, sqlite3_value **values) {
+    (void)count; (void)values;
+    int column, word;
+    Fts5PhraseIter iterator;
+    int status = api->xPhraseFirst(fts, 0, &iterator, &column, &word);
+    if (status != SQLITE_OK) sqlite3_result_error_code(result, status);
+    else sqlite3_result_int(result, column < 0 ? 0 : word);
 }
 
 typedef struct {
@@ -180,8 +232,6 @@ static int excerpt_token(void *context, int flags, const char *token, int bytes,
     return SQLITE_DONE;
 }
 
-/* SQLite's general snippet scorer considers many windows when a term repeats.
-   One indexed match gives a useful excerpt with linear, bounded tokenization. */
 static void excerpt(const Fts5ExtensionApi *api, Fts5Context *fts, sqlite3_context *result,
                     int count, sqlite3_value **values) {
     (void)count; (void)values;
@@ -196,20 +246,9 @@ static void excerpt(const Fts5ExtensionApi *api, Fts5Context *fts, sqlite3_conte
     if (status != SQLITE_OK && status != SQLITE_DONE) {
         sqlite3_result_error_code(result, status); return;
     }
-    int start = position.byte_offset > 80 ? position.byte_offset - 80 : 0;
-    while (start && ((unsigned char)text[start] & 0xc0) == 0x80) --start;
     char output[512];
-    int written = 0;
-    if (start) { memcpy(output, "…", 3); written = 3; }
-    int length = bytes - start;
-    int available = (int)sizeof(output) - written - 4;
-    if (length > available) length = available;
-    while (length && start + length < bytes &&
-           ((unsigned char)text[start + length] & 0xc0) == 0x80) --length;
-    memcpy(output + written, text + start, (size_t)length); written += length;
-    if (start + length < bytes) { memcpy(output + written, "…", 3); written += 3; }
-    output[written] = 0;
-    sqlite3_result_text(result, output, written, SQLITE_TRANSIENT);
+    argus_excerpt_text(output, text, bytes, position.byte_offset);
+    sqlite3_result_text(result, output, -1, SQLITE_TRANSIENT);
 }
 
 int argus_register_tokenizers(sqlite3 *database) {
@@ -226,5 +265,10 @@ int argus_register_tokenizers(sqlite3 *database) {
     if (result != SQLITE_OK) return result;
     result = api->xCreateTokenizer(api, "argus_body", (void *)1, &tokenizer, NULL);
     if (result != SQLITE_OK) return result;
-    return api->xCreateFunction(api, "argus_excerpt", NULL, excerpt, NULL);
+    result = api->xCreateTokenizer(api, "argus_body_v2", (void *)2, &tokenizer, NULL);
+    if (result != SQLITE_OK) return result;
+    result = api->xCreateFunction(api, "argus_position", NULL, match_position, NULL);
+    if (result != SQLITE_OK) return result;
+    result = api->xCreateFunction(api, "argus_excerpt", NULL, excerpt, NULL);
+    return result == SQLITE_OK ? argus_register_offsets(database) : result;
 }

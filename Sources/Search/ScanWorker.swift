@@ -134,6 +134,12 @@ enum ScanWorker {
         if content {
             guard entry.regular, ContentExtractor.supports(url, size: Int(entry.size)) else { return }
             entry.text = ContentExtractor.extract(url)
+            var after = stat()
+            if lstat(path, &after) != 0 || after.st_size != attributes.st_size ||
+               after.st_mtimespec.tv_sec != attributes.st_mtimespec.tv_sec ||
+               after.st_mtimespec.tv_nsec != attributes.st_mtimespec.tv_nsec {
+                entry.text = nil
+            }
         } else if app {
             let names = applicationNames(url)
             entry.name = names.title
