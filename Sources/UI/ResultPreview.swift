@@ -8,6 +8,10 @@ final class ResultPreview: NSObject, QLPreviewPanelDataSource, QLPreviewPanelDel
     var hasItem: Bool { url != nil }
     var isVisible: Bool { popover?.isShown == true || controlledPanel?.isVisible == true }
 
+    func owns(_ window: NSWindow) -> Bool {
+        window === controlledPanel || window === popover?.contentViewController?.view.window
+    }
+
     func beginControl(_ panel: QLPreviewPanel) {
         controlledPanel = panel
         panel.dataSource = self

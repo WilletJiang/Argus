@@ -65,20 +65,28 @@ final class PanelMotion: NSObject {
     private var height = Spring(Double(SearchSurface.inputHeight), precision: 0.2)
     private var displayLink: CADisplayLink?
     private var scales = true
-    var isPresented: Bool { presence.target == 1 }
+    private(set) var isPreparing = false
+    var isPresented: Bool { isPreparing || presence.target == 1 }
     var heightTarget: CGFloat { CGFloat(height.target) }
 
     init(surface: SearchSurface) { self.surface = surface; super.init() }
 
+    func prepareAppearance() {
+        present(false, height: heightTarget, immediately: true)
+        isPreparing = true
+    }
+
     func present(_ presented: Bool, height target: CGFloat, immediately: Bool = false) {
+        let wasPreparing = isPreparing
+        isPreparing = false
         let window = surface.panel
-        let opening = presented && !window.isVisible
+        let opening = presented && (!window.isVisible || (window.alphaValue == 0 && presence.target == 0))
         let presenceTarget: Double = presented ? 1 : 0
-        if !opening && !immediately && presence.target == presenceTarget && (!presented || height.target == Double(target)) { return }
+        if !opening && !immediately && !wasPreparing && presence.target == presenceTarget && (!presented || height.target == Double(target)) { return }
         let now = CACurrentMediaTime()
         let reduceMotion = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
         if opening || immediately { scales = !reduceMotion }
-        let immediate = immediately || reduceMotion
+        let immediate = immediately || (wasPreparing && !presented) || reduceMotion
         presence.retarget(presenceTarget, response: presented ? Self.presenceResponse.show : Self.presenceResponse.hide, at: now, immediately: immediate)
         if presented { height.retarget(Double(target), response: Self.heightResponse, at: now, immediately: immediate || opening) }
         // While the clock runs the next frame applies the new targets; applying here too would lay out twice per frame.

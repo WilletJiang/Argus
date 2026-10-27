@@ -1,11 +1,13 @@
 import AppKit
 
 enum AppearanceMode: Int, CaseIterable {
-    case system, light, dark
+    case adaptive, light, dark
+
+    static let didChange = Notification.Name("ArgusAppearanceDidChange")
 
     var title: String {
         switch self {
-        case .system: return "System"
+        case .adaptive: return "Adaptive"
         case .light: return "Light"
         case .dark: return "Dark"
         }
@@ -13,10 +15,11 @@ enum AppearanceMode: Int, CaseIterable {
 
     func apply() {
         switch self {
-        case .system: NSApp.appearance = nil
+        case .adaptive: NSApp.appearance = nil
         case .light: NSApp.appearance = NSAppearance(named: .aqua)
         case .dark: NSApp.appearance = NSAppearance(named: .darkAqua)
         }
+        NotificationCenter.default.post(name: Self.didChange, object: nil)
     }
 }
 
@@ -37,7 +40,7 @@ final class Preferences {
         set { defaults.set(newValue, forKey: "hotkey") }
     }
     var appearanceMode: AppearanceMode {
-        get { AppearanceMode(rawValue: defaults.integer(forKey: "appearanceMode")) ?? .system }
+        get { AppearanceMode(rawValue: defaults.integer(forKey: "appearanceMode")) ?? .adaptive }
         set { defaults.set(newValue.rawValue, forKey: "appearanceMode") }
     }
     var recentTargets: [String] { defaults.stringArray(forKey: "recentTargets") ?? [] }

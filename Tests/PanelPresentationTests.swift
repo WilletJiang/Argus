@@ -83,6 +83,47 @@ enum PanelPresentationTests {
         check(PanelController.completion(of: "", with: "Safari") == nil)
     }
 
+    static func appearancePreparationTests(index: FileIndex, providers: SystemProviders) {
+        let savedMode = Preferences.shared.appearanceMode
+        Preferences.shared.appearanceMode = .adaptive
+        defer { Preferences.shared.appearanceMode = savedMode; savedMode.apply() }
+        var callbacks: [(CGImage?, Error?) -> Void] = []
+        let surface = SearchSurface(captureBackground: { _, callback in callbacks.append(callback) }, canCaptureBackground: { true })
+        let coordinator = SearchCoordinator(index: index, providers: providers)
+        let controller = PanelController(coordinator: coordinator, surface: surface)
+        coordinator.onResults = nil
+        defer { controller.hide(immediately: true) }
+        controller.show(query: "")
+        check(controller.isPresented && controller.panel.isKeyWindow && controller.panel.alphaValue == 0,
+              "The transparent panel must accept input while sampling its unobstructed background")
+        let editor = controller.field.currentEditor() as! NSTextView
+        editor.insertText("sample", replacementRange: NSRange(location: NSNotFound, length: 0))
+        check(controller.typedQuery == "sample" && controller.panel.alphaValue == 0,
+              "Fast typing must be retained without exposing the old appearance")
+        let context = CGContext(data: nil, width: 8, height: 8, bitsPerComponent: 8, bytesPerRow: 32,
+                                space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+        context.setFillColor(NSColor.white.cgColor)
+        context.fill(CGRect(x: 0, y: 0, width: 8, height: 8))
+        let white = context.makeImage()!
+        callbacks[0](white, nil)
+        wait(0.45)
+        check(controller.panel.alphaValue == 1 && controller.panel.appearance?.name == .aqua && controller.typedQuery == "sample",
+              "Presentation must reveal the sampled appearance without losing the query: alpha=\(controller.panel.alphaValue), appearance=\(String(describing: controller.panel.appearance?.name)), query=\(controller.typedQuery)")
+        check(controller.field.currentEditor() === editor, "Preparing appearance must preserve the native field editor")
+        controller.hide(immediately: true)
+        controller.show(query: "")
+        controller.hide()
+        callbacks[1](white, nil)
+        wait(0.02)
+        check(!controller.isPresented && !controller.panel.isVisible, "Closing during capture must hide the invisible input window and ignore late images")
+        controller.show(query: "")
+        NSWorkspace.shared.notificationCenter.post(name: NSWorkspace.activeSpaceDidChangeNotification, object: nil)
+        callbacks[2](white, nil)
+        wait(0.02)
+        check(!controller.isPresented && !controller.panel.isVisible && controller.panel.appearance == nil,
+              "A snapshot from the previous Space must never reopen or recolor the panel")
+    }
+
     static func main() throws {
         if ScanWorker.runIfRequested() { return }
         springTests()
@@ -90,14 +131,19 @@ enum PanelPresentationTests {
 
         let app = NSApplication.shared
         app.setActivationPolicy(.accessory)
-        AppearanceMode.system.apply()
+        let savedMode = Preferences.shared.appearanceMode
+        defer { Preferences.shared.appearanceMode = savedMode; savedMode.apply() }
+        AppearanceMode.adaptive.apply()
         check(app.appearance == nil, "System appearance must inherit the current macOS appearance")
+        AppearanceTests.run()
+        Preferences.shared.appearanceMode = .light
         AppearanceMode.light.apply()
         let fixture = FileManager.default.temporaryDirectory.appendingPathComponent("argus-presentation-" + UUID().uuidString)
         try FileManager.default.createDirectory(at: fixture, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: fixture) }
         let index = FileIndex(home: fixture, storage: fixture.appendingPathComponent("index"), applications: [])
         let providers = SystemProviders()
+        appearancePreparationTests(index: index, providers: providers)
         let coordinator = SearchCoordinator(index: index, providers: providers)
         let controller = PanelController(coordinator: coordinator)
         let publish = coordinator.onResults!
@@ -116,13 +162,60 @@ enum PanelPresentationTests {
         let glass = shape.subviews.compactMap { $0 as? NSGlassEffectView }
         check(glass.count == 1, "One continuous glass surface must own both input and results")
         let symbol = find(NSImageView.self, in: glass[0].contentView!)!
+        check(glass[0].contentView is GlassContentView && !glass[0].contentView!.isOpaque, "The gradient must preserve the native glass underneath")
         check(controller.field.isDescendant(of: glass[0].contentView!), "Input controls must belong to the native glass content layer")
         check(controller.panel.effectiveAppearance.bestMatch(from: [.aqua, .darkAqua]) == .aqua)
         check(glass[0].style == .clear, "The surface uses the transparent liquid glass")
+        var outsideClicks = 0
+        let previewWindow = NSWindow(contentRect: .zero, styleMask: .borderless, backing: .buffered, defer: false)
+        previewWindow.isReleasedWhenClosed = false
+        let clickMonitor = PanelClickMonitor(panel: window, shape: shape, keepsOpen: { $0 === previewWindow }, dismiss: { outsideClicks += 1 })
+        func click(_ point: NSPoint, in target: NSWindow) {
+            let event = NSEvent.mouseEvent(with: .leftMouseDown, location: point, modifierFlags: [], timestamp: 0,
+                                          windowNumber: target.windowNumber, context: nil, eventNumber: 0, clickCount: 1, pressure: 1)!
+            clickMonitor.handleLocalClick(event)
+        }
+        click(shape.convert(NSPoint(x: 200, y: 34), to: nil), in: window)
+        check(outsideClicks == 0, "Clicks inside the search field must keep it open")
+        click(shape.convert(NSPoint(x: 200, y: inputHeight + 40), to: nil), in: window)
+        check(outsideClicks == 1, "The transparent spare window below the surface must dismiss on click")
+        click(shape.convert(NSPoint(x: 1, y: 1), to: nil), in: window)
+        check(outsideClicks == 2, "Clicks outside the rounded outline must dismiss")
+        click(.zero, in: previewWindow)
+        check(outsideClicks == 2, "Interacting with Quick Look must keep search open")
         let fieldFrame = controller.field.frame
         let fieldBaseline = controller.field.alignmentRect(forFrame: fieldFrame).minY + controller.field.firstBaselineOffsetFromTop
         let textCenter = fieldBaseline - controller.field.font!.capHeight / 2
         check(abs(textCenter - symbol.frame.midY) < 0.51 && abs(textCenter - inputHeight / 2) < 0.51, "The complete symbol must align with the text cap-height center")
+        if let caretEditor = controller.field.currentEditor() as? SearchFieldEditor {
+            caretEditor.resetCaret()
+            check(!caretEditor.shouldDrawInsertionPoint, "Native caret must be disabled to prevent a second blink cycle")
+            check(!caretEditor.caret.isHidden, "Editing must display the custom caret")
+            let caretFrame = shape.convert(caretEditor.caret.bounds, from: caretEditor.caret)
+            check(abs(caretFrame.midY - inputHeight / 2) < 0.51, "Caret and icon must share a visual center")
+            let blinkDeadline = Date(timeIntervalSinceNow: 1)
+            while !caretEditor.caret.isHidden, Date() < blinkDeadline { wait(0.01) }
+            check(caretEditor.caret.isHidden, "Blink-off must hide the complete caret")
+            caretEditor.resetCaret()
+            check(!caretEditor.caret.isHidden, "Typing must restart the visible phase")
+            wait(0.02)
+            let initialX = caretEditor.caret.layer!.position.x
+            caretEditor.setSelectedRange(NSRange(location: 0, length: 0))
+            let targetX = caretEditor.caret.layer!.position.x
+            check(targetX < initialX, "Moving to the start must move the caret left")
+            if !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
+                wait(0.025)
+                let movingX = caretEditor.caret.layer!.presentation()!.position.x
+                check(movingX > targetX && movingX < initialX, "Caret must interpolate instead of jumping to the next position")
+                caretEditor.setSelectedRange(NSRange(location: 3, length: 0))
+                let retargeted = caretEditor.caret.layer!.animation(forKey: "caretMovement") as! CABasicAnimation
+                check(abs((retargeted.fromValue as! CGFloat) - movingX) < 0.5, "Rapid input must continue from the visible caret position")
+                let finalX = caretEditor.caret.layer!.position.x
+                wait(0.12)
+                check(abs(caretEditor.caret.layer!.presentation()!.position.x - finalX) < 0.5, "Caret motion must settle promptly without lag")
+            }
+            caretEditor.setSelectedRange(NSRange(location: (caretEditor.string as NSString).length, length: 0))
+        } else { check(false, "Search must use the custom field editor") }
         controller.panel.makeFirstResponder(nil)
         let symbolInk = shape.convert(renderedInkBounds(symbol), from: symbol)
         for query in ["", "Search", "聚焦搜索"] {
@@ -132,9 +225,9 @@ enum PanelPresentationTests {
         }
         controller.field.stringValue = "Safari"
         controller.panel.makeFirstResponder(controller.field)
-        check(shape.layer?.masksToBounds == true && shape.layer?.cornerRadius == GlassContentView.cornerRadius)
+        check(shape.layer?.masksToBounds == true && shape.layer?.cornerRadius == SearchSurface.cornerRadius)
         check(shape.layer?.cornerCurve == .continuous)
-        check(ResultRow.cornerRadius + SearchSurface.listInset + ResultRow.horizontalInset == GlassContentView.cornerRadius, "Inner selection corners must follow the outer radius and inset")
+        check(ResultRow.cornerRadius + SearchSurface.listInset + ResultRow.horizontalInset == SearchSurface.cornerRadius, "Inner selection corners must follow the outer radius and inset")
         let probe = CALayer()
         probe.frame = shape.bounds.insetBy(dx: -8, dy: -8)
         probe.backgroundColor = NSColor.red.cgColor
@@ -184,6 +277,7 @@ enum PanelPresentationTests {
         check(!controller.tableView(table, shouldSelectRow: 3) && table.accessibilityRowCount() == 1, "Placeholders are neither selectable nor exposed to accessibility")
 
         for mode in [AppearanceMode.dark, .light] {
+            Preferences.shared.appearanceMode = mode
             mode.apply()
             let expected: NSAppearance.Name = mode == .dark ? .darkAqua : .aqua
             let appearanceDeadline = Date(timeIntervalSinceNow: 0.4)
@@ -208,14 +302,19 @@ enum PanelPresentationTests {
                 }
             }
             check(!ink.isEmpty && (mode == .light ? ink.max()! < 0.2 : ink.min()! > 0.8), "Selected result titles must render dark in light mode and light in dark mode")
-            let overlay = GlassContentView(frame: NSRect(x: 0, y: 0, width: 100, height: 100))
-            overlay.appearance = NSAppearance(named: expected)
-            let bitmap = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: 100, pixelsHigh: 100, bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0)!
-            memset(bitmap.bitmapData!, 0, bitmap.bytesPerRow * 100)
-            overlay.cacheDisplay(in: overlay.bounds, to: bitmap)
-            let color = bitmap.colorAt(x: 50, y: 50)!.usingColorSpace(.deviceRGB)!
-            check(color.alphaComponent > 0.35 && color.alphaComponent < 0.51, "Contrast protection must retain a transparent background")
-            check(mode == .dark ? color.redComponent < 0.01 : color.redComponent > 0.99, "Light mode must use light contrast protection, dark mode dark protection")
+
+        }
+
+        // Reopening must retain the chosen text appearance.
+        for mode in [AppearanceMode.dark, .light] {
+            Preferences.shared.appearanceMode = mode
+            mode.apply()
+            wait(0.035)
+            controller.hide(immediately: true)
+            controller.show(query: "Safari")
+            wait(0.05)
+            check(controller.field.effectiveAppearance.bestMatch(from: [.aqua, .darkAqua]) == (mode == .dark ? .darkAqua : .aqua),
+                  "Reopening must retain the selected text appearance")
         }
 
         // Late batches of one query keep the visible top hit unless a newcomer is a full tier better.
@@ -358,6 +457,16 @@ enum PanelPresentationTests {
         guard let reopened = controller.field.currentEditor() as? NSTextView, reopened.selectedRange.length > 0 else { check(false, "Reopening must select the previous query"); return }
         reopened.insertText("s", replacementRange: none)
         check(controller.typedQuery == "s" && controller.completion == "afari" && controller.field.stringValue == "safari", "Typing over the reopened selection completes even when it is a prefix of the old query")
+
+        // A desktop switch must dismiss the real panel rather than carry its glass backdrop into another Space.
+        controller.show(query: "Safari")
+        check(window.collectionBehavior.contains(.moveToActiveSpace) && !window.collectionBehavior.contains(.canJoinAllSpaces),
+              "Search must move to the active desktop when invoked, not span every Space")
+        NSWorkspace.shared.notificationCenter.post(name: NSWorkspace.activeSpaceDidChangeNotification, object: nil)
+        check(!controller.isPresented && !window.isVisible, "Switching Spaces must immediately dismiss search")
+        check(window.appearance == nil, "A new desktop must not inherit a cached backdrop appearance")
+        controller.show()
+        check(controller.isPresented && controller.typedQuery == "Safari", "Reopening on another Space must preserve the query")
 
         // Return before the first batch opens the top hit as soon as it arrives.
         controller.show(query: "deferred")

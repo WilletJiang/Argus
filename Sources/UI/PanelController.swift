@@ -1,7 +1,7 @@
 import AppKit
 
 final class PanelController: NSObject, NSSearchFieldDelegate, NSTableViewDataSource, NSTableViewDelegate {
-    private let surface = SearchSurface()
+    private let surface: SearchSurface
     private let coordinator: SearchCoordinator
     private let motion: PanelMotion
     private let resultPreview = ResultPreview()
@@ -14,6 +14,8 @@ final class PanelController: NSObject, NSSearchFieldDelegate, NSTableViewDataSou
     private var results: [SearchResult] = []
     private var scope = SearchScope.all
     private var monitor: Any?
+    private var clickMonitor: PanelClickMonitor!
+    private var showingActions = false
     private var refreshWork: DispatchWorkItem?
     private var emptyWork: DispatchWorkItem?
     private var queryGeneration = 0
@@ -34,10 +36,14 @@ final class PanelController: NSObject, NSSearchFieldDelegate, NSTableViewDataSou
     var onMetric: ((String, Double) -> Void)?
     #endif
 
-    init(coordinator: SearchCoordinator) {
+    init(coordinator: SearchCoordinator, surface: SearchSurface = SearchSurface()) {
+        self.surface = surface
         self.coordinator = coordinator
         motion = PanelMotion(surface: surface)
         super.init()
+        clickMonitor = PanelClickMonitor(panel: panel, shape: shape, keepsOpen: { [weak self] window in
+            self?.showingActions == true || self?.resultPreview.owns(window) == true
+        }, dismiss: { [weak self] in self?.hide() })
         panel.resultPreview = resultPreview
         field.delegate = self
         field.target = self
@@ -53,6 +59,7 @@ final class PanelController: NSObject, NSSearchFieldDelegate, NSTableViewDataSou
         coordinator.onResults = { [weak self] values, milliseconds in self?.update(values, milliseconds: milliseconds) }
         NotificationCenter.default.addObserver(self, selector: #selector(lostFocus), name: NSWindow.didResignKeyNotification, object: panel)
         NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(accessibilityChanged), name: NSWorkspace.accessibilityDisplayOptionsDidChangeNotification, object: nil)
+        NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(activeSpaceChanged), name: NSWorkspace.activeSpaceDidChangeNotification, object: nil)
         updateFooter()
     }
 
@@ -67,18 +74,27 @@ final class PanelController: NSObject, NSSearchFieldDelegate, NSTableViewDataSou
             if !results.isEmpty { applyResults([]) }
         }
         scope = .all
-        if !panel.isVisible {
+        let opening = !panel.isVisible
+        if opening {
             surface.position()
             if surface.table.numberOfRows != tableRows { surface.table.noteNumberOfRowsChanged() }
+            motion.prepareAppearance()
         }
-        motion.present(true, height: targetHeight)
+        if !motion.isPreparing { motion.present(true, height: targetHeight) }
         installMonitor()
+        clickMonitor.start()
         search(preservingSelection: preservesSelection)
         panel.makeKeyAndOrderFront(nil)
         panel.makeFirstResponder(field)
         if query == nil, let editor = field.currentEditor() {
             editor.selectedRange = NSRange(location: 0, length: (editor.string as NSString).length)
             replacesSelectionOnShow = editor.selectedRange.length > 0
+        }
+        if opening {
+            surface.prepareAppearance { [weak self] in
+                guard let self, self.motion.isPreparing else { return }
+                self.motion.present(true, height: self.targetHeight)
+            }
         }
         #if ARGUS_BENCHMARK
         queryStarted = started
@@ -98,6 +114,8 @@ final class PanelController: NSObject, NSSearchFieldDelegate, NSTableViewDataSou
     #endif
 
     func hide(immediately: Bool = false) {
+        clickMonitor.stop()
+        surface.cancelAppearancePreparation()
         refreshWork?.cancel(); refreshWork = nil
         emptyWork?.cancel(); emptyWork = nil
         queryGeneration += 1
@@ -136,7 +154,7 @@ final class PanelController: NSObject, NSSearchFieldDelegate, NSTableViewDataSou
     }
 
     private func resize() {
-        if isPresented { motion.present(true, height: targetHeight) }
+        if motion.isPresented && !motion.isPreparing { motion.present(true, height: targetHeight) }
     }
 
     private func setQuery(_ query: String) {
@@ -436,6 +454,8 @@ final class PanelController: NSObject, NSSearchFieldDelegate, NSTableViewDataSou
             menu.addItem(withTitle: "Reveal in Finder", action: #selector(revealAction), keyEquivalent: "").target = self
         } else if !result.snippet.isEmpty { menu.addItem(withTitle: "Show Details", action: #selector(previewAction), keyEquivalent: "").target = self }
         let rect = surface.table.rect(ofRow: max(0, surface.table.selectedRow))
+        showingActions = true
+        defer { showingActions = false }
         menu.popUp(positioning: nil, at: NSPoint(x: rect.maxX - 130, y: rect.midY), in: surface.table)
     }
 
@@ -450,6 +470,10 @@ final class PanelController: NSObject, NSSearchFieldDelegate, NSTableViewDataSou
         }
     }
     @objc private func accessibilityChanged() { surface.updateAccessibility() }
+    @objc private func activeSpaceChanged() {
+        hide(immediately: true)
+        surface.resetAppearanceContext()
+    }
     func numberOfRows(in tableView: NSTableView) -> Int { tableRows }
     func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
         let identifier = NSUserInterfaceItemIdentifier("cell")

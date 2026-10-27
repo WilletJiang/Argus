@@ -14,25 +14,6 @@ final class PanelContainer: NSView {
     }
 }
 
-final class GlassContentView: NSView {
-    static let cornerRadius: CGFloat = 34
-    override var isFlipped: Bool { true }
-    private let lightGradient = NSGradient(colorsAndLocations: (.white.withAlphaComponent(0.35), 0), (.white.withAlphaComponent(0.42), 0.40), (.white.withAlphaComponent(0.50), 1))!
-    private let darkGradient = NSGradient(colorsAndLocations: (.black.withAlphaComponent(0.35), 0), (.black.withAlphaComponent(0.42), 0.40), (.black.withAlphaComponent(0.50), 1))!
-
-    override func viewDidChangeEffectiveAppearance() {
-        super.viewDidChangeEffectiveAppearance()
-        needsDisplay = true
-    }
-
-    override func draw(_ dirtyRect: NSRect) {
-        super.draw(dirtyRect)
-        // The parent window applies one continuous mask to the glass, overlay and controls.
-        let gradient = effectiveAppearance.bestMatch(from: [.aqua, .darkAqua]) == .darkAqua ? darkGradient : lightGradient
-        gradient.draw(from: NSPoint(x: bounds.midX, y: 0), to: NSPoint(x: bounds.midX, y: bounds.height), options: [.drawsBeforeStartingLocation, .drawsAfterEndingLocation])
-    }
-}
-
 final class ResultCell: NSTableCellView {
     private let icon = NSImageView()
     private let titleLabel = NSTextField(labelWithString: "")
@@ -138,7 +119,7 @@ final class ResultTable: NSTableView {
 
 final class ResultRow: NSTableRowView {
     static let horizontalInset: CGFloat = 4
-    static let cornerRadius = GlassContentView.cornerRadius - SearchSurface.listInset - horizontalInset
+    static let cornerRadius = SearchSurface.cornerRadius - SearchSurface.listInset - horizontalInset
     private let selection = CALayer()
 
     override init(frame frameRect: NSRect) {
@@ -177,13 +158,5 @@ final class ResultRow: NSTableRowView {
 extension SearchResult {
     func hasSamePresentation(as other: SearchResult) -> Bool {
         id == other.id && title == other.title && subtitle == other.subtitle && kind == other.kind && target == other.target && snippet == other.snippet && symbol == other.symbol
-    }
-}
-
-final class SearchField: NSSearchField {
-    override func becomeFirstResponder() -> Bool {
-        let result = super.becomeFirstResponder()
-        if let editor = currentEditor() { editor.selectedRange = NSRange(location: (editor.string as NSString).length, length: 0) }
-        return result
     }
 }

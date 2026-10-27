@@ -11,6 +11,8 @@ final class PreferencesController: NSObject {
     private let shortcut = NSPopUpButton()
     private let shortcutHint = NSTextField(wrappingLabelWithString: "")
     private let appearance = NSPopUpButton()
+    private let backgroundAccess = NSButton()
+    private let appearanceHint = NSTextField(wrappingLabelWithString: "")
     var onHotkeyChanged: (() -> Void)?
 
     init(index: FileIndex, providers: SystemProviders, hotkey: HotKey) {
@@ -28,12 +30,12 @@ final class PreferencesController: NSObject {
     func updateStatus() { if window?.isVisible == true { refresh() } }
 
     private func build() {
-        let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 620, height: 628), styleMask: [.titled, .closable], backing: .buffered, defer: false)
+        let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 620, height: 678), styleMask: [.titled, .closable], backing: .buffered, defer: false)
         window.title = "Argus Settings"
         window.isReleasedWhenClosed = false
         window.center()
         self.window = window
-        let view = FlippedView(frame: NSRect(x: 0, y: 0, width: 620, height: 628))
+        let view = FlippedView(frame: NSRect(x: 0, y: 0, width: 620, height: 678))
         window.contentView = view
         func label(_ text: String, _ y: CGFloat, size: CGFloat = 13, weight: NSFont.Weight = .regular) {
             let item = NSTextField(wrappingLabelWithString: text)
@@ -85,6 +87,16 @@ final class PreferencesController: NSObject {
         appearance.target = self
         appearance.action = #selector(appearanceChanged)
         view.addSubview(appearance)
+        backgroundAccess.title = "Allow Background"
+        backgroundAccess.bezelStyle = .rounded
+        backgroundAccess.frame = NSRect(x: 460, y: 563, width: 133, height: 30)
+        backgroundAccess.target = self
+        backgroundAccess.action = #selector(allowBackground)
+        view.addSubview(backgroundAccess)
+        appearanceHint.font = .systemFont(ofSize: 11.5)
+        appearanceHint.textColor = .secondaryLabelColor
+        appearanceHint.frame = NSRect(x: 28, y: 603, width: 560, height: 52)
+        view.addSubview(appearanceHint)
     }
 
     private func button(_ title: String, x: CGFloat, y: CGFloat, width: CGFloat, action: Selector, parent: NSView) {
@@ -96,6 +108,12 @@ final class PreferencesController: NSObject {
 
     private func refresh() {
         appearance.selectItem(at: Preferences.shared.appearanceMode.rawValue)
+        let adaptive = Preferences.shared.appearanceMode == .adaptive
+        let allowed = CGPreflightScreenCaptureAccess()
+        backgroundAccess.isHidden = !adaptive || allowed
+        appearanceHint.stringValue = !adaptive ? "Use a fixed appearance for the search panel." : allowed ?
+            "Matches the background each time search opens. Brightness is processed on this Mac; no images are saved." :
+            "Allow screen recording access to match the background behind the search bar. Until allowed, appearance follows the system. No images are saved."
         shortcut.selectItem(at: Preferences.shared.hotkey)
         shortcutHint.stringValue = hotkey.notice
         excludedLabel.stringValue = Preferences.shared.excludedPaths.isEmpty ? "No custom excluded folders." : Preferences.shared.excludedPaths.joined(separator: "\n")
@@ -106,6 +124,14 @@ final class PreferencesController: NSObject {
         guard let mode = AppearanceMode(rawValue: appearance.indexOfSelectedItem) else { return }
         Preferences.shared.appearanceMode = mode
         mode.apply()
+        refresh()
+    }
+
+    @objc private func allowBackground() {
+        if !CGRequestScreenCaptureAccess() {
+            NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture")!)
+        }
+        refresh()
     }
 
     @objc private func shortcutChanged() {

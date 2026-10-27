@@ -8,7 +8,7 @@ TASK_C_FLAGS=(-O2 -Wall -Wextra -Werror)
 if [[ "${1:-}" == "--ui-only" ]]; then
   for source in "${TASK_C_SOURCES[@]}"; do xcrun clang -O2 -c "$source" -o "$TASK_TEST_DIR/${source:t:r}.o"; done
   xcrun swiftc -Onone -g -swift-version 5 -import-objc-header Sources/SearchCore/SearchCore.h \
-    Sources/App/Models.swift Sources/App/Preferences.swift Sources/App/HotKey.swift Sources/UI/*.swift Sources/Search/*.swift Sources/System/*.swift Tests/PanelPresentationTests.swift \
+    Sources/App/Models.swift Sources/App/Preferences.swift Sources/App/HotKey.swift Sources/UI/*.swift Sources/Search/*.swift Sources/System/*.swift Tests/PanelPresentationTests.swift Tests/AppearanceTests.swift \
     "$TASK_TEST_DIR"/*.o -lsqlite3 -framework AppKit -framework Carbon -framework Contacts -framework CoreServices -framework CoreFoundation -framework PDFKit -framework Quartz -framework ServiceManagement -o "$TASK_TEST_DIR/presentation-tests"
   "$TASK_TEST_DIR/presentation-tests"
   exit 0

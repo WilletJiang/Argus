@@ -11,6 +11,7 @@ final class SearchPanel: NSPanel {
 }
 
 final class SearchSurface {
+    static let cornerRadius: CGFloat = 34
     static let width: CGFloat = 620
     static let inputHeight: CGFloat = 68
     static let rowHeight: CGFloat = 52
@@ -45,14 +46,36 @@ final class SearchSurface {
     private let content = GlassContentView()
     private let body = FlippedView()
     private let divider = NSBox()
+    private let captureBackground: BackdropAppearance.Capture?
+    private let canCaptureBackground: () -> Bool
+    private lazy var backdrop = BackdropAppearance(panel: panel, shape: shape, capture: captureBackground, canCapture: canCaptureBackground)
+
+    func prepareAppearance(completion: @escaping () -> Void) {
+        content.finishAppearanceTransition()
+        backdrop.prepare { [weak self] in
+            self?.content.finishAppearanceTransition()
+            completion()
+        }
+    }
+    func cancelAppearancePreparation() {
+        backdrop.cancel()
+        content.finishAppearanceTransition()
+    }
+
+    func resetAppearanceContext() {
+        backdrop.invalidate()
+        content.finishAppearanceTransition()
+    }
 
     var maxHeight: CGFloat { Self.height(rows: maxRows) }
 
-    init() {
+    init(captureBackground: BackdropAppearance.Capture? = nil, canCaptureBackground: @escaping () -> Bool = CGPreflightScreenCaptureAccess) {
+        self.captureBackground = captureBackground
+        self.canCaptureBackground = canCaptureBackground
         let initialHeight = Self.height(rows: maxRows)
         panel = SearchPanel(contentRect: NSRect(x: 0, y: 0, width: Self.width, height: initialHeight), styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
         panel.level = .floating
-        panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .transient, .ignoresCycle]
+        panel.collectionBehavior = [.moveToActiveSpace, .fullScreenAuxiliary, .transient, .ignoresCycle]
         panel.isOpaque = false
         panel.backgroundColor = .clear
         panel.hasShadow = true
@@ -65,7 +88,7 @@ final class SearchSurface {
         panel.contentView = container
         shape.frame = NSRect(x: 0, y: 0, width: Self.width, height: Self.inputHeight)
         shape.wantsLayer = true
-        shape.layer?.cornerRadius = GlassContentView.cornerRadius
+        shape.layer?.cornerRadius = Self.cornerRadius
         shape.layer?.cornerCurve = .continuous
         shape.layer?.masksToBounds = true
         container.hitShape = shape
@@ -73,7 +96,7 @@ final class SearchSurface {
         glass.frame = shape.bounds
         glass.autoresizingMask = [.width, .height]
         glass.style = .clear
-        glass.cornerRadius = GlassContentView.cornerRadius
+        glass.cornerRadius = Self.cornerRadius
         content.frame = glass.bounds
         content.autoresizingMask = [.width, .height]
         glass.contentView = content
@@ -85,6 +108,7 @@ final class SearchSurface {
         symbol.image = image
         symbol.imageScaling = .scaleProportionallyUpOrDown
         symbol.contentTintColor = .secondaryLabelColor
+        field.caretAlignmentView = symbol
         field.font = font
         field.placeholderString = "Search"
         field.isBordered = false
@@ -102,7 +126,7 @@ final class SearchSurface {
         NSLayoutConstraint.activate([
             field.leadingAnchor.constraint(equalTo: shape.leadingAnchor, constant: 76),
             field.trailingAnchor.constraint(equalTo: shape.trailingAnchor, constant: -24),
-            field.firstBaselineAnchor.constraint(equalTo: shape.topAnchor, constant: Self.inputHeight / 2 + font.capHeight / 2),
+            field.firstBaselineAnchor.constraint(equalTo: shape.topAnchor, constant: Self.inputHeight / 2 + font.capHeight / 2 + 0.5),
             field.heightAnchor.constraint(equalToConstant: (font.ascender * 2 - font.capHeight).rounded())
         ])
 
