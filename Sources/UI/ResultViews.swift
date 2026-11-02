@@ -86,73 +86,12 @@ final class ResultCell: NSTableCellView {
     }
 }
 
-final class ResultTable: NSTableView {
-    var onHover: ((Int) -> Void)?
-    /// Rows past this index are placeholders kept only so result changes never add or remove row views.
-    var liveRows = 0
-
-    override func accessibilityRows() -> [any NSAccessibilityRow]? { super.accessibilityRows()?.filter(isLive) }
-    override func accessibilityVisibleRows() -> [any NSAccessibilityRow]? { super.accessibilityVisibleRows()?.filter(isLive) }
-    override func accessibilityRowCount() -> Int { liveRows }
-    private func isLive(_ element: any NSAccessibilityRow) -> Bool { (element as? NSView).map { row(for: $0) < liveRows } ?? true }
-    private var hoverArea: NSTrackingArea?
-    private var lastMouse = NSPoint(x: CGFloat.nan, y: CGFloat.nan)
-
-    override func updateTrackingAreas() {
-        super.updateTrackingAreas()
-        guard hoverArea == nil else { return }
-        let area = NSTrackingArea(rect: .zero, options: [.mouseMoved, .activeInKeyWindow, .inVisibleRect], owner: self)
-        addTrackingArea(area)
-        hoverArea = area
-    }
-
-    // Rows sliding under a stationary pointer must not steal the keyboard selection, so only real movement counts.
-    override func mouseMoved(with event: NSEvent) {
-        super.mouseMoved(with: event)
-        let mouse = NSEvent.mouseLocation
-        guard mouse != lastMouse else { return }
-        lastMouse = mouse
-        let row = row(at: convert(event.locationInWindow, from: nil))
-        if row >= 0, row < liveRows { onHover?(row) }
-    }
-}
-
 final class ResultRow: NSTableRowView {
     static let horizontalInset: CGFloat = 4
     static let cornerRadius = SearchSurface.cornerRadius - SearchSurface.listInset - horizontalInset
-    private let selection = CALayer()
-
-    override init(frame frameRect: NSRect) {
-        super.init(frame: frameRect)
-        wantsLayer = true
-        selection.cornerCurve = .continuous
-        selection.cornerRadius = Self.cornerRadius
-        selection.isHidden = true
-        layer?.insertSublayer(selection, at: 0)
-    }
-    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
-
-    // A neutral selection keeps semantic text colors; AppKit's emphasized style turns them white.
     override var interiorBackgroundStyle: NSView.BackgroundStyle { .normal }
-    override var isSelected: Bool { didSet { updateSelection() } }
-
-    private func updateSelection() {
-        CATransaction.begin()
-        CATransaction.setDisableActions(true)
-        selection.frame = bounds.insetBy(dx: Self.horizontalInset, dy: 2)
-        selection.isHidden = !isSelected || selectionHighlightStyle == .none
-        effectiveAppearance.performAsCurrentDrawingAppearance {
-            selection.backgroundColor = NSColor.labelColor.withAlphaComponent(NSWorkspace.shared.accessibilityDisplayShouldIncreaseContrast ? 0.22 : 0.10).cgColor
-        }
-        CATransaction.commit()
-    }
-    override func drawSelection(in dirtyRect: NSRect) { updateSelection() }
-    override func layout() { super.layout(); updateSelection() }
-    override func viewDidChangeEffectiveAppearance() {
-        super.viewDidChangeEffectiveAppearance()
-        updateSelection()
-        needsDisplay = true
-    }
+    // The table owns one moving highlight, rather than a separate highlight in every row.
+    override func drawSelection(in dirtyRect: NSRect) {}
 }
 
 extension SearchResult {

@@ -256,8 +256,8 @@ enum PanelPresentationTests {
         firstCell.layoutSubtreeIfNeeded()
         let firstRow = table.rowView(atRow: 0, makeIfNecessary: true)!
         firstRow.layoutSubtreeIfNeeded()
-        let selectionLayer = firstRow.layer!.sublayers!.first { $0.cornerRadius == ResultRow.cornerRadius }!
-        check(selectionLayer.cornerCurve == shape.layer!.cornerCurve && selectionLayer.frame == firstRow.bounds.insetBy(dx: ResultRow.horizontalInset, dy: 2) && !selectionLayer.isHidden, "Selection must render the same continuous corner curve with its concentric inset")
+        let selectionLayer = table.selection
+        check(selectionLayer.cornerCurve == shape.layer!.cornerCurve && selectionLayer.frame == table.rect(ofRow: 0).insetBy(dx: ResultRow.horizontalInset, dy: 2) && !selectionLayer.isHidden, "Selection must render the same continuous corner curve with its concentric inset")
         for label in firstCell.subviews.compactMap({ $0 as? NSTextField }) {
             let textFrame = shape.convert(label.alignmentRect(forFrame: label.frame), from: firstCell)
             let queryFrame = controller.field.alignmentRect(forFrame: controller.field.frame)
@@ -268,6 +268,39 @@ enum PanelPresentationTests {
         check(firstCell === table.view(atColumn: 0, row: 0, makeIfNecessary: true), "Supplemental results must preserve unchanged cell views")
         check(window.frame == windowFrame, "Progressive batches must never resize the window")
         check(controller.field.currentEditor() === editor, "Updates must preserve the field editor")
+        if !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
+            let start = table.selection.frame.minY
+            table.selectRowIndexes(IndexSet(integer: 3), byExtendingSelection: false)
+            check(table.selection.frame.minY == start, "Highlight must start at its visible position")
+            wait(0.035)
+            let moving = table.selection.frame.minY
+            check(moving > start && moving < table.rect(ofRow: 3).minY, "Highlight must travel continuously between rows")
+            table.selectRowIndexes(IndexSet(integer: 1), byExtendingSelection: false)
+            check(abs(table.selection.frame.minY - moving) < 20, "Retargeting must not jump to the previous destination")
+            wait(0.4)
+            check(abs(table.selection.frame.minY - table.rect(ofRow: 1).minY - 2) < 0.2)
+        }
+        table.selectRowIndexes(IndexSet(integer: 0), byExtendingSelection: false)
+        wait(0.35)
+        publish(hits(16), 3)
+        wait(0.1)
+        table.scrollRowToVisible(12)
+        if !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
+            check(scroll.contentView.bounds.minY == 0, "Keyboard scrolling must not jump to its destination")
+            wait(0.04)
+            check(scroll.contentView.bounds.minY > 0 && scroll.contentView.bounds.minY < 5 * table.rowHeight, "Keyboard scrolling must produce intermediate frames")
+        }
+        wait(0.4)
+        check(scroll.contentView.bounds.contains(table.rect(ofRow: 12)), "Scrolling must reveal the selected row")
+        table.scroll(by: 100)
+        table.cancelScroll()
+        let stopped = scroll.contentView.bounds.minY
+        wait(0.1)
+        check(scroll.contentView.bounds.minY == stopped, "Native gesture takeover must cancel queued scrolling")
+        table.scrollRowToVisible(0)
+        wait(0.4)
+        check(scroll.contentView.bounds.minY == 0)
+        publish(hits(8), 3)
         let tailRow = table.rowView(atRow: 3, makeIfNecessary: true)
         var scoreOnly = hit("Safari"); scoreOnly.score = 2000
         publish([scoreOnly], 4)
@@ -284,6 +317,9 @@ enum PanelPresentationTests {
             while controller.field.effectiveAppearance.bestMatch(from: [.aqua, .darkAqua]) != expected, Date() < appearanceDeadline { wait(0.01) }
             let fieldAppearance = controller.field.effectiveAppearance.bestMatch(from: [.aqua, .darkAqua])
             check(fieldAppearance == expected, "Field appearance \(String(describing: fieldAppearance)) must follow \(expected.rawValue)")
+            let selectionColor = ((editor as! NSTextView).selectedTextAttributes[.backgroundColor] as! NSColor).usingColorSpace(.deviceRGB)!
+            check(abs(selectionColor.redComponent - selectionColor.blueComponent) < 0.001 && abs(selectionColor.greenComponent - selectionColor.blueComponent) < 0.001, "Text selection must be neutral, never accent blue")
+            check(mode == .dark ? selectionColor.redComponent > 0.9 : selectionColor.redComponent < 0.1, "Selection must contrast with the current appearance")
             let visibleCell = table.view(atColumn: 0, row: 0, makeIfNecessary: true)!
             check(visibleCell.effectiveAppearance.bestMatch(from: [.aqua, .darkAqua]) == expected)
             check(window.frame == windowFrame && controller.field.frame == fieldFrame, "Appearance changes must preserve panel geometry")

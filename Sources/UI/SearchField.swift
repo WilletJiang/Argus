@@ -46,6 +46,7 @@ final class SearchFieldEditor: NSTextView {
     override init(frame frameRect: NSRect, textContainer container: NSTextContainer?) {
         super.init(frame: frameRect, textContainer: container)
         insertionPointColor = .clear
+        updateSelectionColors()
         let notifications = NotificationCenter.default
         notifications.addObserver(self, selector: #selector(resetCaret), name: NSTextView.didChangeSelectionNotification, object: self)
         notifications.addObserver(self, selector: #selector(windowFocusChanged), name: NSWindow.didBecomeKeyNotification, object: nil)
@@ -60,7 +61,7 @@ final class SearchFieldEditor: NSTextView {
 
     override func becomeFirstResponder() -> Bool {
         let accepted = super.becomeFirstResponder()
-        if accepted { DispatchQueue.main.async { [weak self] in self?.resetCaret() } }
+        if accepted { updateSelectionColors(); DispatchQueue.main.async { [weak self] in self?.resetCaret() } }
         return accepted
     }
 
@@ -88,6 +89,17 @@ final class SearchFieldEditor: NSTextView {
     override func viewDidChangeEffectiveAppearance() {
         super.viewDidChangeEffectiveAppearance()
         caret.needsDisplay = true
+        updateSelectionColors()
+    }
+
+    private func updateSelectionColors() {
+        effectiveAppearance.performAsCurrentDrawingAppearance {
+            let dark = effectiveAppearance.bestMatch(from: [.aqua, .darkAqua]) == .darkAqua
+            selectedTextAttributes = [
+                .backgroundColor: (dark ? NSColor.white : NSColor.black).withAlphaComponent(0.24),
+                .foregroundColor: dark ? NSColor.white : NSColor.black
+            ]
+        }
     }
 
     private var canShowCaret: Bool {

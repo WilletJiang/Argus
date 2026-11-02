@@ -31,7 +31,7 @@ final class SearchSurface {
     let panel: SearchPanel
     let field = SearchField()
     let table = ResultTable()
-    let scroll = NSScrollView()
+    let scroll = ResultScrollView()
     let empty = NSTextField(labelWithString: "")
     let footer = NSTextField(labelWithString: "")
     let scopeLabel = NSTextField(labelWithString: "")
@@ -147,6 +147,7 @@ final class SearchSurface {
         table.selectionHighlightStyle = .regular
         table.setAccessibilityLabel("Search results")
         scroll.documentView = table
+        scroll.verticalLineScroll = Self.rowHeight / 2
         scroll.drawsBackground = false
         scroll.hasVerticalScroller = true
         scroll.autohidesScrollers = true
