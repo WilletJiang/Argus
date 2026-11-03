@@ -68,4 +68,9 @@ initialization, so it was not used for the coverage-guided run. Apple Clang's
 ASan test builds worked. Use compatible compiler/runtime combinations; a sanitizer
 startup failure is not a passed test or an application finding.
 
-A separately authorized [live subscription run](../evals/results/2026-11-03.md) now covers text/tool execution on `gpt-6.1-sol`; live Ask, cancellation and other models remain separate validation work.
+A separately authorized live subscription run covered text/tool execution on
+`gpt-6.1-sol`: both this harness and Codex produced passing outputs on three fixed
+synthetic tasks. Initial harness requests exposed an absent Content-Type header,
+now handled by strict SSE validation. Codex had one timeout with correct output;
+a labeled rerun completed. Generated reports and outputs were removed afterward.
+Live Ask, cancellation and other models remain separate validation work.

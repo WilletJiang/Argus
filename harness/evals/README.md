@@ -76,4 +76,5 @@ synthetic task data but should still be reviewed before publication.
 A timeout and output correctness are separate observations. The grader runs even
 when a runner times out. Retain failed attempts and label reruns explicitly.
 
-See [the 2026-11-03 live report](results/2026-11-03.md).
+Generated outputs from the 2026-11-03 run were removed after validation. Keep future
+run outputs outside the source tree and clean them up when the comparison is complete.

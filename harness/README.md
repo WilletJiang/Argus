@@ -96,9 +96,11 @@ semantic memory and provider switching are not silently performed. Text-stream
 completion is not proof of a real-world task outcome. A product should verify its
 own completion conditions before presenting a task as done.
 
-A [live subscription comparison](evals/results/2026-11-03.md) completed three synthetic
-tasks with both this runtime and Codex, and exposed a fixed transport compatibility
-issue. No claim of industry leadership is made from this small evaluation. Advertised behavior is covered by executable contracts, and the
-remaining validation boundaries are documented.
+A live subscription comparison completed three synthetic tasks with both this
+runtime and Codex, and exposed a fixed transport compatibility issue. Generated
+evaluation outputs were removed after validation; reusable runners and graders
+remain in `evals/`. This small evaluation does not establish industry leadership.
+Advertised behavior is covered by executable contracts; validation boundaries
+are documented.
 
 MIT license. Third-party licenses and checksums are in [vendor](vendor/README.md).
