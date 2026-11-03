@@ -84,9 +84,7 @@ async def run_codex(
     home.mkdir()
     token = os.environ["AH_ACCESS_TOKEN"] if access_token is None else access_token
     trace = Trace(directory, token)
-    env = dict(
-        os.environ, CODEX_HOME=str(home), ACCESS_TOKEN=os.environ["AH_ACCESS_TOKEN"]
-    )
+    env = dict(os.environ, CODEX_HOME=str(home), ACCESS_TOKEN=token)
     env.pop("OPENAI_API_KEY", None)
     env.pop("AH_ACCESS_TOKEN", None)
     configuration = {

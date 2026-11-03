@@ -4,6 +4,7 @@ import asyncio, os, pathlib, tempfile, unittest
 from endurance_task import prepare, protected_hashes, PROMPT, SPEC
 from endurance_runner import StartBarrier, run_harness, summarize
 from endurance_codex import run_codex
+from unittest.mock import patch
 
 MOCK = r"""#!/usr/bin/env python3
 import json,sys,time,threading
@@ -91,6 +92,39 @@ class EnduranceChecks(unittest.TestCase):
         self.assertEqual(s["usage"]["input_tokens"], 300)
         self.assertEqual(s["confirmed_model_responses"], 2)
         self.assertEqual(s["usage"]["output_tokens"], 20)
+
+    def test_explicit_probe_credential_overrides_parent(self):
+        mock_source = MOCK.replace(
+            "else:\n    for line in sys.stdin:",
+            "else:\n    import os\n"
+            "    assert os.environ['ACCESS_TOKEN'] == 'offline-override'\n"
+            "    assert 'AH_ACCESS_TOKEN' not in os.environ\n"
+            "    for line in sys.stdin:",
+        )
+        with tempfile.TemporaryDirectory() as tmp, patch.dict(os.environ):
+            root = pathlib.Path(tmp)
+            mock = root / "mock"
+            mock.write_text(mock_source)
+            mock.chmod(0o700)
+            for inherited in (None, "different-parent-fixture"):
+                if inherited is None:
+                    os.environ.pop("AH_ACCESS_TOKEN", None)
+                else:
+                    os.environ["AH_ACCESS_TOKEN"] = inherited
+                directory = root / str(inherited)
+                (directory / "workspace").mkdir(parents=True)
+                result = asyncio.run(
+                    run_codex(
+                        directory,
+                        str(mock),
+                        "gpt-6.1-terra",
+                        "xhigh",
+                        "READY",
+                        2,
+                        access_token="offline-override",
+                    )
+                )
+                self.assertEqual(result["state"], "completed")
 
     def test_adapters_completion_and_external_cutoff(self):
         previous = os.environ.get("AH_ACCESS_TOKEN")

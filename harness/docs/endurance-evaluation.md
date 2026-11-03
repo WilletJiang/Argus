@@ -75,3 +75,38 @@ The local wire probe used fake credentials and a loopback fixture, so it consume
 - Post-run audit SHA-256: `d1cd2564b0a0562b27bd5c53f682a45dbf2140f6d229205d1ca138d020e91bd2`
 
 The same hashes were verified after evaluation. See [evaluation instructions](../evals/README.md), [model reference](https://developers.openai.com/api/docs/models/gpt-6.1-terra), and [plan-authorized app-server setup](https://developers.openai.com/siwc/token-sharing-open-source/codex-app-server).
+
+
+## Cache follow-up: observations, not a root-cause claim
+
+Across the successful trials, the weighted cached-input rate was 40.25% for the
+harness and 96.40% for Codex. Uncached input differed by 5.117x. The trajectories
+also differed (22 versus 35 completed model responses), so the hit percentages do
+not isolate cache implementation efficiency. Fresh tool data and repeated context
+must be separated before assigning the difference to avoidable misses.
+
+A subsequent offline C probe exercised the production request builder, native
+response persistence and three 40,000-byte result receipts. Across four requests,
+input history grew 1 -> 4 -> 7 -> 10 items: every prior item remained byte-identical,
+as did model, instructions, tool definitions and other stable request fields. The
+16 KiB projection was present and did not rewrite earlier results.
+
+A loopback probe of the installed Codex app-server exercised two harmless tool
+calls and three requests. Input grew 4 -> 6 -> 8 items with its earlier prefix
+preserved and tool definitions unchanged. It sent a stable prompt_cache_key, no
+prompt_cache_options or explicit prompt_cache_breakpoint, and no previous_response_id.
+The harness does not currently send a prompt_cache_key. This is an observed
+configuration difference, not a verified explanation for the hit-rate gap:
+[current guidance](https://developers.openai.com/api/docs/guides/prompt-caching)
+says GPT-5.6 and later handle cache routing automatically and do not require that
+key for optimization.
+
+The original run did not retain per-request prefix fingerprints or server cache
+miss diagnostics in its aggregate report. The exact cause therefore remains
+unresolved; stable local replay does not prove matching internal server prefixes
+or available cache entries. A controlled follow-up should replay the same growing
+conversation, compare one request-setting change at a time, and record new input,
+reusable prefix size, cache reads/writes, returned model/service tier and
+[prompt_cache_diagnostics](https://developers.openai.com/api/docs/guides/prompt-caching/diagnostics).
+Diagnostics support must first be checked on the subscription route. The offline
+probes above made no external model calls and consumed no subscription tokens.
