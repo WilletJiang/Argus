@@ -13,6 +13,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from types import SimpleNamespace
+from unittest.mock import patch
 
 from login import login
 from oauth import AuthError, ISSUER, OAuthClient
@@ -27,7 +28,13 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
 
 class LoginTests(unittest.TestCase):
     def test_pkce_state_and_hint_stays_out_of_public_url(self):
-        with tempfile.TemporaryDirectory() as directory:
+        with (
+            tempfile.TemporaryDirectory() as directory,
+            patch(
+                "socket.getfqdn",
+                side_effect=AssertionError("Loopback login must not resolve DNS"),
+            ),
+        ):
             api = FakeOAuth()
             manager = SessionManager(
                 MemoryVault(), Path(directory) / "account.json", api
@@ -140,7 +147,6 @@ class LoginTests(unittest.TestCase):
             )
 
     def test_oauth_error_redaction(self):
-        from unittest.mock import patch
         import io
 
         error = urllib.error.HTTPError(
@@ -157,6 +163,7 @@ class LoginTests(unittest.TestCase):
         with patch("urllib.request.urlopen", side_effect=error):
             with self.assertRaises(AuthError) as caught:
                 OAuthClient().refresh("client", "refresh-secret")
+        error.close()
         self.assertEqual(caught.exception.code, "invalid_grant")
         self.assertNotIn("secret", str(caught.exception))
 

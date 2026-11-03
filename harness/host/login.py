@@ -4,10 +4,20 @@ import base64
 import hashlib
 import http.server
 import secrets
+import socketserver
 import threading
 import urllib.parse
 import webbrowser
 from oauth import AuthError, ISSUER, RESOURCE, SCOPE
+
+
+class LoopbackServer(http.server.ThreadingHTTPServer):
+    def server_bind(self):
+        # The callback is always a numeric loopback address; reverse DNS is both
+        # unnecessary and can block listener startup on managed macOS hosts.
+        socketserver.TCPServer.server_bind(self)
+        self.server_name = "127.0.0.1"
+        self.server_port = self.server_address[1]
 
 
 def login(manager, on_url, *, open_browser=True, timeout=600):
@@ -89,7 +99,7 @@ def login(manager, on_url, *, open_browser=True, timeout=600):
                 finished.set()
                 callback_lock.release()
 
-    server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+    server = LoopbackServer(("127.0.0.1", 0), Handler)
     redirect_uri = f"http://127.0.0.1:{server.server_port}/auth/callback"
     parameters = {
         "client_id": profile.get("client_id", "dynamic_agent_client"),
