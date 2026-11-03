@@ -29,8 +29,11 @@ Use one profile path per registration. `--profile PATH` selects another account
 profile; it is not a credential export.
 
 The login callback checks state, PKCE and signed identity claims including issuer,
-audience, expiry, nonce and the selected account. A local opaque browser entry URL
-keeps identity-token hints out of process arguments and application logs. Refresh
+audience, expiry, nonce and the selected account. Fresh login opens the official
+authorization URL directly. When reusing an identity-token hint, a local opaque
+entry URL keeps that token out of process arguments and application logs. The
+concurrent loopback listener tolerates idle browser preconnections while serializing
+authorization-code exchange. Refresh
 replaces the entire rotated credential set under the same lock. Transient failures
 retain the prior record; permanently invalid refresh grants clear unusable tokens
 and leave public registration intact for reconnection. An explicit `logout`

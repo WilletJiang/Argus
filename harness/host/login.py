@@ -4,7 +4,7 @@ import base64
 import hashlib
 import http.server
 import secrets
-import time
+import threading
 import urllib.parse
 import webbrowser
 from oauth import AuthError, ISSUER, RESOURCE, SCOPE
@@ -17,8 +17,13 @@ def login(manager, on_url, *, open_browser=True, timeout=600):
     verifier = secrets.token_urlsafe(48)
     entry = "/login/" + secrets.token_urlsafe(24)
     outcome = {}
+    finished = threading.Event()
+    rendered = threading.Event()
+    callback_lock = threading.Lock()
 
     class Handler(http.server.BaseHTTPRequestHandler):
+        timeout = 5
+
         def log_message(self, *args):
             pass
 
@@ -42,8 +47,9 @@ def login(manager, on_url, *, open_browser=True, timeout=600):
                 self.wfile.write(
                     b"Connected. Your ChatGPT session is saved in macOS Keychain. You may close this tab."
                 )
+                rendered.set()
                 return
-            if parsed.path != "/auth/callback" or outcome:
+            if parsed.path != "/auth/callback" or finished.is_set():
                 self.send_error(404)
                 return
             query = urllib.parse.parse_qs(parsed.query)
@@ -52,13 +58,15 @@ def login(manager, on_url, *, open_browser=True, timeout=600):
             ):
                 self.send_error(400, "Invalid login state")
                 return
-            if query.get("error"):
-                outcome["error"] = AuthError(
-                    "access_denied", "OpenAI sign-in was not completed"
-                )
-                self.send_error(403, "Sign-in was not completed")
+            if not callback_lock.acquire(blocking=False):
+                self.send_error(409, "A login callback is already being processed")
                 return
             try:
+                if finished.is_set():
+                    self.send_error(409, "Login is already complete")
+                    return
+                if query.get("error"):
+                    raise AuthError("access_denied", "OpenAI sign-in was not completed")
                 if (
                     len(query.get("code", [])) != 1
                     or len(query.get("client_id", [None])) != 1
@@ -77,9 +85,11 @@ def login(manager, on_url, *, open_browser=True, timeout=600):
                 self.send_error(
                     400, "Could not save a validated login session; return to the app"
                 )
+            finally:
+                finished.set()
+                callback_lock.release()
 
-    server = http.server.HTTPServer(("127.0.0.1", 0), Handler)
-    server.timeout = 0.5
+    server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Handler)
     redirect_uri = f"http://127.0.0.1:{server.server_port}/auth/callback"
     parameters = {
         "client_id": profile.get("client_id", "dynamic_agent_client"),
@@ -108,20 +118,23 @@ def login(manager, on_url, *, open_browser=True, timeout=600):
             pass
     authorize = ISSUER + "/api/accounts/authorize?" + urllib.parse.urlencode(parameters)
     local_url = f"http://127.0.0.1:{server.server_port}" + entry
-    on_url(local_url)
-    if open_browser:
-        webbrowser.open(local_url)
-    started = time.monotonic()
+    # Only ID-token hints require an opaque local redirect. Fresh login can use
+    # the official URL directly, avoiding an unnecessary loopback round trip.
+    browser_url = local_url if parameters.get("id_token_hint") else authorize
+    serving = threading.Thread(target=server.serve_forever, daemon=True)
+    serving.start()
     try:
-        while not outcome and time.monotonic() - started < timeout:
-            server.handle_request()
-        if not outcome:
+        on_url(browser_url)
+        if open_browser:
+            webbrowser.open(browser_url)
+        if not finished.wait(timeout):
             raise AuthError(
                 "timeout", "Sign-in timed out; the saved registration remains available"
             )
         if outcome.get("error"):
             raise outcome["error"]
-        # Allow the browser's final non-secret redirect to render.
-        server.handle_request()
+        rendered.wait(2)
     finally:
+        server.shutdown()
         server.server_close()
+        serving.join()

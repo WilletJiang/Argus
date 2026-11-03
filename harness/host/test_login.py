@@ -5,6 +5,7 @@ import hashlib
 import json
 from pathlib import Path
 import tempfile
+import socket
 import threading
 import time
 import unittest
@@ -50,6 +51,11 @@ class LoginTests(unittest.TestCase):
             self.assertTrue(url_ready.wait(5))
             local = addresses[0]
             self.assertNotIn("id-one", local)
+            # Browsers open idle speculative connections before sending GET.
+            # A single-threaded HTTPServer blocks every later callback here.
+            address = urllib.parse.urlparse(local)
+            idle = socket.create_connection((address.hostname, address.port), timeout=5)
+            self.addCleanup(idle.close)
             opener = urllib.request.build_opener(NoRedirect)
             with self.assertRaises(urllib.error.HTTPError) as redirect:
                 opener.open(local, timeout=5)
