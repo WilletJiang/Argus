@@ -78,3 +78,57 @@ when a runner times out. Retain failed attempts and label reruns explicitly.
 
 Generated outputs from the 2026-11-03 run were removed after validation. Keep future
 run outputs outside the source tree and clean them up when the comparison is complete.
+
+
+## Long-task paired trials
+
+`endurance_run.py` runs three fresh copies of one multi-component Workboard release
+task per runner. Both runners request `gpt-6.1-terra` with `xhigh` through the same
+plan-authorized public Responses endpoint. Codex uses app-server with an isolated
+home and no external plugins, memory or child agents; its native prompt and tools
+still differ from the C harness. The user prompt and specification contain no
+evaluation duration. No follow-up prompt forces a stopped agent to continue.
+
+```sh
+python3 -B evals/endurance_run.py --driver build/live_driver   --output /private/fresh-evaluation --model gpt-6.1-terra --effort xhigh   --duration 600 --repetitions 3
+```
+
+The host supplies `AH_ACCESS_TOKEN` in memory. It is not a Platform API key. Two
+separate access probes must complete before a barrier releases all six task runs.
+Their usage is recorded separately. The external controller interrupts active runs
+at the observation boundary, then allows a short shutdown grace period. Execution
+can end sooner on completion, failure or a request for unavailable human input.
+Normal completion is not classified as a persistence failure merely because it
+finishes before the observation boundary.
+
+The C adapter raises its non-time limits for this evaluation (1024 model calls,
+4096 tools, 8 MiB context, 4 MiB response, 1 MiB arguments). File-tool capture and
+16 KiB model-result views remain unchanged. Codex retains its own context machinery.
+These are operational controls, not identical tokenizer budgets. Both process
+tool environments exclude credentials; workspaces contain only synthetic files.
+
+The frozen 33 behavioral checks cover persistence, transactions, idempotency,
+leases, dependency order, analytics and CLI behavior. They do not establish full
+production correctness. Additional documentation/tests and unchanged input hashes
+are reported separately. The grader is never sent to the agent. Prompt/spec/grader
+hashes are recorded before execution. The live runner snapshots its grader outside the agent workspaces before execution;
+never edit criteria after seeing model outputs. The reported comparison also used
+a separate frozen copy of the runner itself.
+
+Report each trial rather than selecting the best. Input tokens include cached
+input; output tokens include reasoning output, so those subsets must not be added
+again. The C harness sums response usage; app-server exposes cumulative thread
+usage, for which the latest total is used. Interrupted requests can omit usage:
+`usage_complete=false` marks observed lower bounds, never an assumed zero cost.
+Tool-active minute buckets measure observed tool starts, not proof of productive
+reasoning during every intervening second. Natural completion and graded results
+must be considered together.
+
+`test_endurance.py` uses fake local executables to verify barriers, cutoff behavior
+and usage accounting without external inference. Keep run workspaces/traces out of
+the repository and remove them after recording the aggregate measurements.
+
+After-run quality review uses `endurance_quality.py WORKSPACE` and is reported
+separately from the frozen 33-check score. The 2026-11-03 measurements and all
+confirmed token usage, including the interrupted pilot, are recorded in
+[the evaluation report](../docs/endurance-evaluation.md).

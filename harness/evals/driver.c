@@ -14,6 +14,7 @@ typedef struct {
     ah_local_tools *executor;
     const char *workspace;
     const char *codex;
+    const char *effort;
 } evaluation;
 
 static ah_code complete(void *context, const char *request, ah_delta_sink delta, void *delta_ctx,
@@ -30,7 +31,7 @@ static ah_code complete(void *context, const char *request, ah_delta_sink delta,
     yyjson_mut_val *root = yyjson_val_mut_copy(doc, yyjson_doc_get_root(parsed));
     yyjson_mut_doc_set_root(doc, root);
     yyjson_mut_val *reasoning = yyjson_mut_obj(doc);
-    yyjson_mut_obj_add_str(doc, reasoning, "effort", "low");
+    yyjson_mut_obj_add_strcpy(doc, reasoning, "effort", eval->effort);
     yyjson_mut_obj_add_val(doc, root, "reasoning", reasoning);
     char *json = ah_mut_write(doc);
     yyjson_doc_free(parsed);
@@ -85,6 +86,7 @@ static void observe(void *context, const ah_event *event) {
     yyjson_mut_doc_set_root(doc, root);
     yyjson_mut_obj_add_str(doc, root, "event", event->type);
     yyjson_mut_obj_add_uint(doc, root, "seq", event->seq);
+    yyjson_mut_obj_add_uint(doc, root, "monotonic_ms", ah_now_ms());
     yyjson_doc *data = yyjson_read(event->json, strlen(event->json), 0);
     if (data)
         yyjson_mut_obj_add_val(doc, root, "data",
@@ -100,9 +102,22 @@ static void observe(void *context, const ah_event *event) {
 }
 
 int main(int argc, char **argv) {
-    if (argc != 5) {
-        fputs("usage: live_driver WORKSPACE DATABASE MODEL CODEX_BINARY\n", stderr);
+    if (argc != 5 && argc != 7) {
+        fputs("usage: live_driver WORKSPACE DATABASE MODEL CODEX_BINARY [EFFORT RUN_SECONDS]\n",
+              stderr);
         return 2;
+    }
+    const char *effort = argc == 7 ? argv[5] : "low";
+    unsigned long run_seconds = 240;
+    if (argc == 7) {
+        char *end = NULL;
+        run_seconds = strtoul(argv[6], &end, 10);
+        if (!*argv[6] || *end || run_seconds < 1 || run_seconds > 3600 ||
+            (strcmp(effort, "low") && strcmp(effort, "medium") && strcmp(effort, "high") &&
+             strcmp(effort, "xhigh"))) {
+            fputs("Invalid reasoning effort or run seconds\n", stderr);
+            return 2;
+        }
     }
     char prompt[65536];
     size_t length = fread(prompt, 1, sizeof(prompt) - 1, stdin);
@@ -116,11 +131,13 @@ int main(int argc, char **argv) {
     ah_responses_config pc;
     ah_responses_config_init(&pc);
     pc.bearer_token = getenv("AH_ACCESS_TOKEN");
-    pc.timeout_ms = 180000;
+    pc.timeout_ms = run_seconds * 1000;
     pc.max_retries = 0;
     ah_code code = ah_responses_open(&pc, &provider, &error);
-    evaluation eval = {
-        .provider = ah_responses_provider(provider), .workspace = argv[1], .codex = argv[4]};
+    evaluation eval = {.provider = ah_responses_provider(provider),
+                       .workspace = argv[1],
+                       .codex = argv[4],
+                       .effort = effort};
     ah_engine *engine = NULL;
     ah_local_tools *files = NULL;
     ah_config config;
@@ -128,7 +145,14 @@ int main(int argc, char **argv) {
     config.database_path = argv[2];
     config.provider = (ah_provider){complete, &eval};
     config.observer = observe;
-    config.run_timeout_ms = 240000;
+    config.run_timeout_ms = run_seconds * 1000;
+    if (argc == 7) {
+        config.max_model_calls = 1024;
+        config.max_tool_calls = 4096;
+        config.max_context_bytes = 8 * 1024 * 1024;
+        config.max_output_bytes = 4 * 1024 * 1024;
+        config.max_tool_arguments_bytes = 1024 * 1024;
+    }
     config.tool_timeout_ms = 30000;
     ah_local_tools_config file_config = {
         .workspace = argv[1], .enable_exec = false, .approve_writes = false};

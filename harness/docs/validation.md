@@ -17,6 +17,7 @@ consume subscription/API quotas. Tests create temporary state and clean it up.
 | cli | Actual executable: network-to-tool-to-model loop, persisted approval and Ask across restarts, dedupe/fork/checkpoint, RPC |
 | rpc | Malformed frames, asynchronous cancel, EOF and signals, busy response, no-token metadata commands |
 | eval_cases | Offline positive/negative checks of the fixed live task graders |
+| eval_endurance | Six-run barrier/abort, external cutoff, token subset/cumulative accounting, fake runner integration without credentials |
 | embed | A C client with no product dependencies |
 
 Run normal and sanitizer builds, then `scripts/check-standalone.sh`. The latter
@@ -125,3 +126,8 @@ reduces durability transactions, so these numbers do not isolate thread speedup.
 The benchmark checks exact returned file contents, all four receipts and their
 order; it prints raw sample arrays and removes its temporary files. It establishes
 neither model-latency improvements nor performance against other harnesses.
+
+
+The subsequent Terra 6.1 xhigh comparison includes three parallel paired trials,
+reported token/cache breakdowns, and a separate result-quality audit. See
+[the full evaluation](endurance-evaluation.md).
