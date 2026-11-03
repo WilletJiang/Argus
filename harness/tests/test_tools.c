@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <time.h>
 #include <unistd.h>
 
 static ah_tool registered[5];
@@ -144,18 +145,33 @@ static int child(int argc, char **argv) {
             for (;;)
                 pause();
     } else if (!strcmp(argv[2], "closed_descendant")) {
+        CHECK(argc == 4);
+        /* Exercise startup slower than the old 100 ms cancellation deadline. */
+        struct timespec startup = {.tv_nsec = 150000000};
+        while (nanosleep(&startup, &startup) < 0)
+            CHECK(errno == EINTR);
+        int ready[2];
+        CHECK(pipe(ready) == 0);
         pid_t pid = fork();
         CHECK(pid >= 0);
         if (!pid) {
+            close(ready[0]);
             signal(SIGTERM, SIG_IGN);
             close(STDIN_FILENO);
             close(STDOUT_FILENO);
             close(STDERR_FILENO);
+            CHECK(write(ready[1], "r", 1) == 1);
+            close(ready[1]);
             for (;;)
                 pause();
         }
+        close(ready[1]);
+        char marker;
+        CHECK(read(ready[0], &marker, 1) == 1);
+        close(ready[0]);
         printf("%ld", (long)pid);
         fflush(stdout);
+        tools_put_file(argv[3], "ready", 5);
         for (;;)
             pause();
     } else
@@ -169,6 +185,16 @@ static bool cancel_now(void *context) {
 }
 static bool cancel_after(void *context) {
     return ah_now_ms() >= *(uint64_t *)context;
+}
+typedef struct {
+    const char *path;
+    uint64_t cancelled_at;
+} ready_cancel;
+static bool cancel_when_ready(void *context) {
+    ready_cancel *ready = context;
+    if (!ready->cancelled_at && access(ready->path, F_OK) == 0)
+        ready->cancelled_at = ah_now_ms();
+    return ready->cancelled_at != 0;
 }
 static bool cancel_before_commit(void *context) {
     return ++*(unsigned *)context >= 3;
@@ -358,15 +384,20 @@ int main(int argc, char **argv) {
     doc = tools_invoke("exec", args, 1024, ah_now_ms() + 100, NULL, NULL, AH_LIMIT, true);
     yyjson_doc_free(doc);
     free(args);
-    args = exec_arguments(executable, "closed_descendant", NULL);
-    begin = ah_now_ms();
-    doc = tools_invoke("exec", args, 1024, begin + 100, NULL, NULL, AH_LIMIT, true);
+    char ready_path[PATH_MAX];
+    CHECK(snprintf(ready_path, sizeof(ready_path), "%s/descendant-ready", workspace) <
+          (int)sizeof(ready_path));
+    ready_cancel readiness = {.path = ready_path};
+    args = exec_arguments(executable, "closed_descendant", ready_path);
+    doc = tools_invoke("exec", args, 1024, ah_now_ms() + 10000, cancel_when_ready, &readiness,
+                       AH_CANCELLED, true);
     free(args);
     pid_t descendant =
         (pid_t)atoi(yyjson_get_str(yyjson_obj_get(yyjson_doc_get_root(doc), "stdout")));
     CHECK(descendant > 0);
     /* The full TERM grace must elapse even after the leader exits and pipes close. */
-    CHECK(ah_now_ms() - begin >= 280);
+    CHECK(readiness.cancelled_at && ah_now_ms() - readiness.cancelled_at >= 200);
+    CHECK(unlink(ready_path) == 0);
     kill(descendant, SIGKILL); /* Harmless if already reaped; prevents leftovers on regression. */
     yyjson_doc_free(doc);
     tools_expect("exec", "{\"argv\":[\"/bin/echo\\u0000bad\"]}", AH_INVALID);
