@@ -175,3 +175,9 @@ Request tracing exposes raw request bodies to the driver's stdout consumer.
 ordinary trace; do not pipe raw events directly to a persistent file. Ordinary
 model/tool events still contain task data. These flags are evaluation-only and do
 not change the public C configuration or credential handling.
+
+The completed [cache routing investigation](../docs/cache-evaluation.md) includes
+JSON-only and session-header controls, native file-tool loops and three concurrent
+clients. Keep the old binary when comparing a transport change; run the same
+`run_case` workload through each binary and retain failed cases. The response key
+echo check detects a server-rewritten key without storing the key itself.

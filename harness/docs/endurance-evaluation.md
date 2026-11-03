@@ -116,3 +116,7 @@ key for each fork. Regression tests check reopen, resume and checkpoint behavior
 The reusable controlled study and per-request fingerprint collector are documented
 in [evaluation instructions](../evals/README.md#cache-diagnostics). These additions
 do not retroactively establish the cause of the earlier cache gap.
+
+The completed [2026-11-04 follow-up](cache-evaluation.md) identified a missing
+HTTP session-id header on the subscription route. Controlled replays and a native
+tool loop verify the routing fix; all failures and usage are retained separately.

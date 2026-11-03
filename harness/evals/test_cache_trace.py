@@ -139,6 +139,27 @@ class CacheChecks(unittest.TestCase):
         self.assertIsNone(missing["uncached_input_tokens"])
         self.assertFalse(missing["diagnostics_returned"])
 
+    def test_cache_key_echo_distinguishes_match_rewrite_and_absence(self):
+        trace = CacheTrace()
+        trace.request({"input": [], "prompt_cache_key": "stable-session"})
+        self.assertTrue(
+            trace.response({"prompt_cache_key": "stable-session"})[
+                "cache_key_echo_matches_request"
+            ]
+        )
+        self.assertFalse(
+            trace.response({"prompt_cache_key": "server-generated"})[
+                "cache_key_echo_matches_request"
+            ]
+        )
+        self.assertIsNone(trace.response({})["cache_key_echo_matches_request"])
+        trace.request({"input": []})
+        self.assertIsNone(
+            trace.response({"prompt_cache_key": "server-generated"})[
+                "cache_key_echo_matches_request"
+            ]
+        )
+
     def test_study_steps_and_rejected_diagnostics(self):
         bodies = []
 

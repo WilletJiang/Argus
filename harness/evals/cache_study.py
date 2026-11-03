@@ -119,6 +119,10 @@ def capabilities(args, root):
         "key_parameter_accepted": True,
         "diagnostic_parameter_accepted": supported,
         "diagnostic_results_returned": any(r["diagnostics_returned"] for r in rows),
+        "diagnostic_comparison_available": any(
+            (r["diagnostics"] or {}).get("type") in ("cache_hit", "cache_miss")
+            for r in rows
+        ),
         "responses": rows,
     }
     (root / "capabilities.json").write_text(json.dumps(result, indent=2))

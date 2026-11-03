@@ -116,7 +116,11 @@ class CacheTrace:
             if body.get("prompt_cache_key")
             else None,
         }
-        self.previous = {"fields": fields, "items": items}
+        self.previous = {
+            "fields": fields,
+            "items": items,
+            "cache_key_sha256": result["cache_key_sha256"],
+        }
         return result
 
     def response(self, body, *, elapsed_ms=None, transport_error=None):
@@ -165,6 +169,11 @@ class CacheTrace:
             if isinstance(diagnostics, dict)
             else None,
         }
+        expected = (self.previous or {}).get("cache_key_sha256")
+        echoed = result["cache_key_echo_sha256"]
+        result["cache_key_echo_matches_request"] = (
+            expected == echoed if expected is not None and echoed is not None else None
+        )
         if (
             result["input_tokens"] is not None
             and result["cached_input_tokens"] is not None
