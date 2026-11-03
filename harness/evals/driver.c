@@ -5,44 +5,17 @@
 #include "internal.h"
 #include "cli/cli.h"
 #include "tools/local_internal.h"
+#include "request_trace.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 typedef struct {
-    ah_provider provider;
+    eval_model model;
     ah_local_tools *executor;
     const char *workspace;
     const char *codex;
-    const char *effort;
 } evaluation;
-
-static ah_code complete(void *context, const char *request, ah_delta_sink delta, void *delta_ctx,
-                        ah_cancel_check cancelled, void *cancel_ctx, char **response,
-                        ah_error *error) {
-    evaluation *eval = context;
-    yyjson_doc *parsed = yyjson_read(request, strlen(request), 0);
-    yyjson_mut_doc *doc = ah_mut_doc_new();
-    if (!parsed || !doc) {
-        yyjson_doc_free(parsed);
-        ah_mut_doc_free(doc);
-        return AH_IO;
-    }
-    yyjson_mut_val *root = yyjson_val_mut_copy(doc, yyjson_doc_get_root(parsed));
-    yyjson_mut_doc_set_root(doc, root);
-    yyjson_mut_val *reasoning = yyjson_mut_obj(doc);
-    yyjson_mut_obj_add_strcpy(doc, reasoning, "effort", eval->effort);
-    yyjson_mut_obj_add_val(doc, root, "reasoning", reasoning);
-    char *json = ah_mut_write(doc);
-    yyjson_doc_free(parsed);
-    ah_mut_doc_free(doc);
-    if (!json)
-        return AH_IO;
-    ah_code code = eval->provider.complete(eval->provider.context, json, delta, delta_ctx,
-                                           cancelled, cancel_ctx, response, error);
-    free(json);
-    return code;
-}
 
 static ah_code sandbox_exec(void *context, const ah_tool_call *call, ah_tool_result *result,
                             ah_error *error) {
@@ -131,19 +104,35 @@ int main(int argc, char **argv) {
     ah_responses_config pc;
     ah_responses_config_init(&pc);
     pc.bearer_token = getenv("AH_ACCESS_TOKEN");
+    const char *endpoint = getenv("AH_EVAL_ENDPOINT"), *loopback = getenv("AH_EVAL_ALLOW_LOOPBACK");
+    if (endpoint)
+        pc.endpoint = endpoint;
+    pc.allow_loopback_http = loopback && !strcmp(loopback, "1");
     pc.timeout_ms = run_seconds * 1000;
     pc.max_retries = 0;
     ah_code code = ah_responses_open(&pc, &provider, &error);
-    evaluation eval = {.provider = ah_responses_provider(provider),
+    evaluation eval = {.model = {.inner = ah_responses_provider(provider), .effort = effort},
                        .workspace = argv[1],
-                       .codex = argv[4],
-                       .effort = effort};
+                       .codex = argv[4]};
+    const char *cache_key = getenv("AH_EVAL_CACHE_KEY"),
+               *diagnostics = getenv("AH_EVAL_CACHE_DIAGNOSTICS"),
+               *trace = getenv("AH_EVAL_TRACE_REQUESTS");
+    if ((cache_key && strcmp(cache_key, "omit") && strcmp(cache_key, "session")) ||
+        (diagnostics && strcmp(diagnostics, "0") && strcmp(diagnostics, "1")) ||
+        (trace && strcmp(trace, "0") && strcmp(trace, "1"))) {
+        fputs("Invalid evaluation cache option\n", stderr);
+        ah_responses_close(provider);
+        return 2;
+    }
+    eval.model.omit_cache_key = cache_key && !strcmp(cache_key, "omit");
+    eval.model.diagnostics = diagnostics && !strcmp(diagnostics, "1");
+    eval.model.trace = trace && !strcmp(trace, "1");
     ah_engine *engine = NULL;
     ah_local_tools *files = NULL;
     ah_config config;
     ah_config_init(&config);
     config.database_path = argv[2];
-    config.provider = (ah_provider){complete, &eval};
+    config.provider = eval_model_provider(&eval.model);
     config.observer = observe;
     config.run_timeout_ms = run_seconds * 1000;
     if (argc == 7) {
@@ -213,6 +202,7 @@ int main(int argc, char **argv) {
     ah_close(engine);
     ah_local_tools_close(files);
     ah_local_tools_close(eval.executor);
+    eval_model_close(&eval.model);
     ah_responses_close(provider);
     return code == AH_OK ? 0 : 1;
 }

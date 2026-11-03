@@ -59,6 +59,7 @@ ah_code core_request(ah_engine *e, const core_session *session, char **json, ah_
     yyjson_mut_val *root = yyjson_mut_obj(d);
     yyjson_mut_doc_set_root(d, root);
     yyjson_mut_obj_add_strcpy(d, root, "model", session->model);
+    yyjson_mut_obj_add_strcpy(d, root, "prompt_cache_key", session->id);
     yyjson_mut_obj_add_strcpy(d, root, "instructions", session->instructions);
     yyjson_mut_obj_add_bool(d, root, "store", false);
     yyjson_mut_obj_add_bool(d, root, "stream", true);

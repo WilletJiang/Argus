@@ -132,3 +132,45 @@ After-run quality review uses `endurance_quality.py WORKSPACE` and is reported
 separately from the frozen 33-check score. The 2026-11-03 measurements and all
 confirmed token usage, including the interrupted pilot, are recorded in
 [the evaluation report](../docs/endurance-evaluation.md).
+
+## Cache diagnostics
+
+The macOS [host adapter](../host/README.md) keeps the subscription login in Keychain
+across evaluations. Test cleanup removes generated workspaces, not the saved login.
+Build `cache_driver` with `AH_LIVE_EVAL=ON`, then run:
+
+```sh
+python3 -B host/auth.py login --then python3 -B evals/cache_study.py \
+  --driver build/cache_driver --output /private/fresh-cache-study --rounds 2 --parallel
+```
+
+The controlled study uses the native C HTTP/SSE transport with synthetic fixed
+reference records. It compares a stable key versus omission, top-level instructions
+versus a developer input message, and cold/identical/growing requests. Equal-length
+fresh group identifiers separate trials; every case uses the same records and
+increments. The optional parallel phase runs three clients per key variant.
+These are cache protocol probes, not a task-quality or endurance benchmark.
+
+A capability probe checks the actual served model and reasoning effort. It tests
+`prompt_cache_options.comparison_response_id` and changes instructions/tools as
+positive controls. A rejected diagnostics parameter is recorded; remaining cases
+then omit it. Accepted parameters without returned diagnostics do not prove server
+support. No retry silently replaces a failed trial. Missing usage stays unknown.
+
+Each request gets content-free SHA-256 fingerprints of instructions, tools,
+settings and individual input items. Reports include prefix preservation, cached
+and uncached input, optional cache writes/diagnostics, returned model/tier and
+latency. Hash equality checks client serialization, not server tokenization.
+Input includes its cached subset; output includes its reasoning subset.
+
+The real agent `live_driver` supports the same investigation via:
+
+- `AH_EVAL_CACHE_KEY=session|omit` (default: the durable session UUID).
+- `AH_EVAL_CACHE_DIAGNOSTICS=0|1` (default: 0).
+- `AH_EVAL_TRACE_REQUESTS=0|1` (default: 0).
+
+Request tracing exposes raw request bodies to the driver's stdout consumer.
+`endurance_runner.Trace` hashes them before writing `cache-metrics.jsonl` or the
+ordinary trace; do not pipe raw events directly to a persistent file. Ordinary
+model/tool events still contain task data. These flags are evaluation-only and do
+not change the public C configuration or credential handling.

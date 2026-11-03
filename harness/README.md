@@ -8,11 +8,13 @@ installable so it can move to its own repository without an architectural rewrit
 The supported model protocol is OpenAI Responses over HTTP/SSE, including the
 ChatGPT-plan request shape. Authentication is supplied by the embedding host;
 this library does not read Codex credentials or implement an OAuth browser flow.
+The optional [macOS host adapter](host/README.md) provides persistent ChatGPT login
+with Keychain storage and serialized refresh, without adding dependencies to C clients.
 
 ## Build and verify
 
 Requires CMake 3.20+, a C17 compiler, libcurl 7.68+ built with asynchronous DNS,
-SQLite 3, and pthreads. Python 3 is used only by integration tests. JSON parsing
+SQLite 3, and pthreads. Python 3 is used by integration tests and the optional host adapter. JSON parsing
 uses vendored yyjson 0.12.0. Linux process tools require glibc 2.34+; macOS uses
 native spawn actions. Unsupported process isolation primitives fail closed.
 
@@ -39,6 +41,7 @@ against the installed `ah::ah` package.
 - Crash recovery that preserves uncertain effects; explicit reconciliation rather than
   blind re-execution of writes.
 - Completed-session forks and explicit context checkpoints, including settled stopped turns.
+- Stable per-session prompt cache keys, retained across reopen, resume and checkpoints.
 - Streaming HTTPS with connection reuse, bounded parser buffers, strict UTF-8/JSON,
   conservative retries, and interruption during stalled network I/O or backoff.
 - Paged UTF-8 reads, directory listing, atomic writes/exact edits, and opt-in process execution.
@@ -62,6 +65,10 @@ The host owns OAuth registration, refresh and credential storage. Update the tok
 between calls with `ah_responses_set_token`. Never give model/tool code access to
 refresh credentials. Plan-authorized OAuth tokens and Platform API keys are not
 interchangeable credentials; use the appropriate supported authorization flow.
+
+Requests use the durable session UUID as `prompt_cache_key`; a fork gets its own
+key. This supplies a stable cache identifier, not a guarantee of cache hits.
+Changes to earlier instructions, tools or history can still invalidate prefixes.
 
 The CLI accepts `AH_ACCESS_TOKEN` or an explicitly supplied `--token-file`. A token
 file must be an owner-only regular file, containing a bearer token or a SIWC JSON
