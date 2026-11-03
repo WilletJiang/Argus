@@ -357,15 +357,19 @@ static void invalid_and_unavailable_barriers(void) {
 static void cancellation_and_deadline(void) {
     for (unsigned deadline = 0; deadline < 2; deadline++) {
         fixture f = {.names = {"read", "read", "read"}, .count = 3};
-        f.partner[1] = f.partner[2] = 3;
-        f.partner[3] = 1;
-        f.wait_finished[1] = f.wait_finished[2] = 3;
+        if (!deadline) {
+            /* Cancellation must wait for every callback, not just workers 1/3. */
+            f.barrier_count = 3;
+            f.wait_finished[1] = f.wait_finished[2] = 3;
+        }
         f.cancel_id = deadline ? 0 : 3;
         f.wait_deadline = deadline != 0;
         open_fixture(&f, 3, 16, deadline ? 50 : 10000);
         char sid[AH_ID_CAP];
         assert(run_fixture(&f, sid) == (deadline ? AH_LIMIT : AH_CANCELLED));
-        assert(f.executions == 3 && f.provider_calls == 1 && f.receipts == 3);
+        /* A deadline can expire before a scheduled worker enters its callback. */
+        assert((deadline ? f.executions <= 3 : f.executions == 3));
+        assert(f.provider_calls == 1 && f.receipts == 3);
         assert(f.late_receipts == 3);
         assert(scalar(&f, "SELECT COUNT(*) FROM operations WHERE status='executing'") == 0);
         assert(scalar(&f, "SELECT state FROM sessions") == AH_STOPPED);
