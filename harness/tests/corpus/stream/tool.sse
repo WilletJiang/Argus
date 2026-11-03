@@ -1,0 +1,2 @@
+data: {"type":"response.completed","response":{"status":"completed","output":[{"type":"reasoning","summary":[],"encrypted_content":"opaque"},{"type":"function_call","name":"read_file","namespace":"local","call_id":"c1","arguments":"{\"path\":\"a.txt\"}"}]}}
+
