@@ -95,7 +95,7 @@ A loopback probe of the installed Codex app-server exercised two harmless tool
 calls and three requests. Input grew 4 -> 6 -> 8 items with its earlier prefix
 preserved and tool definitions unchanged. It sent a stable prompt_cache_key, no
 prompt_cache_options or explicit prompt_cache_breakpoint, and no previous_response_id.
-The harness does not currently send a prompt_cache_key. This is an observed
+The evaluated harness did not send a prompt_cache_key. This is an observed
 configuration difference, not a verified explanation for the hit-rate gap:
 [current guidance](https://developers.openai.com/api/docs/guides/prompt-caching)
 says GPT-5.6 and later handle cache routing automatically and do not require that
@@ -110,3 +110,9 @@ reusable prefix size, cache reads/writes, returned model/service tier and
 [prompt_cache_diagnostics](https://developers.openai.com/api/docs/guides/prompt-caching/diagnostics).
 Diagnostics support must first be checked on the subscription route. The offline
 probes above made no external model calls and consumed no subscription tokens.
+
+Version 0.2.1 now sends the durable session UUID as its cache key, with a separate
+key for each fork. Regression tests check reopen, resume and checkpoint behavior.
+The reusable controlled study and per-request fingerprint collector are documented
+in [evaluation instructions](../evals/README.md#cache-diagnostics). These additions
+do not retroactively establish the cause of the earlier cache gap.

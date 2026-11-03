@@ -13,11 +13,15 @@ consume subscription/API quotas. Tests create temporary state and clean it up.
 | context | Over-budget/failed-turn compaction recovery, retained user constraints/steering, unresolved exchange rejection, transactional forks |
 | results | Bounded previews, exact UTF-8 retrieval, session/fork access, stable history, new/legacy pause names |
 | recovery | Whole-batch process-crash recovery, no silent retries, version 1 schema migration/backfill |
+| cache | Stable per-session keys across reopen/resume/checkpoint; fork and new-session isolation |
 | http | Scripted real HTTP/SSE, rate/transport retries, no retry after output, auth/MIME/redirect rejection, deadline/cancellation, connection reuse |
 | cli | Actual executable: network-to-tool-to-model loop, persisted approval and Ask across restarts, dedupe/fork/checkpoint, RPC |
 | rpc | Malformed frames, asynchronous cancel, EOF and signals, busy response, no-token metadata commands |
 | eval_cases | Offline positive/negative checks of the fixed live task graders |
 | eval_endurance | Six-run barrier/abort, external cutoff, token subset/cumulative accounting, fake runner integration without credentials |
+| cache_trace | Content-free prefix fingerprints, trace redaction, usage subsets, controlled workload and diagnostics fallback |
+| cache_transport (AH_LIVE_EVAL) | Real C transport against loopback: key omission, stable keys, previous-response diagnostics and xhigh |
+| host_auth | Fake vault/provider: persisted reuse, rotated refresh, cross-process lock, callback state/PKCE, grant errors; signed JWT checks when optional dependencies are installed |
 | embed | A C client with no product dependencies |
 
 Run normal and sanitizer builds, then `scripts/check-standalone.sh`. The latter
