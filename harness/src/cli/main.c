@@ -29,6 +29,8 @@ static void usage(void) {
         "  --keep-turns N       Recent complete turns retained by compact (default 4)\n"
         "  --endpoint URL       Full Responses endpoint (default OpenAI public endpoint)\n"
         "  --token-file PATH    Private token/SIWC JSON file; otherwise AH_ACCESS_TOKEN\n"
+        "  --parallel-tools N   Concurrent opt-in read tools (default 4; 0/1 serial; max 16)\n"
+        "  --model-tool-bytes N  Per-result model view (default 16384; 0 disables cap)\n"
         "  --events             Print structured execution events\n"
         "  --allow-http-loopback  Allow local HTTP fixture only\n"
         "RPC: bounded JSON lines; method/id/session fields. See docs/protocol.md.\n"
@@ -48,7 +50,8 @@ int main(int argc, char **argv) {
     const char *command_id = NULL, *operation = NULL, *value = NULL, *summary = NULL;
     const char *endpoint = "https://api.openai.com/v1/responses", *token_file = NULL;
     bool exec_enabled = false, events = false, allow_http = false;
-    unsigned keep = 4;
+    unsigned keep = 4, parallel = 4;
+    size_t model_tool_bytes = 16384;
     for (int i = 2; i < argc; ++i) {
         const char *arg = argv[i];
         if (!strcmp(arg, "--enable-exec")) {
@@ -92,7 +95,21 @@ int main(int argc, char **argv) {
             endpoint = v;
         else if (!strcmp(arg, "--token-file"))
             token_file = v;
-        else if (!strcmp(arg, "--keep-turns")) {
+        else if (!strcmp(arg, "--parallel-tools") || !strcmp(arg, "--model-tool-bytes")) {
+            char *end = NULL;
+            errno = 0;
+            unsigned long number = strtoul(v, &end, 10);
+            bool concurrency = !strcmp(arg, "--parallel-tools");
+            if (errno || !*v || *v == '-' || *end ||
+                (concurrency ? number > 16 : number != 0 && number < 1024)) {
+                fprintf(stderr, "Invalid %s\n", arg);
+                return 2;
+            }
+            if (concurrency)
+                parallel = (unsigned)number;
+            else
+                model_tool_bytes = (size_t)number;
+        } else if (!strcmp(arg, "--keep-turns")) {
             char *end = NULL;
             errno = 0;
             unsigned long number = strtoul(v, &end, 10);
@@ -164,6 +181,8 @@ int main(int argc, char **argv) {
     ah_config config;
     ah_config_init(&config);
     config.database_path = db;
+    config.max_parallel_tools = parallel;
+    config.max_model_tool_bytes = model_tool_bytes;
     config.provider = ah_responses_provider(responses);
     config.observer = cli_observe;
     config.observer_context = &cli;

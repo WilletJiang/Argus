@@ -28,7 +28,7 @@ class Service(http.server.BaseHTTPRequestHandler):
             name, args = {
                 'read': ('read_file', {'path': 'source.txt'}),
                 'write': ('write_file', {'path': 'created.txt', 'content': 'persisted result'}),
-                'ask': ('harness_ask', {'question': 'Which output?', 'options': ['short', 'long']}),
+                'ask': ('ask', {'question': 'Which output?', 'options': ['short', 'long']}),
             }[model]
             output = [{'type': 'function_call', 'id': 'fc_1', 'call_id': 'call_1',
                        'namespace': 'local', 'name': name, 'arguments': json.dumps(args), 'status': 'completed'}]

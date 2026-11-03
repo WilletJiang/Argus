@@ -56,6 +56,81 @@ ah_code core_commit(ah_engine *e, uint64_t after, ah_error *err) {
 void core_rollback(ah_engine *e) {
     sqlite3_exec(e->db, "ROLLBACK", NULL, NULL, NULL);
 }
+/* Runs inside the schema transaction, only when upgrading from version 0/1. */
+ah_code core_migrate_result_refs(ah_engine *e, ah_error *err) {
+    ah_code rc =
+        core_sql(e,
+                 "INSERT OR IGNORE INTO result_refs(session_id,operation_id) SELECT session_id,id "
+                 "FROM operations WHERE result IS NOT NULL",
+                 err);
+    sqlite3_stmt *events = NULL;
+    if (rc == AH_OK)
+        rc = core_prepare(e,
+                          "SELECT seq,session_id,json FROM events WHERE type='session.forked' "
+                          "ORDER BY seq",
+                          &events, err);
+    int step = SQLITE_DONE;
+    while (rc == AH_OK && (step = sqlite3_step(events)) == SQLITE_ROW) {
+        sqlite3_int64 seq = sqlite3_column_int64(events, 0);
+        const char *child = (const char *)sqlite3_column_text(events, 1);
+        const char *json = (const char *)sqlite3_column_text(events, 2);
+        yyjson_doc *doc = yyjson_read(json, (size_t)sqlite3_column_bytes(events, 2), 0);
+        yyjson_val *root = doc ? yyjson_doc_get_root(doc) : NULL;
+        const char *source = yyjson_get_str(yyjson_obj_get(root, "source_session"));
+        ah_error validation = {0};
+        if (!yyjson_is_obj(root) || ah_json_check(root, &validation) != AH_OK || !source ||
+            !*source || strlen(source) >= AH_ID_CAP || !strcmp(source, child)) {
+            yyjson_doc_free(doc);
+            rc = ah_fail(err, AH_PROTOCOL, "invalid fork lineage during schema migration");
+            break;
+        }
+        sqlite3_stmt *s = NULL;
+        rc = core_prepare(e,
+                          "SELECT EXISTS(SELECT 1 FROM sessions WHERE id=?) AND "
+                          "EXISTS(SELECT 1 FROM events WHERE session_id=? AND seq<? AND "
+                          "type IN('session.created','session.forked')) AND "
+                          "NOT EXISTS(SELECT 1 FROM events WHERE session_id=? AND seq<? AND "
+                          "type IN('session.created','session.forked'))",
+                          &s, err);
+        if (rc == AH_OK) {
+            sqlite3_bind_text(s, 1, source, -1, SQLITE_TRANSIENT);
+            sqlite3_bind_text(s, 2, source, -1, SQLITE_TRANSIENT);
+            sqlite3_bind_int64(s, 3, seq);
+            sqlite3_bind_text(s, 4, child, -1, SQLITE_TRANSIENT);
+            sqlite3_bind_int64(s, 5, seq);
+            int found = sqlite3_step(s);
+            if (found != SQLITE_ROW)
+                rc = ah_fail(err, AH_IO, "cannot validate fork lineage");
+            else if (!sqlite3_column_int(s, 0))
+                rc = ah_fail(err, AH_PROTOCOL, "invalid fork ancestry during schema migration");
+        }
+        sqlite3_finalize(s);
+        s = NULL;
+        /* Owner results were seeded above, including results created after an
+         * old fork. Only receipts already durable at that fork are inherited.
+         * Processing fork events in order preserves transitive snapshots. */
+        if (rc == AH_OK)
+            rc = core_prepare(
+                e,
+                "INSERT OR IGNORE INTO result_refs(session_id,operation_id) "
+                "SELECT ?,r.operation_id FROM result_refs r WHERE r.session_id=? "
+                "AND EXISTS(SELECT 1 FROM events v WHERE v.operation_id=r.operation_id "
+                "AND v.seq<? AND v.type IN('tool.completed','tool.late_result',"
+                "'tool.denied','tool.resolved','input.received','tool.interrupted'))",
+                &s, err);
+        if (rc == AH_OK) {
+            sqlite3_bind_text(s, 1, child, -1, SQLITE_TRANSIENT);
+            sqlite3_bind_text(s, 2, source, -1, SQLITE_TRANSIENT);
+            sqlite3_bind_int64(s, 3, seq);
+            rc = core_done(e, s, err);
+        }
+        yyjson_doc_free(doc);
+    }
+    if (rc == AH_OK && step != SQLITE_DONE)
+        rc = ah_fail(err, AH_IO, "cannot read fork lineage");
+    sqlite3_finalize(events);
+    return rc;
+}
 ah_code core_event(ah_engine *e, const char *sid, const char *op, const char *type,
                    const char *json, ah_error *err) {
     sqlite3_stmt *s = NULL;

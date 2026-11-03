@@ -13,9 +13,11 @@ static ah_code finish_error(ah_engine *e, core_session *session, core_operation 
         rc = count_call(e, session->id, err);
     if (rc == AH_OK)
         rc = core_receipt(e, session->id, op, json, true, "tool.completed", err);
-    if (rc == AH_OK)
+    if (rc == AH_OK) {
         rc = core_commit(e, after, err);
-    else
+        if (rc != AH_OK)
+            session->state = AH_OUTCOME_UNKNOWN;
+    } else
         core_rollback(e);
     if (rc == AH_OK && count)
         session->tool_calls++;
@@ -32,9 +34,11 @@ static ah_code set_pause(ah_engine *e, core_session *session, core_operation *op
         rc = core_state(e, session->id, state, err);
     if (rc == AH_OK)
         rc = core_event(e, session->id, op->id, event, op->arguments, err);
-    if (rc == AH_OK)
+    if (rc == AH_OK) {
         rc = core_commit(e, after, err);
-    else
+        if (rc != AH_OK)
+            session->state = AH_OUTCOME_UNKNOWN;
+    } else
         core_rollback(e);
     if (rc == AH_OK)
         session->state = state;
@@ -47,6 +51,24 @@ static ah_code count_call(ah_engine *e, const char *sid, ah_error *err) {
         return rc;
     sqlite3_bind_text(s, 1, sid, -1, SQLITE_TRANSIENT);
     return core_done(e, s, err);
+}
+static ah_code publish_received(ah_engine *e, core_session *session, core_operation *op,
+                                ah_error *err) {
+    if (!op->result)
+        return ah_fail(err, AH_IO, "stored tool receipt unavailable");
+    uint64_t after = 0;
+    ah_code rc = core_begin(e, &after, err);
+    if (rc == AH_OK)
+        rc = core_receipt(
+            e, session->id, op, op->result, op->is_error,
+            !strcmp(op->status, "received_late") ? "tool.late_result" : "tool.completed", err);
+    if (rc == AH_OK)
+        rc = core_commit(e, after, err);
+    else
+        core_rollback(e);
+    if (rc != AH_OK)
+        session->state = AH_OUTCOME_UNKNOWN;
+    return rc;
 }
 ah_code core_execute_operation(ah_engine *e, core_session *session, core_operation *op,
                                ah_error *err) {
@@ -62,6 +84,9 @@ ah_code core_execute_operation(ah_engine *e, core_session *session, core_operati
         session->state = AH_OUTCOME_UNKNOWN;
         return ah_fail(err, AH_UNCERTAIN, "resolve uncertain tool outcome before continuing");
     }
+    if (!strcmp(op->status, "received") || !strcmp(op->status, "received_late") ||
+        !strcmp(op->status, "resolved"))
+        return publish_received(e, session, op, err);
     if (strcmp(op->status, "pending") && strcmp(op->status, "approved"))
         return ah_fail(err, AH_PROTOCOL, "unexpected operation status");
     if (session->tool_calls >= e->config.max_tool_calls)
@@ -86,7 +111,7 @@ ah_code core_execute_operation(ah_engine *e, core_session *session, core_operati
     if (op->approval && op->decision != 1)
         return set_pause(e, session, op, "approval", AH_WAITING_APPROVAL, "approval.requested",
                          err);
-    if (builtin) {
+    if (builtin && strcmp(op->name, "read_result")) {
         uint64_t after = 0;
         ah_code rc = core_begin(e, &after, err);
         if (rc == AH_OK)
@@ -97,9 +122,11 @@ ah_code core_execute_operation(ah_engine *e, core_session *session, core_operati
             rc = core_state(e, session->id, AH_WAITING_INPUT, err);
         if (rc == AH_OK)
             rc = core_event(e, session->id, op->id, "input.requested", op->arguments, err);
-        if (rc == AH_OK)
+        if (rc == AH_OK) {
             rc = core_commit(e, after, err);
-        else
+            if (rc != AH_OK)
+                session->state = AH_OUTCOME_UNKNOWN;
+        } else
             core_rollback(e);
         if (rc == AH_OK) {
             session->tool_calls++;
@@ -115,15 +142,19 @@ ah_code core_execute_operation(ah_engine *e, core_session *session, core_operati
         rc = core_set_operation(e, session->id, op->id, "executing", err);
     if (rc == AH_OK)
         rc = core_event(e, session->id, op->id, "tool.started", op->arguments, err);
-    if (rc == AH_OK)
+    if (rc == AH_OK) {
         rc = core_commit(e, after, err);
-    else
+        if (rc != AH_OK)
+            session->state = AH_OUTCOME_UNKNOWN;
+    } else
         core_rollback(e);
     if (rc != AH_OK)
         return rc;
     session->tool_calls++;
     if (core_cancelled(e)) {
         rc = finish_error(e, session, op, "cancelled before execution", false, err);
+        if (rc != AH_OK)
+            session->state = AH_OUTCOME_UNKNOWN;
         return rc == AH_OK ? ah_fail(err, AH_CANCELLED, "cancelled before tool execution") : rc;
     }
     uint64_t run_deadline = e->deadline, now = ah_now_ms(),
@@ -143,7 +174,8 @@ ah_code core_execute_operation(ah_engine *e, core_session *session, core_operati
     ah_tool_result result = {0};
     ah_error execution = {0};
     ah_code executed =
-        registered->tool.execute(registered->tool.context, &call, &result, &execution);
+        builtin ? core_read_result(e, &call, &result, &execution)
+                : registered->tool.execute(registered->tool.context, &call, &result, &execution);
     bool late = core_cancelled(e);
     e->deadline = run_deadline;
     bool valid_result = result.json && strlen(result.json) <= e->config.max_output_bytes &&
@@ -157,8 +189,10 @@ ah_code core_execute_operation(ah_engine *e, core_session *session, core_operati
                                           : "tool returned no valid bounded JSON result");
         result.is_error = true;
     }
-    if (!result.json && !unknown)
+    if (!result.json && !unknown) {
+        session->state = AH_OUTCOME_UNKNOWN;
         return ah_fail(err, AH_IO, "out of memory recording tool failure");
+    }
     rc = core_begin(e, &after, err);
     if (rc == AH_OK && unknown) {
         rc = core_set_operation(e, session->id, op->id, "unknown", err);

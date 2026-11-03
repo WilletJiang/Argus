@@ -17,6 +17,8 @@ void ah_config_init(ah_config *c) {
     c->max_tool_calls = 128;
     c->run_timeout_ms = 300000;
     c->tool_timeout_ms = 30000;
+    c->max_parallel_tools = 4;
+    c->max_model_tool_bytes = 16384;
 }
 ah_code ah_open(const ah_config *config, ah_engine **out, ah_error *err) {
     if (out)
@@ -24,7 +26,8 @@ ah_code ah_open(const ah_config *config, ah_engine **out, ah_error *err) {
     if (!config || !out || !config->database_path || !config->provider.complete ||
         !config->max_context_bytes || !config->max_output_bytes ||
         !config->max_tool_arguments_bytes || !config->max_model_calls || !config->max_tool_calls ||
-        !config->run_timeout_ms || !config->tool_timeout_ms)
+        !config->run_timeout_ms || !config->tool_timeout_ms || config->max_parallel_tools > 16 ||
+        (config->max_model_tool_bytes && config->max_model_tool_bytes < 1024))
         return ah_fail(err, AH_INVALID,
                        "configuration requires provider, database and positive budgets");
     ah_engine *e = calloc(1, sizeof(*e));
@@ -79,13 +82,17 @@ ah_code ah_open(const ah_config *config, ah_engine **out, ah_error *err) {
     ah_code rc = core_sql(
         e, "PRAGMA journal_mode=DELETE; PRAGMA synchronous=FULL; PRAGMA foreign_keys=ON", err);
     sqlite3_stmt *s = NULL;
+    int version = 0;
     if (rc == AH_OK)
         rc = core_prepare(e, "PRAGMA user_version", &s, err);
     if (rc == AH_OK) {
         if (sqlite3_step(s) != SQLITE_ROW)
             rc = ah_fail(err, AH_IO, "cannot read schema version");
-        else if (sqlite3_column_int(s, 0) > 1)
-            rc = ah_fail(err, AH_PROTOCOL, "database schema is newer than this runtime");
+        else {
+            version = sqlite3_column_int(s, 0);
+            if (version > 2)
+                rc = ah_fail(err, AH_PROTOCOL, "database schema is newer than this runtime");
+        }
     }
     sqlite3_finalize(s);
     if (rc == AH_OK)
@@ -114,8 +121,17 @@ ah_code ah_open(const ah_config *config, ah_engine **out, ah_error *err) {
             "sessions(id),call_id TEXT NOT NULL,PRIMARY KEY(session_id,call_id));"
             "INSERT OR IGNORE INTO call_ids(session_id,call_id) SELECT session_id,call_id FROM "
             "operations;"
-            "PRAGMA user_version=1; COMMIT;",
+            "CREATE INDEX IF NOT EXISTS operations_session ON operations(session_id,seq);"
+            "CREATE TABLE IF NOT EXISTS result_refs(session_id TEXT NOT NULL REFERENCES "
+            "sessions(id),operation_id TEXT NOT NULL REFERENCES operations(id),"
+            "PRIMARY KEY(session_id,operation_id));",
             err);
+    if (rc == AH_OK && version < 2)
+        rc = core_migrate_result_refs(e, err);
+    if (rc == AH_OK)
+        rc = core_sql(e, "PRAGMA user_version=2; COMMIT", err);
+    if (rc != AH_OK)
+        core_rollback(e);
     if (rc == AH_OK)
         rc = core_recover(e, err);
     if (rc != AH_OK) {
@@ -155,8 +171,10 @@ ah_code ah_register_tool(ah_engine *e, const ah_tool *tool, ah_error *err) {
     for (const unsigned char *p = (const unsigned char *)tool->name; *p; p++)
         if (!isalnum(*p) && *p != '_')
             return ah_fail(err, AH_INVALID, "tool names must be alphanumeric or underscore");
-    if (isdigit((unsigned char)tool->name[0]) || !strcmp(tool->name, "harness_ask") ||
-        !strcmp(tool->name, "harness_wait") || core_find_tool(e, tool->name))
+    if (isdigit((unsigned char)tool->name[0]) || !strcmp(tool->name, "ask") ||
+        !strcmp(tool->name, "wait") || !strcmp(tool->name, "read_result") ||
+        !strcmp(tool->name, "harness_ask") || !strcmp(tool->name, "harness_wait") ||
+        core_find_tool(e, tool->name))
         return ah_fail(err, AH_INVALID, "reserved or duplicate tool name");
     rc = ah_schema_check(tool->parameters_json, err);
     if (rc != AH_OK)

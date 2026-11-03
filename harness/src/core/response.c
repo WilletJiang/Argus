@@ -7,11 +7,18 @@ static const char ask_schema[] =
 static const char wait_schema[] =
     "{\"type\":\"object\",\"properties\":{\"reason\":{\"type\":\"string\"}},\"required\":["
     "\"reason\"],\"additionalProperties\":false}";
+static const char result_schema[] =
+    "{\"type\":\"object\",\"properties\":{\"operation_id\":{\"type\":\"string\"},"
+    "\"offset\":{\"type\":\"integer\",\"minimum\":0},\"limit\":{\"type\":\"integer\","
+    "\"minimum\":1,\"maximum\":65536}},\"required\":[\"operation_id\"],\"additionalProperties\":"
+    "false}";
 const char *core_builtin_schema(const char *name) {
-    if (!strcmp(name, "harness_ask"))
+    if (!strcmp(name, "ask") || !strcmp(name, "harness_ask"))
         return ask_schema;
-    if (!strcmp(name, "harness_wait"))
+    if (!strcmp(name, "wait") || !strcmp(name, "harness_wait"))
         return wait_schema;
+    if (!strcmp(name, "read_result"))
+        return result_schema;
     return NULL;
 }
 static bool add_definition(yyjson_mut_doc *d, yyjson_mut_val *arr, const char *name,
@@ -45,7 +52,7 @@ ah_code core_request(ah_engine *e, const core_session *session, char **json, ah_
         return ah_fail(err, AH_IO, "cannot measure model context");
     if ((uint64_t)bytes > e->config.max_context_bytes)
         return ah_fail(err, AH_LIMIT,
-                       "stored context exceeds byte budget; compact at a completed turn boundary");
+                       "stored context exceeds byte budget; compact after all tools are settled");
     yyjson_mut_doc *d = ah_mut_doc_new();
     if (!d)
         return ah_fail(err, AH_IO, "out of memory");
@@ -94,11 +101,15 @@ ah_code core_request(ah_engine *e, const core_session *session, char **json, ah_
     yyjson_mut_obj_add_str(d, space, "name", "local");
     yyjson_mut_obj_add_str(d, space, "description", "Host controlled tools and input requests.");
     yyjson_mut_obj_add_val(d, space, "tools", functions);
-    if (!add_definition(d, functions, "harness_ask",
-                        "Ask the user a question and wait for a JSON reply.", ask_schema) ||
-        !add_definition(d, functions, "harness_wait",
+    if (!add_definition(d, functions, "ask", "Ask the user a question and wait for a JSON reply.",
+                        ask_schema) ||
+        !add_definition(d, functions, "wait",
                         "Pause until the host explicitly supplies a JSON continuation.",
-                        wait_schema))
+                        wait_schema) ||
+        !add_definition(d, functions, "read_result",
+                        "Read a saved tool result as UTF-8 JSON text. Use next_offset to continue; "
+                        "offset defaults to 0 and limit to 4096 bytes.",
+                        result_schema))
         rc = ah_fail(err, AH_IO, "cannot encode built-in definitions");
     for (size_t i = 0; i < e->tool_count && rc == AH_OK; i++)
         if (!add_definition(d, functions, e->tools[i].name, e->tools[i].description,
@@ -113,7 +124,7 @@ ah_code core_request(ah_engine *e, const core_session *session, char **json, ah_
             *json = NULL;
             rc = ah_fail(
                 err, AH_LIMIT,
-                "model request exceeds context byte budget; compact at a completed turn boundary");
+                "model request exceeds context byte budget; compact after all tools are settled");
         }
     }
     ah_mut_doc_free(d);

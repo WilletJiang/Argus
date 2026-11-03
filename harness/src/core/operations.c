@@ -29,14 +29,17 @@ static ah_code read_operation(ah_engine *e, const char *sid, const char *id, cor
     op->status = ah_strdup((const char *)sqlite3_column_text(s, 4));
     op->effect = (ah_effect)sqlite3_column_int(s, 5);
     op->approval = sqlite3_column_int(s, 6) != 0;
-    if (sqlite3_column_type(s, 7) != SQLITE_NULL)
+    bool has_result = sqlite3_column_type(s, 7) != SQLITE_NULL;
+    bool has_schema = sqlite3_column_type(s, 10) != SQLITE_NULL;
+    if (has_result)
         op->result = ah_strdup((const char *)sqlite3_column_text(s, 7));
-    if (sqlite3_column_type(s, 10) != SQLITE_NULL)
+    if (has_schema)
         op->schema = ah_strdup((const char *)sqlite3_column_text(s, 10));
     op->decision = sqlite3_column_int(s, 8);
     op->is_error = sqlite3_column_int(s, 9) != 0;
     sqlite3_finalize(s);
-    if (!op->id || !op->call_id || !op->name || !op->arguments || !op->status) {
+    if (!op->id || !op->call_id || !op->name || !op->arguments || !op->status ||
+        (has_result && !op->result) || (has_schema && !op->schema)) {
         core_operation_free(op);
         return ah_fail(err, AH_IO, "out of memory");
     }
@@ -71,6 +74,28 @@ ah_code core_set_operation(ah_engine *e, const char *sid, const char *id, const 
     sqlite3_bind_text(s, 3, id, -1, SQLITE_TRANSIENT);
     return core_done(e, s, err);
 }
+/* Capture a trustworthy result without publishing it ahead of an unresolved
+ * earlier call. The scheduler publishes these receipts in operation order. */
+ah_code core_save_result(ah_engine *e, const char *sid, const core_operation *op,
+                         const char *result, bool is_error, const char *status, const char *event,
+                         ah_error *err) {
+    sqlite3_stmt *s = NULL;
+    ah_code rc = core_prepare(e,
+                              "UPDATE operations SET status=?,result=?,is_error=? "
+                              "WHERE id=? AND session_id=?",
+                              &s, err);
+    if (rc == AH_OK) {
+        sqlite3_bind_text(s, 1, status, -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(s, 2, result, -1, SQLITE_TRANSIENT);
+        sqlite3_bind_int(s, 3, is_error);
+        sqlite3_bind_text(s, 4, op->id, -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(s, 5, sid, -1, SQLITE_TRANSIENT);
+        rc = core_done(e, s, err);
+    }
+    if (rc == AH_OK && event)
+        rc = core_event(e, sid, op->id, event, result, err);
+    return rc;
+}
 ah_code core_receipt(ah_engine *e, const char *sid, const core_operation *op, const char *result,
                      bool is_error, const char *type, ah_error *err) {
     core_session session;
@@ -86,23 +111,7 @@ ah_code core_receipt(ah_engine *e, const char *sid, const core_operation *op, co
     yyjson_mut_doc_set_root(d, o);
     yyjson_mut_obj_add_str(d, o, "type", "function_call_output");
     yyjson_mut_obj_add_strcpy(d, o, "call_id", op->call_id);
-    yyjson_doc *parsed = yyjson_read(result, strlen(result), 0);
-    yyjson_mut_doc *receipt = ah_mut_doc_new();
-    if (!parsed || !receipt) {
-        yyjson_doc_free(parsed);
-        ah_mut_doc_free(receipt);
-        ah_mut_doc_free(d);
-        core_session_free(&session);
-        return ah_fail(err, AH_IO, "cannot encode tool receipt");
-    }
-    yyjson_mut_val *body = yyjson_mut_obj(receipt);
-    yyjson_mut_doc_set_root(receipt, body);
-    yyjson_mut_obj_add_bool(receipt, body, "is_error", is_error);
-    yyjson_mut_obj_add_val(receipt, body, "result",
-                           yyjson_val_mut_copy(receipt, yyjson_doc_get_root(parsed)));
-    char *encoded = ah_mut_write(receipt);
-    yyjson_doc_free(parsed);
-    ah_mut_doc_free(receipt);
+    char *encoded = core_result_view(e, op->id, result, is_error);
     if (!encoded) {
         ah_mut_doc_free(d);
         core_session_free(&session);
@@ -119,17 +128,15 @@ ah_code core_receipt(ah_engine *e, const char *sid, const core_operation *op, co
     rc = core_add_item(e, sid, session.turn, json, err);
     free(json);
     core_session_free(&session);
+    if (rc == AH_OK)
+        rc = core_save_result(e, sid, op, result, is_error, "done", NULL, err);
     sqlite3_stmt *s = NULL;
     if (rc == AH_OK)
         rc = core_prepare(
-            e,
-            "UPDATE operations SET status='done',result=?,is_error=? WHERE id=? AND session_id=?",
-            &s, err);
+            e, "INSERT OR IGNORE INTO result_refs(session_id,operation_id) VALUES(?,?)", &s, err);
     if (rc == AH_OK) {
-        sqlite3_bind_text(s, 1, result, -1, SQLITE_TRANSIENT);
-        sqlite3_bind_int(s, 2, is_error);
-        sqlite3_bind_text(s, 3, op->id, -1, SQLITE_TRANSIENT);
-        sqlite3_bind_text(s, 4, sid, -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(s, 1, sid, -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(s, 2, op->id, -1, SQLITE_TRANSIENT);
         rc = core_done(e, s, err);
     }
     if (rc == AH_OK)
@@ -197,7 +204,7 @@ static ah_code provide_result(ah_engine *e, const char *sid, const char *id, con
     rc = core_get_operation(e, sid, id, &op, err);
     if (rc != AH_OK)
         return ah_fail(err, rc, "operation unavailable");
-    if (!strcmp(op.status, "done")) {
+    if (!strcmp(op.status, "done") || (resolve && !strcmp(op.status, "resolved"))) {
         bool same = op.result && !strcmp(op.result, json) && op.is_error == is_error;
         core_operation_free(&op);
         return same ? AH_OK : ah_fail(err, AH_INVALID, "result conflicts with recorded receipt");
@@ -210,10 +217,27 @@ static ah_code provide_result(ah_engine *e, const char *sid, const char *id, con
     uint64_t after = 0;
     rc = core_begin(e, &after, err);
     if (rc == AH_OK)
-        rc = core_receipt(e, sid, &op, json, is_error, resolve ? "tool.resolved" : "input.received",
-                          err);
+        rc = resolve
+                 ? core_save_result(e, sid, &op, json, is_error, "resolved", "tool.resolved", err)
+                 : core_receipt(e, sid, &op, json, is_error, "input.received", err);
+    ah_state state = AH_READY;
+    sqlite3_stmt *remaining = NULL;
+    if (rc == AH_OK && resolve) {
+        rc = core_prepare(
+            e, "SELECT 1 FROM operations WHERE session_id=? AND status='unknown' LIMIT 1",
+            &remaining, err);
+        if (rc == AH_OK) {
+            sqlite3_bind_text(remaining, 1, sid, -1, SQLITE_TRANSIENT);
+            int step = sqlite3_step(remaining);
+            if (step == SQLITE_ROW)
+                state = AH_OUTCOME_UNKNOWN;
+            else if (step != SQLITE_DONE)
+                rc = ah_fail(err, AH_IO, "cannot inspect unresolved operations");
+        }
+        sqlite3_finalize(remaining);
+    }
     if (rc == AH_OK)
-        rc = core_state(e, sid, AH_READY, err);
+        rc = core_state(e, sid, state, err);
     if (rc == AH_OK)
         rc = core_commit(e, after, err);
     else
@@ -227,69 +251,4 @@ ah_code ah_reply(ah_engine *e, const char *sid, const char *op, const char *json
 ah_code ah_resolve(ah_engine *e, const char *sid, const char *op, const char *json, bool is_error,
                    ah_error *err) {
     return provide_result(e, sid, op, json, is_error, true, err);
-}
-ah_code core_recover(ah_engine *e, ah_error *err) {
-    sqlite3_stmt *s = NULL;
-    ah_code rc = core_prepare(e, "SELECT id FROM sessions WHERE state=?", &s, err);
-    if (rc != AH_OK)
-        return rc;
-    sqlite3_bind_int(s, 1, AH_RUNNING);
-    char **ids = NULL;
-    size_t count = 0;
-    int step;
-    while ((step = sqlite3_step(s)) == SQLITE_ROW) {
-        char **next = realloc(ids, (count + 1) * sizeof(*ids));
-        if (!next) {
-            rc = ah_fail(err, AH_IO, "out of memory");
-            break;
-        }
-        ids = next;
-        ids[count] = ah_strdup((const char *)sqlite3_column_text(s, 0));
-        if (!ids[count]) {
-            rc = ah_fail(err, AH_IO, "out of memory");
-            break;
-        }
-        count++;
-    }
-    sqlite3_finalize(s);
-    if (rc == AH_OK && step != SQLITE_DONE)
-        rc = ah_fail(err, AH_IO, "recovery scan failed");
-    for (size_t i = 0; i < count && rc == AH_OK; i++) {
-        core_operation op;
-        ah_code found = core_next_operation(e, ids[i], &op, err);
-        if (found != AH_OK && found != AH_NOT_FOUND) {
-            rc = found;
-            break;
-        }
-        uint64_t after = 0;
-        rc = core_begin(e, &after, err);
-        ah_state state = AH_STOPPED;
-        if (rc == AH_OK && found == AH_OK && !strcmp(op.status, "executing")) {
-            if (op.effect == AH_EFFECT_READ)
-                rc =
-                    core_receipt(e, ids[i], &op, "{\"error\":\"read interrupted by process exit\"}",
-                                 true, "tool.interrupted", err);
-            else {
-                rc = core_set_operation(e, ids[i], op.id, "unknown", err);
-                state = AH_OUTCOME_UNKNOWN;
-                if (rc == AH_OK)
-                    rc = core_event(e, ids[i], op.id, "tool.outcome_unknown",
-                                    "{\"reason\":\"execution interrupted\"}", err);
-            }
-        }
-        if (rc == AH_OK)
-            rc = core_state(e, ids[i], state, err);
-        if (rc == AH_OK)
-            rc = core_event(e, ids[i], NULL, "session.recovered", "{}", err);
-        if (rc == AH_OK)
-            rc = core_commit(e, after, err);
-        else
-            core_rollback(e);
-        if (found == AH_OK)
-            core_operation_free(&op);
-    }
-    for (size_t i = 0; i < count; i++)
-        free(ids[i]);
-    free(ids);
-    return rc;
 }

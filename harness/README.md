@@ -34,14 +34,15 @@ against the installed `ah::ah` package.
 - Persistent sessions and an ordered semantic event journal; idempotent user commands.
 - A complete model/tool loop with successful-response barrier, native response items,
   bounded context/output, deadlines, and model/tool call budgets.
-- Durable, operation-bound approval, Ask and external-wait requests; explicit answers.
+- Durable, operation-bound approval, `ask` and `wait` requests; explicit answers.
 - Cancellation and bounded in-run steering, with distinct queued/durable acknowledgments.
 - Crash recovery that preserves uncertain effects; explicit reconciliation rather than
   blind re-execution of writes.
-- Completed-session forks and atomic, explicit context checkpoints retaining whole turns.
+- Completed-session forks and explicit context checkpoints, including settled stopped turns.
 - Streaming HTTPS with connection reuse, bounded parser buffers, strict UTF-8/JSON,
   conservative retries, and interruption during stalled network I/O or backoff.
-- Scoped UTF-8 file reads, directory listing, atomic file writes, and opt-in process execution.
+- Paged UTF-8 reads, directory listing, atomic writes/exact edits, and opt-in process execution.
+- Bounded parallel reads, ordered receipts, and durable full results with compact model views.
 - Embedding API, structured events, JSON-lines control interface and CLI.
 
 See [execution semantics](docs/semantics.md), [control protocol](docs/protocol.md),
@@ -81,8 +82,12 @@ execution is disabled unless `--enable-exec` is supplied, and remains approval-g
 
 ## Deliberate boundaries
 
-The library is single-owner; `ah_cancel` and `ah_steer` are the cross-thread entry
-points. Callbacks must not reenter owner APIs or block indefinitely. Independent
+Session state, SQLite and events have one owner; `ah_cancel` and `ah_steer` are the
+cross-thread API entry points. Consecutive independent READ tools run in bounded
+batches only when their registration opts in with `parallel_safe`. The default is
+four workers (`max_parallel_tools`); 0 or 1 selects serial execution. Writes,
+external effects and user questions remain ordered barriers. Callbacks must not
+reenter owner APIs or block indefinitely. Independent
 engines can run independently against different databases. One engine exclusively
 owns a database; multiplex sessions through that owner.
 
@@ -90,6 +95,16 @@ owns a database; multiplex sessions through that owner.
 an approved arbitrary executable has the user's OS authority. Browser automation,
 MCP servers, remote-node enrollment, mail, calendars, task-specific completion
 checks and UI belong to host integrations via the tool callback contract.
+
+Each tool receipt retains its complete captured result in the journal. Its model
+view defaults to at most 16 KiB (`max_model_tool_bytes`, 0 disables the extra cap).
+Larger results expose an operation reference and UTF-8 preview; `read_result`
+retrieves exact pages, including in forked sessions. The view is fixed when the
+receipt commits, so later configuration changes do not rewrite past prompts.
+These are byte budgets, not token estimates. `read_file` defaults to 200 lines;
+use its continuation cursor for complete access to long files. `edit_file` replaces
+one exact match and rejects missing or ambiguous text instead of rewriting a
+whole file from the model response.
 
 Context checkpoint summaries are explicit host inputs; automatic summarization,
 semantic memory and provider switching are not silently performed. Text-stream
@@ -102,5 +117,11 @@ evaluation outputs were removed after validation; reusable runners and graders
 remain in `evals/`. This small evaluation does not establish industry leadership.
 Advertised behavior is covered by executable contracts; validation boundaries
 are documented.
+
+Version 0.2 extends public C structures. Rebuild embedding clients against the new
+headers and library together; it is not ABI-compatible with 0.1 objects. Source
+initializers should use designated fields or explicitly initialize the new
+`parallel_safe` field. Database version 1 is migrated transactionally to version 2;
+back up persistent databases before upgrading.
 
 MIT license. Third-party licenses and checksums are in [vendor](vendor/README.md).

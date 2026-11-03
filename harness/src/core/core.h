@@ -62,16 +62,23 @@ ah_code core_add_item(ah_engine *, const char *, unsigned, const char *, ah_erro
 ah_code core_next_operation(ah_engine *, const char *, core_operation *, ah_error *);
 ah_code core_get_operation(ah_engine *, const char *, const char *, core_operation *, ah_error *);
 void core_operation_free(core_operation *);
+ah_code core_save_result(ah_engine *, const char *, const core_operation *, const char *, bool,
+                         const char *, const char *, ah_error *);
 ah_code core_receipt(ah_engine *, const char *, const core_operation *, const char *, bool,
                      const char *, ah_error *);
 ah_code core_set_operation(ah_engine *, const char *, const char *, const char *, ah_error *);
 core_tool *core_find_tool(ah_engine *, const char *);
 bool core_cancelled(void *);
 ah_code core_recover(ah_engine *, ah_error *);
+ah_code core_migrate_result_refs(ah_engine *, ah_error *);
 const char *core_builtin_schema(const char *);
 ah_code core_request(ah_engine *, const core_session *, char **, ah_error *);
 ah_code core_accept_response(ah_engine *, core_session *, const char *, ah_error *);
 ah_code core_execute_operation(ah_engine *, core_session *, core_operation *, ah_error *);
+ah_code core_execute_parallel(ah_engine *, core_session *, const core_operation *, bool *,
+                              ah_error *);
 ah_code core_guard(ah_engine *, ah_error *);
+char *core_result_view(ah_engine *, const char *, const char *, bool);
+ah_code core_read_result(void *, const ah_tool_call *, ah_tool_result *, ah_error *);
 char *core_object_string(const char *, const char *);
 #endif

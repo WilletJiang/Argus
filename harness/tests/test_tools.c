@@ -1,8 +1,7 @@
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE 1
 #endif
-#include "ah/tools.h"
-#include "yyjson.h"
+#include "tools_test.h"
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -14,20 +13,13 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#define CHECK(condition)                                                                           \
-    do {                                                                                           \
-        if (!(condition)) {                                                                        \
-            fprintf(stderr, "FAIL %s:%d: %s\n", __FILE__, __LINE__, #condition);                   \
-            exit(1);                                                                               \
-        }                                                                                          \
-    } while (0)
-static ah_tool registered[4];
+static ah_tool registered[5];
 static size_t tool_count;
 
 ah_code ah_register_tool(ah_engine *engine, const ah_tool *tool, ah_error *error) {
     (void)engine;
     (void)error;
-    CHECK(tool_count < 4);
+    CHECK(tool_count < 5);
     registered[tool_count++] = *tool;
     return AH_OK;
 }
@@ -39,9 +31,9 @@ static ah_tool *lookup(const char *name) {
     return NULL;
 }
 
-static yyjson_doc *invoke(const char *name, const char *args, size_t limit, uint64_t deadline,
-                          ah_cancel_check cancelled, void *cancel_context, ah_code expected,
-                          bool unknown) {
+yyjson_doc *tools_invoke(const char *name, const char *args, size_t limit, uint64_t deadline,
+                         ah_cancel_check cancelled, void *cancel_context, ah_code expected,
+                         bool unknown) {
     ah_tool *tool = lookup(name);
     CHECK(tool);
     ah_tool_call call = {.session_id = "test",
@@ -72,11 +64,11 @@ static yyjson_doc *invoke(const char *name, const char *args, size_t limit, uint
     return doc;
 }
 
-static void expect(const char *name, const char *args, ah_code code) {
-    yyjson_doc_free(invoke(name, args, 4096, ah_now_ms() + 1000, NULL, NULL, code, false));
+void tools_expect(const char *name, const char *args, ah_code code) {
+    yyjson_doc_free(tools_invoke(name, args, 4096, ah_now_ms() + 1000, NULL, NULL, code, false));
 }
 
-static void put_file(const char *path, const void *data, size_t length) {
+void tools_put_file(const char *path, const void *data, size_t length) {
     int fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0600);
     CHECK(fd >= 0);
     CHECK(write(fd, data, length) == (ssize_t)length);
@@ -245,56 +237,65 @@ int main(int argc, char **argv) {
     ah_local_tools_config config = {.workspace = workspace, .approve_writes = true};
     CHECK(ah_local_tools_open(&config, &tools, &error) == AH_OK);
     CHECK(ah_local_tools_register(tools, (ah_engine *)(void *)&config, &error) == AH_OK);
-    CHECK(tool_count == 3 && !lookup("exec") && lookup("write_file")->requires_approval);
-    expect("write_file", "{\"path\":\"hello.txt\",\"content\":\"hello 世界\"}", AH_OK);
+    CHECK(tool_count == 4 && !lookup("exec") && lookup("write_file")->requires_approval);
+    CHECK(lookup("read_file")->parallel_safe && lookup("list_directory")->parallel_safe);
+    CHECK(!lookup("write_file")->parallel_safe && !lookup("edit_file")->parallel_safe);
+    CHECK(lookup("edit_file")->requires_approval);
+    test_file_pages(workspace);
+    test_file_edits(workspace);
+    tools_expect("write_file", "{\"path\":\"hello.txt\",\"content\":\"hello 世界\"}", AH_OK);
     yyjson_doc *doc =
-        invoke("read_file", "{\"path\":\"hello.txt\"}", 4096, 0, NULL, NULL, AH_OK, false);
+        tools_invoke("read_file", "{\"path\":\"hello.txt\"}", 4096, 0, NULL, NULL, AH_OK, false);
     CHECK(yyjson_equals_str(yyjson_obj_get(yyjson_doc_get_root(doc), "content"), "hello 世界"));
     yyjson_doc_free(doc);
-    expect("read_file", "{\"path\":\"../escape\"}", AH_INVALID);
-    expect("read_file", "{\"path\":\"/etc/passwd\"}", AH_INVALID);
-    expect("write_file", "{\"path\":\"hello.txt\\u0000elsewhere\",\"content\":\"bad\"}",
-           AH_INVALID);
-    expect("write_file", "{\"path\":\"../escape\",\"content\":\"bad\"}", AH_INVALID);
+    tools_expect("read_file", "{\"path\":\"../escape\"}", AH_INVALID);
+    tools_expect("read_file", "{\"path\":\"/etc/passwd\"}", AH_INVALID);
+    tools_expect("write_file", "{\"path\":\"hello.txt\\u0000elsewhere\",\"content\":\"bad\"}",
+                 AH_INVALID);
+    tools_expect("write_file", "{\"path\":\"../escape\",\"content\":\"bad\"}", AH_INVALID);
     char path[PATH_MAX];
     snprintf(path, sizeof(path), "%s/link", workspace);
     CHECK(symlink(outside, path) == 0);
-    expect("read_file", "{\"path\":\"link\"}", AH_IO);
-    expect("write_file", "{\"path\":\"link\",\"content\":\"bad\"}", AH_INVALID);
+    tools_expect("read_file", "{\"path\":\"link\"}", AH_IO);
+    tools_expect("write_file", "{\"path\":\"link\",\"content\":\"bad\"}", AH_INVALID);
+    tools_expect("edit_file", "{\"path\":\"link\",\"old_text\":\"outside\",\"new_text\":\"bad\"}",
+                 AH_IO);
     snprintf(path, sizeof(path), "%s/dirlink", workspace);
     CHECK(symlink("/tmp", path) == 0);
-    expect("read_file", "{\"path\":\"dirlink/file\"}", AH_INVALID);
-    expect("write_file", "{\"path\":\"dirlink/file\",\"content\":\"bad\"}", AH_INVALID);
+    tools_expect("read_file", "{\"path\":\"dirlink/file\"}", AH_INVALID);
+    tools_expect("write_file", "{\"path\":\"dirlink/file\",\"content\":\"bad\"}", AH_INVALID);
     snprintf(path, sizeof(path), "%s/fifo", workspace);
     CHECK(mkfifo(path, 0600) == 0);
     uint64_t begin = ah_now_ms();
-    expect("read_file", "{\"path\":\"fifo\"}", AH_INVALID);
+    tools_expect("read_file", "{\"path\":\"fifo\"}", AH_INVALID);
     CHECK(ah_now_ms() - begin < 500);
-    expect("write_file", "{\"path\":\"fifo\",\"content\":\"bad\"}", AH_INVALID);
+    tools_expect("write_file", "{\"path\":\"fifo\",\"content\":\"bad\"}", AH_INVALID);
     unsigned char binary[] = {0xff, 0x00};
     snprintf(path, sizeof(path), "%s/binary", workspace);
-    put_file(path, binary, sizeof(binary));
-    expect("read_file", "{\"path\":\"binary\"}", AH_INVALID);
+    tools_put_file(path, binary, sizeof(binary));
+    tools_expect("read_file", "{\"path\":\"binary\"}", AH_INVALID);
+    tools_expect("edit_file", "{\"path\":\"binary\",\"old_text\":\"x\",\"new_text\":\"y\"}",
+                 AH_INVALID);
     char many[16384];
     memset(many, 'a', sizeof(many));
     snprintf(path, sizeof(path), "%s/many", workspace);
-    put_file(path, many, sizeof(many));
-    doc = invoke("read_file", "{\"path\":\"many\"}", 256, 0, NULL, NULL, AH_OK, false);
+    tools_put_file(path, many, sizeof(many));
+    doc = tools_invoke("read_file", "{\"path\":\"many\"}", 512, 0, NULL, NULL, AH_OK, false);
     CHECK(yyjson_get_bool(yyjson_obj_get(yyjson_doc_get_root(doc), "truncated")));
     yyjson_doc_free(doc);
-    doc = invoke("list_directory", "{\"path\":\".\"}", 128, 0, NULL, NULL, AH_OK, false);
+    doc = tools_invoke("list_directory", "{\"path\":\".\"}", 128, 0, NULL, NULL, AH_OK, false);
     CHECK(yyjson_get_bool(yyjson_obj_get(yyjson_doc_get_root(doc), "truncated")));
     yyjson_doc_free(doc);
-    doc = invoke("write_file", "{\"path\":\"cancelled\",\"content\":\"bad\"}", 4096, 0, cancel_now,
-                 NULL, AH_CANCELLED, false);
+    doc = tools_invoke("write_file", "{\"path\":\"cancelled\",\"content\":\"bad\"}", 4096, 0,
+                       cancel_now, NULL, AH_CANCELLED, false);
     yyjson_doc_free(doc);
     snprintf(path, sizeof(path), "%s/cancelled", workspace);
     CHECK(access(path, F_OK) != 0);
     unsigned cancel_checks = 0;
-    doc = invoke("write_file", "{\"path\":\"hello.txt\",\"content\":\"replacement\"}", 4096, 0,
-                 cancel_before_commit, &cancel_checks, AH_CANCELLED, false);
+    doc = tools_invoke("write_file", "{\"path\":\"hello.txt\",\"content\":\"replacement\"}", 4096,
+                       0, cancel_before_commit, &cancel_checks, AH_CANCELLED, false);
     yyjson_doc_free(doc);
-    doc = invoke("read_file", "{\"path\":\"hello.txt\"}", 4096, 0, NULL, NULL, AH_OK, false);
+    doc = tools_invoke("read_file", "{\"path\":\"hello.txt\"}", 4096, 0, NULL, NULL, AH_OK, false);
     CHECK(yyjson_equals_str(yyjson_obj_get(yyjson_doc_get_root(doc), "content"), "hello 世界"));
     yyjson_doc_free(doc);
     DIR *no_temporary = opendir(workspace);
@@ -309,11 +310,11 @@ int main(int argc, char **argv) {
     tool_count = 0;
     CHECK(ah_local_tools_open(&config, &tools, &error) == AH_OK);
     CHECK(ah_local_tools_register(tools, (ah_engine *)(void *)&config, &error) == AH_OK);
-    CHECK(tool_count == 4 && lookup("exec")->requires_approval &&
-          !lookup("write_file")->requires_approval);
+    CHECK(tool_count == 5 && lookup("exec")->requires_approval &&
+          !lookup("write_file")->requires_approval && !lookup("edit_file")->requires_approval);
     const char *literal = "space $HOME ; $(touch forbidden) * ' \"";
     char *args = exec_arguments(executable, "args", literal);
-    doc = invoke("exec", args, 4096, ah_now_ms() + 5000, NULL, NULL, AH_OK, false);
+    doc = tools_invoke("exec", args, 4096, ah_now_ms() + 5000, NULL, NULL, AH_OK, false);
     free(args);
     CHECK(yyjson_equals_str(yyjson_obj_get(yyjson_doc_get_root(doc), "stdout"), literal));
     yyjson_doc_free(doc);
@@ -323,7 +324,7 @@ int main(int argc, char **argv) {
     char fd_number[32];
     snprintf(fd_number, sizeof(fd_number), "%d", inherited);
     args = exec_arguments(executable, "environment", fd_number);
-    doc = invoke("exec", args, 4096, ah_now_ms() + 5000, NULL, NULL, AH_OK, false);
+    doc = tools_invoke("exec", args, 4096, ah_now_ms() + 5000, NULL, NULL, AH_OK, false);
     free(args);
     close(inherited);
     const char *environment = yyjson_get_str(yyjson_obj_get(yyjson_doc_get_root(doc), "stdout"));
@@ -332,34 +333,34 @@ int main(int argc, char **argv) {
     yyjson_doc_free(doc);
     unsetenv("AH_TEST_SECRET");
     args = exec_arguments(executable, "flood", NULL);
-    doc = invoke("exec", args, 1024, ah_now_ms() + 5000, NULL, NULL, AH_OK, false);
+    doc = tools_invoke("exec", args, 1024, ah_now_ms() + 5000, NULL, NULL, AH_OK, false);
     free(args);
     CHECK(yyjson_get_bool(yyjson_obj_get(yyjson_doc_get_root(doc), "truncated")));
     CHECK(yyjson_get_int(yyjson_obj_get(yyjson_doc_get_root(doc), "exit_code")) == 0);
     yyjson_doc_free(doc);
     args = exec_arguments(executable, "binary", NULL);
-    doc = invoke("exec", args, 1024, ah_now_ms() + 5000, NULL, NULL, AH_OK, false);
+    doc = tools_invoke("exec", args, 1024, ah_now_ms() + 5000, NULL, NULL, AH_OK, false);
     free(args);
     CHECK(yyjson_equals_str(yyjson_obj_get(yyjson_doc_get_root(doc), "stdout_encoding"), "base64"));
     CHECK(yyjson_equals_str(yyjson_obj_get(yyjson_doc_get_root(doc), "stdout"), "/wCA"));
     yyjson_doc_free(doc);
     args = exec_arguments(executable, "hang", NULL);
     begin = ah_now_ms();
-    doc = invoke("exec", args, 1024, begin + 100, NULL, NULL, AH_LIMIT, true);
+    doc = tools_invoke("exec", args, 1024, begin + 100, NULL, NULL, AH_LIMIT, true);
     yyjson_doc_free(doc);
     CHECK(ah_now_ms() - begin < 2000);
     uint64_t cancel_at = ah_now_ms() + 100;
-    doc = invoke("exec", args, 1024, ah_now_ms() + 5000, cancel_after, &cancel_at, AH_CANCELLED,
-                 true);
+    doc = tools_invoke("exec", args, 1024, ah_now_ms() + 5000, cancel_after, &cancel_at,
+                       AH_CANCELLED, true);
     yyjson_doc_free(doc);
     free(args);
     args = exec_arguments(executable, "descendant", NULL);
-    doc = invoke("exec", args, 1024, ah_now_ms() + 100, NULL, NULL, AH_LIMIT, true);
+    doc = tools_invoke("exec", args, 1024, ah_now_ms() + 100, NULL, NULL, AH_LIMIT, true);
     yyjson_doc_free(doc);
     free(args);
     args = exec_arguments(executable, "closed_descendant", NULL);
     begin = ah_now_ms();
-    doc = invoke("exec", args, 1024, begin + 100, NULL, NULL, AH_LIMIT, true);
+    doc = tools_invoke("exec", args, 1024, begin + 100, NULL, NULL, AH_LIMIT, true);
     free(args);
     pid_t descendant =
         (pid_t)atoi(yyjson_get_str(yyjson_obj_get(yyjson_doc_get_root(doc), "stdout")));
@@ -368,8 +369,8 @@ int main(int argc, char **argv) {
     CHECK(ah_now_ms() - begin >= 280);
     kill(descendant, SIGKILL); /* Harmless if already reaped; prevents leftovers on regression. */
     yyjson_doc_free(doc);
-    expect("exec", "{\"argv\":[\"/bin/echo\\u0000bad\"]}", AH_INVALID);
-    expect("exec", "{\"argv\":\"echo unsafe\"}", AH_INVALID);
+    tools_expect("exec", "{\"argv\":[\"/bin/echo\\u0000bad\"]}", AH_INVALID);
+    tools_expect("exec", "{\"argv\":\"echo unsafe\"}", AH_INVALID);
     ah_local_tools_close(tools);
     outside_fd = open(outside, O_RDONLY);
     CHECK(outside_fd >= 0);

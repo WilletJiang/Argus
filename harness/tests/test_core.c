@@ -22,7 +22,7 @@ static const char call[] =
     "id\":\"call_1\",\"name\":\"test_tool\",\"arguments\":\"{\\\"value\\\":3}\"}]}";
 static const char ask[] =
     "{\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"ask_1\","
-    "\"name\":\"harness_ask\",\"arguments\":\"{\\\"question\\\":\\\"Choose\\\",\\\"options\\\":["
+    "\"name\":\"ask\",\"arguments\":\"{\\\"question\\\":\\\"Choose\\\",\\\"options\\\":["
     "\\\"a\\\",\\\"b\\\"]}\"}]}";
 static const char schema[] = "{\"type\":\"object\",\"properties\":{\"value\":{\"type\":\"integer\"}"
                              "},\"required\":[\"value\"],\"additionalProperties\":false}";
@@ -150,7 +150,7 @@ static ah_engine *open_engine(fixture *f, const char *path, ah_config *custom) {
     return engine;
 }
 static void register_tool(ah_engine *engine, fixture *f, ah_effect effect, bool approval) {
-    ah_tool tool = {"test_tool", "Test doubling", schema, effect, approval, execute, f};
+    ah_tool tool = {"test_tool", "Test doubling", schema, effect, approval, execute, f, false};
     ah_error error = {0};
     ok(ah_register_tool(engine, &tool, &error), &error);
 }
@@ -517,7 +517,8 @@ static void approval_contract_change(void) {
                     AH_EFFECT_WRITE,
                     true,
                     execute,
-                    &changed};
+                    &changed,
+                    false};
     ok(ah_register_tool(e, &tool, &error), &error);
     ok(ah_run(e, id, &error), &error);
     assert(changed.executions == 0);

@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-#define AH_VERSION "0.1.0"
+#define AH_VERSION "0.2.0"
 #define AH_ID_CAP 37
 #define AH_ERROR_CAP 512
 
@@ -90,7 +90,8 @@ typedef struct {
     ah_effect effect;
     bool requires_approval;
     ah_execute_fn execute;
-    void *context; /* Host-owned, must outlive engine. */
+    void *context;      /* Host-owned, must outlive engine. */
+    bool parallel_safe; /* Opt-in: READ callback/context may run concurrently. */
 } ah_tool;
 
 typedef struct {
@@ -105,6 +106,8 @@ typedef struct {
     unsigned max_tool_calls;
     uint64_t run_timeout_ms;
     uint64_t tool_timeout_ms;
+    unsigned max_parallel_tools; /* 1 serial; 0 also serial; maximum 16. */
+    size_t max_model_tool_bytes; /* Per-receipt model view; 0 disables extra cap. */
 } ah_config;
 
 void ah_config_init(ah_config *config);
@@ -132,7 +135,9 @@ ah_code ah_resolve(ah_engine *engine, const char *session_id, const char *operat
                    const char *result_json, bool is_error, ah_error *error);
 ah_code ah_fork(ah_engine *engine, const char *session_id, char new_id[AH_ID_CAP], ah_error *error);
 /* Explicit, atomic checkpoint. Keeps complete recent turns and original journal.
- * Refuses active/pending tool exchanges. summary is host-supplied, not verified. */
+ * Also allowed for stopped/failed sessions with all tool exchanges settled.
+ * keep=0 preserves current unfinished-turn user inputs. State/counters unchanged;
+ * resume is explicit. summary is host-supplied, not verified. */
 ah_code ah_compact(ah_engine *engine, const char *session_id, const char *summary,
                    unsigned keep_recent_turns, ah_error *error);
 ah_code ah_session_json(ah_engine *engine, const char *session_id, char **json, ah_error *error);

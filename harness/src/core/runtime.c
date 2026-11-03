@@ -94,7 +94,10 @@ ah_code ah_run(ah_engine *e, const char *sid, ah_error *err) {
         core_operation op;
         ah_code found = core_next_operation(e, sid, &op, err);
         if (found == AH_OK) {
-            rc = core_execute_operation(e, &session, &op, err);
+            bool batched = false;
+            rc = core_execute_parallel(e, &session, &op, &batched, err);
+            if (rc == AH_OK && !batched)
+                rc = core_execute_operation(e, &session, &op, err);
             core_operation_free(&op);
             continue;
         }

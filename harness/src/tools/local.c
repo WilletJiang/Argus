@@ -11,11 +11,6 @@
 static const char path_schema[] = "{\"type\":\"object\",\"properties\":{\"path\":{\"type\":"
                                   "\"string\",\"minLength\":1,\"maxLength\":4096}},"
                                   "\"required\":[\"path\"],\"additionalProperties\":false}";
-static const char write_schema[] =
-    "{\"type\":\"object\",\"properties\":{\"path\":{\"type\":\"string\",\"minLength\":1,"
-    "\"maxLength\":4096},"
-    "\"content\":{\"type\":\"string\",\"maxLength\":1048576}},\"required\":[\"path\",\"content\"],"
-    "\"additionalProperties\":false}";
 
 size_t ah_local_limit(const ah_tool_call *call) {
     size_t limit = call->output_limit ? call->output_limit : 65536;
@@ -105,7 +100,7 @@ bool ah_local_utf8(const char *text, size_t length, size_t *complete) {
 }
 
 /* Walk each directory using the pinned workspace descriptor. Never follow links. */
-static int parent_fd(ah_local_tools *tools, yyjson_val *path, char leaf[4097]) {
+int ah_local_parent_fd(ah_local_tools *tools, yyjson_val *path, char leaf[4097]) {
     const char *text = yyjson_get_str(path);
     size_t length = yyjson_get_len(path);
     if (!text || !length || length > 4096 || text[0] == '/' || memchr(text, '\0', length)) {
@@ -145,8 +140,8 @@ static int parent_fd(ah_local_tools *tools, yyjson_val *path, char leaf[4097]) {
     }
 }
 
-static yyjson_doc *arguments(const ah_tool_call *call, const char *schema, ah_tool_result *result,
-                             ah_error *error) {
+yyjson_doc *ah_local_arguments(const ah_tool_call *call, const char *schema, ah_tool_result *result,
+                               ah_error *error) {
     memset(result, 0, sizeof(*result));
     ah_code code = ah_schema_validate(schema, call->arguments_json, error);
     if (code == AH_OK)
@@ -162,87 +157,13 @@ static yyjson_doc *arguments(const ah_tool_call *call, const char *schema, ah_to
     return doc;
 }
 
-static ah_code read_file(void *context, const ah_tool_call *call, ah_tool_result *result,
-                         ah_error *error) {
-    ah_error local_error;
-    if (!error)
-        error = &local_error;
-    yyjson_doc *args = arguments(call, path_schema, result, error);
-    if (!args)
-        return error ? error->code : AH_INVALID;
-    char leaf[4097];
-    int parent = parent_fd(context, yyjson_obj_get(yyjson_doc_get_root(args), "path"), leaf);
-    yyjson_doc_free(args);
-    if (parent < 0)
-        return ah_local_error(call, result, error, AH_INVALID,
-                              "Path is invalid or cannot be traversed without symlinks");
-    int fd = openat(parent, leaf, O_RDONLY | O_NOFOLLOW | O_NONBLOCK | O_CLOEXEC);
-    close(parent);
-    struct stat st;
-    if (fd < 0)
-        return ah_local_error(call, result, error, AH_IO,
-                              "Cannot open file without following symlinks");
-    if (fstat(fd, &st) || !S_ISREG(st.st_mode)) {
-        close(fd);
-        return ah_local_error(call, result, error, AH_INVALID, "Only regular files can be read");
-    }
-    size_t limit = ah_local_limit(call), capacity = limit > 128 ? (limit - 128) / 6 : 0;
-    char *data = malloc(capacity + 1);
-    if (!data) {
-        close(fd);
-        return ah_local_error(call, result, error, AH_IO, "Out of memory");
-    }
-    size_t used = 0;
-    ah_code code = AH_OK;
-    bool eof = false;
-    while (used <= capacity) {
-        code = ah_local_stopped(call);
-        if (code != AH_OK)
-            break;
-        ssize_t n = read(fd, data + used, capacity + 1 - used);
-        if (n > 0)
-            used += (size_t)n;
-        else if (!n) {
-            eof = true;
-            break;
-        } else if (errno != EINTR) {
-            code = AH_IO;
-            break;
-        }
-        if (used == capacity + 1)
-            break;
-    }
-    close(fd);
-    if (code != AH_OK) {
-        free(data);
-        return ah_local_error(call, result, error, code, "Read interrupted or failed");
-    }
-    bool truncated = !eof;
-    size_t length = used > capacity ? capacity : used, complete;
-    if (memchr(data, '\0', length) || !ah_local_utf8(data, length, &complete) ||
-        (!truncated && complete != length)) {
-        free(data);
-        return ah_local_error(call, result, error, AH_INVALID, "File is not UTF-8 text");
-    }
-    length = complete;
-    yyjson_mut_doc *doc = ah_mut_doc_new();
-    yyjson_mut_val *root = yyjson_mut_obj(doc);
-    yyjson_mut_doc_set_root(doc, root);
-    yyjson_mut_obj_add_bool(doc, root, "ok", true);
-    yyjson_mut_obj_add_strncpy(doc, root, "content", data, length);
-    yyjson_mut_obj_add_uint(doc, root, "bytes", length);
-    yyjson_mut_obj_add_bool(doc, root, "truncated", truncated);
-    free(data);
-    return ah_local_finish(call, result, doc, error);
-}
-
 static ah_code list_directory(void *context, const ah_tool_call *call, ah_tool_result *result,
                               ah_error *error) {
     ah_error local_error;
     if (!error)
         error = &local_error;
     ah_local_tools *tools = context;
-    yyjson_doc *args = arguments(call, path_schema, result, error);
+    yyjson_doc *args = ah_local_arguments(call, path_schema, result, error);
     if (!args)
         return error ? error->code : AH_INVALID;
     yyjson_val *path = yyjson_obj_get(yyjson_doc_get_root(args), "path");
@@ -251,7 +172,7 @@ static ah_code list_directory(void *context, const ah_tool_call *call, ah_tool_r
     if (yyjson_equals_str(path, "."))
         fd = openat(tools->workspace_fd, ".", O_RDONLY | O_DIRECTORY | O_CLOEXEC);
     else {
-        int parent = parent_fd(tools, path, leaf);
+        int parent = ah_local_parent_fd(tools, path, leaf);
         if (parent >= 0) {
             fd = openat(parent, leaf, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_NONBLOCK | O_CLOEXEC);
             close(parent);
@@ -310,108 +231,6 @@ static ah_code list_directory(void *context, const ah_tool_call *call, ah_tool_r
     return ah_local_finish(call, result, doc, error);
 }
 
-static ah_code write_file(void *context, const ah_tool_call *call, ah_tool_result *result,
-                          ah_error *error) {
-    ah_error local_error;
-    if (!error)
-        error = &local_error;
-    yyjson_doc *args = arguments(call, write_schema, result, error);
-    if (!args)
-        return error ? error->code : AH_INVALID;
-    if (ah_local_limit(call) < 64) {
-        yyjson_doc_free(args);
-        return ah_local_error(call, result, error, AH_LIMIT,
-                              "Output limit too small for write receipt");
-    }
-    yyjson_val *root = yyjson_doc_get_root(args), *content = yyjson_obj_get(root, "content");
-    size_t length = yyjson_get_len(content);
-    if (length > AH_LOCAL_MAX_BYTES) {
-        yyjson_doc_free(args);
-        return ah_local_error(call, result, error, AH_LIMIT, "File content exceeds byte limit");
-    }
-    char leaf[4097];
-    int parent = parent_fd(context, yyjson_obj_get(root, "path"), leaf);
-    if (parent < 0) {
-        yyjson_doc_free(args);
-        return ah_local_error(call, result, error, AH_INVALID,
-                              "Path is invalid or cannot be traversed without symlinks");
-    }
-    struct stat st;
-    int exists = fstatat(parent, leaf, &st, AT_SYMLINK_NOFOLLOW);
-    if ((!exists && !S_ISREG(st.st_mode)) || (exists && errno != ENOENT)) {
-        close(parent);
-        yyjson_doc_free(args);
-        return ah_local_error(call, result, error, AH_INVALID,
-                              "Write target must be absent or a regular file");
-    }
-    char temporary[96];
-    int fd = -1;
-    for (unsigned i = 0; i < 100; ++i) {
-        snprintf(temporary, sizeof(temporary), ".ah-write-%ld-%llu-%u", (long)getpid(),
-                 (unsigned long long)ah_now_ms(), i);
-        fd = openat(parent, temporary, O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC, 0600);
-        if (fd >= 0 || errno != EEXIST)
-            break;
-    }
-    ah_code code = fd < 0 ? AH_IO : AH_OK;
-    size_t done = 0;
-    while (code == AH_OK && done < length) {
-        code = ah_local_stopped(call);
-        if (code != AH_OK)
-            break;
-        ssize_t n = write(fd, yyjson_get_str(content) + done, length - done);
-        if (n > 0)
-            done += (size_t)n;
-        else if (n < 0 && errno == EINTR)
-            continue;
-        else
-            code = AH_IO;
-    }
-    if (code == AH_OK && fsync(fd))
-        code = AH_IO;
-    if (fd >= 0 && close(fd) && code == AH_OK)
-        code = AH_IO;
-    if (code == AH_OK)
-        code = ah_local_stopped(call);
-    /* Recheck the destination; rename replaces a concurrent link, never follows it. */
-    if (code == AH_OK) {
-        exists = fstatat(parent, leaf, &st, AT_SYMLINK_NOFOLLOW);
-        if ((!exists && !S_ISREG(st.st_mode)) || (exists && errno != ENOENT))
-            code = AH_INVALID;
-    }
-    bool committed = false;
-    if (code == AH_OK) {
-        if (renameat(parent, temporary, parent, leaf))
-            code = AH_IO;
-        else {
-            committed = true;
-            if (fsync(parent)) {
-                code = AH_UNCERTAIN;
-                result->outcome_unknown = true;
-            }
-        }
-    }
-    if (!committed && fd >= 0)
-        unlinkat(parent, temporary, 0);
-    close(parent);
-    yyjson_doc_free(args);
-    if (code != AH_OK)
-        return ah_local_error(call, result, error, code,
-                              committed ? "File replaced, but directory durability is uncertain"
-                                        : "Write failed or was cancelled before commit");
-    yyjson_mut_doc *doc = ah_mut_doc_new();
-    yyjson_mut_val *output = yyjson_mut_obj(doc);
-    yyjson_mut_doc_set_root(doc, output);
-    yyjson_mut_obj_add_bool(doc, output, "ok", true);
-    yyjson_mut_obj_add_uint(doc, output, "bytes", length);
-    result->outcome_unknown =
-        true; /* Preserve uncertainty if the committed receipt cannot be encoded. */
-    code = ah_local_finish(call, result, doc, error);
-    if (code == AH_OK)
-        result->outcome_unknown = false;
-    return code;
-}
-
 ah_code ah_local_tools_open(const ah_local_tools_config *config, ah_local_tools **out,
                             ah_error *error) {
     if (out)
@@ -446,20 +265,27 @@ ah_code ah_local_tools_register(ah_local_tools *tools, ah_engine *engine, ah_err
         return ah_fail(error, AH_INVALID, "Missing local tools or engine");
     ah_tool definitions[] = {
         {"read_file",
-         "Read bounded UTF-8 text from a workspace-relative regular file; refuses symlinks.",
-         path_schema, AH_EFFECT_READ, false, read_file, tools},
+         "Read UTF-8 file lines (default 200, max 1000) from offset_line (default 1). "
+         "Use next_offset_bytes as offset_bytes for exact continuation, including partial lines. "
+         "Line and byte offsets are mutually exclusive; refuses symlinks.",
+         ah_read_schema, AH_EFFECT_READ, false, ah_local_read_file, tools, true},
         {"list_directory",
          "List bounded workspace directory names. Use path '.' for workspace root; refuses "
          "symlinks.",
-         path_schema, AH_EFFECT_READ, false, list_directory, tools},
+         path_schema, AH_EFFECT_READ, false, list_directory, tools, true},
         {"write_file",
          "Atomically replace a workspace-relative regular file with UTF-8 content; refuses "
          "symlinks.",
-         write_schema, AH_EFFECT_WRITE, tools->approve_writes, write_file, tools},
+         ah_write_schema, AH_EFFECT_WRITE, tools->approve_writes, ah_local_write_file, tools,
+         false},
+        {"edit_file",
+         "Replace exactly one occurrence of old_text in an existing UTF-8 file (max 1 MiB). "
+         "Refuses missing or ambiguous matches and preserves file permissions.",
+         ah_edit_schema, AH_EFFECT_WRITE, tools->approve_writes, ah_local_edit_file, tools, false},
         {"exec",
          "Execute argv in the workspace with broad local process authority. This is NOT a sandbox.",
-         ah_exec_schema, AH_EFFECT_EXTERNAL, true, ah_local_exec, tools}};
-    size_t count = tools->enable_exec ? 4 : 3;
+         ah_exec_schema, AH_EFFECT_EXTERNAL, true, ah_local_exec, tools, false}};
+    size_t count = tools->enable_exec ? 5 : 4;
     for (size_t i = 0; i < count; ++i) {
         ah_code code = ah_register_tool(engine, &definitions[i], error);
         if (code != AH_OK)

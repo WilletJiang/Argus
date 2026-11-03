@@ -153,7 +153,8 @@ int main(int argc, char **argv) {
                        AH_EFFECT_WRITE,
                        false,
                        sandbox_exec,
-                       &eval};
+                       &eval,
+                       false};
     if (code == AH_OK)
         code = ah_register_tool(engine, &process, &error);
     bool signals = code == AH_OK && cli_signals_start(engine);

@@ -195,6 +195,26 @@ ah_code ah_sessions_json(ah_engine *e, char **json, ah_error *err) {
     ah_mut_doc_free(d);
     return rc;
 }
+static ah_code pending_operation(ah_engine *e, const char *sid, ah_state state, core_operation *op,
+                                 ah_error *err) {
+    if (state != AH_OUTCOME_UNKNOWN)
+        return core_next_operation(e, sid, op, err);
+    sqlite3_stmt *s = NULL;
+    ah_code rc = core_prepare(e,
+                              "SELECT id FROM operations WHERE session_id=? AND status='unknown' "
+                              "ORDER BY seq LIMIT 1",
+                              &s, err);
+    if (rc == AH_OK) {
+        sqlite3_bind_text(s, 1, sid, -1, SQLITE_TRANSIENT);
+        int step = sqlite3_step(s);
+        if (step == SQLITE_ROW)
+            rc = core_get_operation(e, sid, (const char *)sqlite3_column_text(s, 0), op, err);
+        else
+            rc = step == SQLITE_DONE ? AH_NOT_FOUND : ah_fail(err, AH_IO, "pending lookup failed");
+    }
+    sqlite3_finalize(s);
+    return rc;
+}
 ah_code ah_session_json(ah_engine *e, const char *sid, char **json, ah_error *err) {
     if (json)
         *json = NULL;
@@ -216,11 +236,12 @@ ah_code ah_session_json(ah_engine *e, const char *sid, char **json, ah_error *er
         sqlite3_finalize(s);
         return ah_fail(err, AH_IO, "out of memory");
     }
+    ah_state state = (ah_state)sqlite3_column_int(s, 2);
     yyjson_mut_val *o = session_value(d, s);
     yyjson_mut_doc_set_root(d, o);
     sqlite3_finalize(s);
     core_operation op;
-    rc = core_next_operation(e, sid, &op, err);
+    rc = pending_operation(e, sid, state, &op, err);
     if (rc == AH_OK) {
         yyjson_mut_val *p = yyjson_mut_obj(d);
         yyjson_mut_obj_add_val(d, o, "pending", p);
