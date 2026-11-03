@@ -77,6 +77,16 @@ static void failures(void) {
                               "{\"type\":\"response.incomplete\",\"response\":{\"incomplete_"
                               "details\":{\"reason\":\"max_output_tokens\"}}}\n\n";
     expect(incomplete, strlen(incomplete), AH_LIMIT);
+    const char subscription_limit[] =
+        "data: "
+        "{\"type\":\"response.failed\",\"response\":{\"error\":{\"code\":\"subscription_sharing_"
+        "usage_limit_exceeded\"}}}\n\n";
+    expect(subscription_limit, strlen(subscription_limit), AH_LIMIT);
+    const char subscription_unavailable[] =
+        "data: "
+        "{\"type\":\"response.failed\",\"response\":{\"error\":{\"code\":\"subscription_sharing_"
+        "usage_unavailable\"}}}\n\n";
+    expect(subscription_unavailable, strlen(subscription_unavailable), AH_LIMIT);
     const char false_terminal[] =
         "data: "
         "{\"type\":\"response.completed\",\"response\":{\"status\":\"failed\",\"output\":[]}}\n\n";

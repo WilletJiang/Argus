@@ -12,6 +12,7 @@ consume subscription/API quotas. Tests create temporary state and clean it up.
 | http | Scripted real HTTP/SSE, rate/transport retries, no retry after output, auth/MIME/redirect rejection, deadline/cancellation, connection reuse |
 | cli | Actual executable: network-to-tool-to-model loop, persisted approval and Ask across restarts, dedupe/fork/checkpoint, RPC |
 | rpc | Malformed frames, asynchronous cancel, EOF and signals, busy response, no-token metadata commands |
+| eval_cases | Offline positive/negative checks of the fixed live task graders |
 | embed | A C client with no product dependencies |
 
 Run normal and sanitizer builds, then `scripts/check-standalone.sh`. The latter
@@ -66,3 +67,5 @@ On this macOS version the installed Homebrew ASan runtime stalled during its own
 initialization, so it was not used for the coverage-guided run. Apple Clang's
 ASan test builds worked. Use compatible compiler/runtime combinations; a sanitizer
 startup failure is not a passed test or an application finding.
+
+A separately authorized [live subscription run](../evals/results/2026-11-03.md) now covers text/tool execution on `gpt-6.1-sol`; live Ask, cancellation and other models remain separate validation work.

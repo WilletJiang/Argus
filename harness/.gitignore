@@ -5,3 +5,5 @@
 *.db-shm
 *.lock
 .env*
+
+__pycache__/

@@ -275,7 +275,7 @@ static size_t body(char *bytes, size_t size, size_t count, void *context) {
     t->received += length;
     if (t->status < 200 || t->status >= 300)
         return length;
-    if (!t->header_complete || !t->content_type) {
+    if (!t->header_complete || (t->content_type_seen && !t->content_type)) {
         ah_fail(&t->error, AH_PROTOCOL, "expected text/event-stream response");
         return 0;
     }
@@ -409,7 +409,7 @@ static ah_code complete(void *context, const char *request_json, ah_delta_sink d
                 ah_fail(&t.error, AH_NETWORK, "provider transport failure (%d)", (int)curl_result);
         else if (t.status < 200 || t.status >= 300)
             result = ah_fail(&t.error, AH_PROTOCOL, "provider HTTP %ld", t.status);
-        else if (!t.content_type)
+        else if (t.content_type_seen && !t.content_type)
             result = ah_fail(&t.error, AH_PROTOCOL, "expected text/event-stream response");
         else {
             result = ah_stream_finish(&t.stream, response_json);

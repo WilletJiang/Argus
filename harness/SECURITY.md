@@ -17,7 +17,9 @@ files, remote responses, and subprocess output are untrusted data.
 - Do not run untrusted programs under a privileged account. A real isolation backend
   (separate user, sandbox, container or VM) belongs behind the executor contract.
 - HTTPS validates certificate and host; redirects and URL credentials are rejected.
-  Plain HTTP is accepted only through an explicit loopback test option. Use trusted
+  Absent Content-Type is accepted only if the body passes strict SSE and terminal
+  validation; a present mismatched type is rejected. Plain HTTP is accepted only
+  through an explicit loopback test option. Use trusted
   configured endpoints. Network proxy configuration is inherited from libcurl's host
   environment; a production host should control that environment.
 - Provider tokens never enter the model request JSON or tool environment. Debug

@@ -60,6 +60,14 @@ class Handler(BaseHTTPRequestHandler):
             payload = b""
         elif path == "/wrong-mime":
             content_type = "application/json"
+        elif path == "/no-mime-sse":
+            content_type = None
+        elif path == "/no-mime-html":
+            content_type = None
+            payload = b"<html><body>upstream error</body></html>"
+        elif path == "/no-mime-truncated":
+            content_type = None
+            payload = DELTA
         elif path == "/truncated":
             payload = DELTA
         elif path == "/duplicate":
@@ -90,7 +98,8 @@ class Handler(BaseHTTPRequestHandler):
         elif path == "/before-output" and COUNTS[path] < 3:
             payload = event({"type": "response.created", "response": {"status": "in_progress"}})
         self.send_response(status)
-        self.send_header("Content-Type", content_type)
+        if content_type is not None:
+            self.send_header("Content-Type", content_type)
         if path == "/duplicate-mime":
             self.send_header("Content-Type", content_type)
         incomplete = path in ("/hang", "/timeout", "/after-delta") or (
@@ -135,6 +144,7 @@ def main():
 
     try:
         run("/ok")
+        run("/no-mime-sse")
         run("/fragmented")
         run("/reuse", requests=2, repeat=True)
         run("/429", requests=3)
@@ -147,6 +157,8 @@ def main():
         assert COUNTS["/redirect-target"] == 0
         for path in ("/wrong-mime", "/duplicate-mime", "/truncated", "/duplicate", "/malformed", "/utf8"):
             run(path, code=3)
+        run("/no-mime-html", code=3)
+        run("/no-mime-truncated", code=3)
         for path in ("/nul-type", "/nul-delta"):
             assert run(path, code=3)["deltas"] == 0
         run("/incomplete", code=4)

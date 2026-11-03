@@ -118,6 +118,8 @@ static ah_code event(ah_stream *s) {
             error_code = yyjson_obj_get(root, "code");
         ah_code status = AH_PROTOCOL;
         if (equal(error_code, "rate_limit_exceeded") || equal(error_code, "insufficient_quota") ||
+            equal(error_code, "subscription_sharing_usage_limit_exceeded") ||
+            equal(error_code, "subscription_sharing_usage_unavailable") ||
             equal(reason, "max_output_tokens"))
             status = AH_LIMIT;
         else if (equal(error_code, "invalid_api_key") || equal(error_code, "authentication_error"))

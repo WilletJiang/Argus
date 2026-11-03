@@ -96,8 +96,9 @@ semantic memory and provider switching are not silently performed. Text-stream
 completion is not proof of a real-world task outcome. A product should verify its
 own completion conditions before presenting a task as done.
 
-No claim of industry leadership or live model compatibility is made solely from
-fixture tests. Advertised behavior is covered by executable contracts, and the
+A [live subscription comparison](evals/results/2026-11-03.md) completed three synthetic
+tasks with both this runtime and Codex, and exposed a fixed transport compatibility
+issue. No claim of industry leadership is made from this small evaluation. Advertised behavior is covered by executable contracts, and the
 remaining validation boundaries are documented.
 
 MIT license. Third-party licenses and checksums are in [vendor](vendor/README.md).
