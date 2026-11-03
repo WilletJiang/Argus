@@ -317,6 +317,27 @@ static bool retryable(CURLcode code) {
            code == CURLE_PARTIAL_FILE || code == CURLE_HTTP2 || code == CURLE_HTTP2_STREAM;
 }
 
+/* ChatGPT cache affinity uses this header independently of the JSON key. Derive
+ * it from each request, not provider state: one transport can serve many sessions. */
+static bool request_route(const char *json, char route[525]) {
+    yyjson_doc *doc = yyjson_read(json, strlen(json), 0);
+    yyjson_val *root = doc ? yyjson_doc_get_root(doc) : NULL;
+    bool valid = yyjson_is_obj(root) && ah_json_check(root, NULL) == AH_OK;
+    route[0] = 0;
+    yyjson_val *key = valid ? yyjson_obj_get(root, "prompt_cache_key") : NULL;
+    if (key && !yyjson_is_null(key)) {
+        const char *value = yyjson_get_str(key);
+        size_t length = yyjson_get_len(key);
+        valid = value && length && length <= 512;
+        for (size_t i = 0; valid && i < length; i++)
+            valid = (unsigned char)value[i] >= 0x21 && (unsigned char)value[i] <= 0x7e;
+        if (valid)
+            snprintf(route, 525, "session-id: %s", value);
+    }
+    yyjson_doc_free(doc);
+    return valid;
+}
+
 static ah_code complete(void *context, const char *request_json, ah_delta_sink delta,
                         void *delta_context, ah_cancel_check cancelled, void *cancel_context,
                         char **response_json, ah_error *error) {
@@ -324,7 +345,8 @@ static ah_code complete(void *context, const char *request_json, ah_delta_sink d
     ah_error_clear(error);
     if (response_json)
         *response_json = NULL;
-    if (!provider || !response_json || !request_json || !ah_json_valid(request_json))
+    char route[525];
+    if (!provider || !response_json || !request_json || !request_route(request_json, route))
         return ah_fail(error, AH_INVALID, "invalid provider request");
     if (provider->busy)
         return ah_fail(error, AH_BUSY, "provider is running");
@@ -353,6 +375,12 @@ static ah_code complete(void *context, const char *request_json, ah_delta_sink d
     if (!next)
         goto cleanup;
     headers = next;
+    if (*route) {
+        next = curl_slist_append(headers, route);
+        if (!next)
+            goto cleanup;
+        headers = next;
+    }
     curl_easy_reset(provider->easy); /* Keeps reusable connections. */
 #define SET(option, value)                                                                         \
     do {                                                                                           \

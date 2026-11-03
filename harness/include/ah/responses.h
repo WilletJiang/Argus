@@ -17,6 +17,9 @@ typedef struct {
 void ah_responses_config_init(ah_responses_config *config);
 ah_code ah_responses_open(const ah_responses_config *config, ah_responses **out, ah_error *error);
 void ah_responses_close(ah_responses *provider);
+/* Each request's prompt_cache_key also supplies the ChatGPT session-id header.
+ * Keys must be 1..512 printable non-space ASCII bytes; omit/null sends neither
+ * a derived routing header nor any cached route from a previous request. */
 ah_provider ah_responses_provider(ah_responses *provider);
 /* Owner-thread only, copies token; host handles OAuth and refresh in its vault. */
 ah_code ah_responses_set_token(ah_responses *provider, const char *token, ah_error *error);

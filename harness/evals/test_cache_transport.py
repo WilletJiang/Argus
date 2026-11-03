@@ -11,6 +11,7 @@ import threading
 
 cache_driver, live_driver = sys.argv[1:]
 received = []
+routes = []
 
 
 class Handler(http.server.BaseHTTPRequestHandler):
@@ -20,6 +21,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
     def do_POST(self):
         body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
         received.append(body)
+        routes.append(self.headers.get("session-id"))
         number = len(received)
         output = []
         if body.get("model") == "tool-loop" and not any(
@@ -88,8 +90,31 @@ try:
     assert len(rows) == 2 and all(r["ok"] for r in rows)
     assert rows[1]["response"]["prompt_cache_diagnostics"] == {"type": "cache_hit"}
     assert rows[1]["response"]["usage"]["input_tokens_details"]["cached_tokens"] == 60
+    assert routes == [None, None]
+    # One reusable transport switches sessions and clears a previous route when omitted.
+    received.clear()
+    routes.clear()
+    keys = ["session-a", "session-b", "session-a", None, "x" * 512]
+    requests = [dict(body, prompt_cache_key=key) for key in keys]
+    invalid = ["", "bad\r\nInjected: yes", "non-ascii-\u4e2d", "x" * 513]
+    requests += [dict(body, prompt_cache_key=key) for key in invalid]
+    p = subprocess.run(
+        [cache_driver],
+        input="".join(json.dumps(r) + "\n" for r in requests),
+        env=env,
+        text=True,
+        capture_output=True,
+        timeout=10,
+    )
+    assert p.returncode == 0, p.stderr
+    rows = [json.loads(line) for line in p.stdout.splitlines()]
+    assert len(rows) == len(requests)
+    assert all(r["ok"] for r in rows[: len(keys)])
+    assert all(not r["ok"] for r in rows[len(keys) :])
+    assert routes == keys  # Unsafe keys are rejected before any HTTP request.
     for omit in (False, True):
         received.clear()
+        routes.clear()
         with tempfile.TemporaryDirectory(prefix="ah-cache-adapter-") as tmp:
             root = Path(tmp)
             (root / "workspace").mkdir()
@@ -119,6 +144,7 @@ try:
             assert p.returncode == 0, p.stderr
             assert len(received) == 2
             assert ("prompt_cache_key" in received[0]) == (not omit)
+            assert routes == [r.get("prompt_cache_key") for r in received]
             if not omit:
                 assert (
                     received[0]["prompt_cache_key"] == received[1]["prompt_cache_key"]

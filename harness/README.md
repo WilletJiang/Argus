@@ -67,7 +67,11 @@ refresh credentials. Plan-authorized OAuth tokens and Platform API keys are not
 interchangeable credentials; use the appropriate supported authorization flow.
 
 Requests use the durable session UUID as `prompt_cache_key`; a fork gets its own
-key. This supplies a stable cache identifier, not a guarantee of cache hits.
+key. The Responses transport mirrors this key into the HTTP `session-id` header:
+ChatGPT subscription routing depends on that header independently of the JSON key.
+Routing is derived per request, so a shared transport cannot retain another
+session's route. Custom keys must be 1–512 printable non-space ASCII bytes;
+absent/null keys omit the header. This supplies stable routing, not a guarantee of cache hits.
 Changes to earlier instructions, tools or history can still invalidate prefixes.
 
 The CLI accepts `AH_ACCESS_TOKEN` or an explicitly supplied `--token-file`. A token

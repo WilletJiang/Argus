@@ -165,7 +165,8 @@ Input includes its cached subset; output includes its reasoning subset.
 
 The real agent `live_driver` supports the same investigation via:
 
-- `AH_EVAL_CACHE_KEY=session|omit` (default: the durable session UUID).
+- `AH_EVAL_CACHE_KEY=session|omit` (default: the durable session UUID, mirrored
+  by the transport into HTTP `session-id`; omission removes both).
 - `AH_EVAL_CACHE_DIAGNOSTICS=0|1` (default: 0).
 - `AH_EVAL_TRACE_REQUESTS=0|1` (default: 0).
 
