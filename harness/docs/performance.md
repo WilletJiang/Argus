@@ -57,7 +57,9 @@ reduce wall time proportionally. This is also the direction of OpenAI's
 [latency guidance](https://developers.openai.com/api/docs/guides/latency-optimization).
 The current data does not tell us how much time each mechanism would save here.
 
-WebSockets deserve a bounded prototype, not an assumed speed claim. The
+The HTTP provider already reuses libcurl connections. A WebSocket experiment
+should isolate incremental history and continuation overhead from ordinary
+connection reuse. WebSockets deserve a bounded prototype, not an assumed speed claim. The
 [Responses transport](https://developers.openai.com/api/docs/guides/websocket-mode)
 offers persistent, incremental continuation. On the
 [subscription route](https://developers.openai.com/siwc/token-sharing-open-source/preview-limitations),
