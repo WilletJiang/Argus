@@ -34,6 +34,18 @@ else:
 
 
 class EnduranceChecks(unittest.TestCase):
+    def test_persistence_audit_handles_list_and_map_layouts(self):
+        from endurance_quality import QualityChecks
+
+        for jobs in ([{"id": "a", "priority": 0}], {"a": {"id": "a", "priority": 0}}):
+            document = {"jobs": jobs}
+            probe = QualityChecks("test_history_matches_current_job")
+            probe.create = lambda: None
+            probe.corrupt = lambda mutate: mutate(document)
+            probe.test_history_matches_current_job()
+            job = jobs["a"] if isinstance(jobs, dict) else jobs[0]
+            self.assertEqual(job["priority"], 99)
+
     def test_fixture_is_reproducible_and_blind(self):
         with tempfile.TemporaryDirectory() as tmp:
             a = pathlib.Path(tmp) / "a"

@@ -55,7 +55,18 @@ class QualityChecks(unittest.TestCase):
 
     def test_history_matches_current_job(self):
         self.create()
-        self.corrupt(lambda d: d["jobs"][0].__setitem__("priority", 99))
+
+        def change_priority(document):
+            jobs = document["jobs"]
+            # The public export uses a list; internal persistence may use a map.
+            job = (
+                jobs["a"]
+                if isinstance(jobs, dict)
+                else next(item for item in jobs if item["id"] == "a")
+            )
+            job["priority"] = 99
+
+        self.corrupt(change_priority)
 
     def test_malformed_store_is_not_replaced(self):
         self.create()
