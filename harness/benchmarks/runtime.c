@@ -32,17 +32,34 @@ static int compare(const void *a, const void *b) {
     double x = *(const double *)a, y = *(const double *)b;
     return (x > y) - (x < y);
 }
-static int benchmark(const char *path, const char *label) {
+static int benchmark(const char *path, const char *label, size_t seed_bytes) {
     ah_config config;
     ah_config_init(&config);
     config.database_path = path;
     config.provider.complete = model;
+    if (seed_bytes)
+        config.max_context_bytes = seed_bytes + 1024 * 1024;
     ah_engine *engine = NULL;
     ah_error error = {0};
     char session[AH_ID_CAP];
     ah_code rc = ah_open(&config, &engine, &error);
     if (rc == AH_OK)
         rc = ah_session_create(engine, "synthetic", "", session, &error);
+    /* Seed a retained user item outside the timed interval to measure history
+     * assembly costs separately from initial ingestion. No model inference. */
+    if (rc == AH_OK && seed_bytes) {
+        char *seed = malloc(seed_bytes + 1);
+        if (!seed) {
+            ah_close(engine);
+            return 1;
+        }
+        memset(seed, 'x', seed_bytes);
+        seed[seed_bytes] = 0;
+        rc = ah_submit(engine, session, "seed", seed, &error);
+        free(seed);
+        if (rc == AH_OK)
+            rc = ah_run(engine, session, &error);
+    }
     double samples[100];
     size_t count = 0;
     for (; count < 100 && rc == AH_OK; ++count) {
@@ -61,20 +78,32 @@ static int benchmark(const char *path, const char *label) {
     }
     qsort(samples, count, sizeof(*samples), compare);
     printf("{\"mode\":\"%s\",\"runs\":%zu,\"p50_ms\":%.3f,\"p95_ms\":%.3f,\"max_ms\":%.3f,"
-           "\"network\":false}\n",
-           label, count, samples[49], samples[94], samples[99]);
+           "\"network\":false,\"seed_context_bytes\":%zu}\n",
+           label, count, samples[49], samples[94], samples[99], seed_bytes);
     return 0;
 }
-int main(void) {
+int main(int argc, char **argv) {
+    size_t seed_bytes = 0;
+    if (argc > 2)
+        return 2;
+    if (argc == 2) {
+        if (argv[1][0] < '0' || argv[1][0] > '9')
+            return 2;
+        char *end = NULL;
+        unsigned long long value = strtoull(argv[1], &end, 10);
+        if (!*argv[1] || *end || value > 8 * 1024 * 1024)
+            return 2;
+        seed_bytes = (size_t)value;
+    }
     char root[] = "/tmp/ah-benchmark-XXXXXX";
     if (!mkdtemp(root))
         return 1;
     char path[256], lock[262];
     snprintf(path, sizeof(path), "%s/state.db", root);
     snprintf(lock, sizeof(lock), "%s.lock", path);
-    int rc = benchmark(":memory:", "memory");
+    int rc = benchmark(":memory:", "memory", seed_bytes);
     if (!rc)
-        rc = benchmark(path, "sqlite-full");
+        rc = benchmark(path, "sqlite-full", seed_bytes);
     unlink(path);
     unlink(lock);
     rmdir(root);

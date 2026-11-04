@@ -5,8 +5,8 @@ import hashlib
 import math
 from pathlib import Path
 import time
-from oauth import AuthError, ISSUER, OAuthClient
-from account import AccountProfile
+from .oauth import AuthError, ISSUER, OAuthClient
+from .account import AccountProfile
 
 DEFAULT_PROFILE = Path.home() / ".config/argus-harness-evaluation/registration.json"
 UNUSABLE = {
@@ -133,7 +133,8 @@ class SessionManager:
         record = self.vault.load(client) if client else None
         if record is None:
             raise AuthError(
-                "login_required", "Run auth.py login once to connect ChatGPT"
+                "login_required",
+                "Run python -m host.auth login once to connect ChatGPT",
             )
         if (
             not isinstance(record, dict)

@@ -9,9 +9,9 @@ From the harness directory:
 
 ```sh
 python3 -m pip install -r host/requirements.txt
-python3 -B host/auth.py login
-python3 -B host/auth.py status
-python3 -B host/auth.py exec -- ./build/ah new --db /private/path/agent.db --model MODEL_SLUG
+python3 -B -m host.auth login
+python3 -B -m host.auth status
+python3 -B -m host.auth exec -- ./build/ah new --db /private/path/agent.db --model MODEL_SLUG
 ```
 
 `login` reuses an existing session or refreshes it when necessary. Only a missing
@@ -44,7 +44,7 @@ Removing evaluation artifacts never logs out.
 `AH_ACCESS_TOKEN`; it does not expose refresh or identity tokens. The child must
 keep that bearer out of tool environments. Refresh occurs before starting the
 child, not during a running child's lifetime. Long-lived application hosts should
-call `SessionManager.access_token()` at request boundaries and pass the result to
+call `host.session.SessionManager.access_token()` at request boundaries and pass the result to
 `ah_responses_set_token()` between calls. This adapter is not yet wired into the
 Argus app's UI or a background credential broker.
 

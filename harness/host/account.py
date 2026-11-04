@@ -8,7 +8,7 @@ from pathlib import Path
 import stat
 import tempfile
 import uuid
-from oauth import AuthError
+from .oauth import AuthError
 
 
 class AccountProfile:

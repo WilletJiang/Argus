@@ -31,6 +31,17 @@ or external messages. `scripts/check-standalone.sh` copies this project into a
 fresh directory, builds/tests/installs it, and builds an independent C client
 against the installed `ah::ah` package.
 
+## Project layout
+
+- `include/ah/`, `src/`: public C API and runtime, grouped by responsibility.
+- `host/`: optional subscription login; use `python3 -B -m host.auth`.
+- `tests/`: offline contracts; `benchmarks/`: local overhead measurements.
+- `evals/`: smoke/endurance/cache workloads sharing execution and telemetry.
+- `docs/`: current contracts and architecture; `docs/evaluations/`: historical records.
+
+See the [code map](docs/architecture.md), [evaluation commands](evals/README.md),
+and [performance investigation](docs/performance.md).
+
 ## What is implemented
 
 - Persistent sessions and an ordered semantic event journal; idempotent user commands.

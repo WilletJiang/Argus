@@ -7,10 +7,10 @@ import os
 from pathlib import Path
 import subprocess
 import sys
-from login import login
-from oauth import AuthError
-from session import DEFAULT_PROFILE, SessionManager, UNUSABLE
-from vault import KeychainVault, VaultError
+from .login import login
+from .oauth import AuthError
+from .session import DEFAULT_PROFILE, SessionManager, UNUSABLE
+from .vault import KeychainVault, VaultError
 
 
 def execute(manager, command):

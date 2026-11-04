@@ -8,7 +8,7 @@ import socketserver
 import threading
 import urllib.parse
 import webbrowser
-from oauth import AuthError, ISSUER, RESOURCE, SCOPE
+from .oauth import AuthError, ISSUER, RESOURCE, SCOPE
 
 
 class LoopbackServer(http.server.ThreadingHTTPServer):
