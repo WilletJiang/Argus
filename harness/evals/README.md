@@ -183,3 +183,8 @@ JSON-only and session-header controls, native file-tool loops and three concurre
 clients. Keep the old binary when comparing a transport change; run the same
 `run_case` workload through each binary and retain failed cases. The response key
 echo check detects a server-rewritten key without storing the key itself.
+
+The [Sol xhigh follow-up](../docs/sol-xhigh-evaluation.md) repeats the same task
+with the cache and streaming fixes, retains the initial protocol-failure cohort,
+and reports raw and corrected storage-fixture scores separately. All primary
+trials reached the observation cutoff; their usage is a lower bound.

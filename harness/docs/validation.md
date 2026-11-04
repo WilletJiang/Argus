@@ -136,3 +136,9 @@ neither model-latency improvements nor performance against other harnesses.
 The subsequent Terra 6.1 xhigh comparison includes three parallel paired trials,
 reported token/cache breakdowns, and a separate result-quality audit. See
 [the full evaluation](endurance-evaluation.md).
+
+The Sol 6.1 xhigh follow-up exposed a streamed-item assembly gap, now covered by
+`stream_items` and the real C loopback tool-cycle test. A captured Sol stream
+replayed correctly; the updated parser completed 20,000 additional libFuzzer/UBSan
+iterations. Both macOS and Linux CI passed the 19-suite build and standalone install.
+See [the comparison](sol-xhigh-evaluation.md) for all attempts and graded outcomes.
