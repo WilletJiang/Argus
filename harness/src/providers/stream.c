@@ -101,10 +101,8 @@ static ah_code event(ah_stream *s) {
             !yyjson_is_arr(yyjson_obj_get(response, "output"))) {
             code = fail(s, AH_PROTOCOL, "invalid completed response");
         } else {
-            s->response = yyjson_val_write(response, 0, NULL);
-            if (!s->response)
-                code = fail(s, AH_IO, "response allocation failed");
-            else
+            code = ah_stream_response(s, response);
+            if (code == AH_OK)
                 s->terminal = true;
         }
     } else if (equal(type, "response.failed") || equal(type, "response.incomplete") ||
@@ -125,6 +123,9 @@ static ah_code event(ah_stream *s) {
         else if (equal(error_code, "invalid_api_key") || equal(error_code, "authentication_error"))
             status = AH_AUTH;
         code = fail(s, status, "provider returned a failed or incomplete response");
+    } else if (equal(type, "response.output_item.added") ||
+               equal(type, "response.output_item.done")) {
+        code = ah_stream_item(s, root, equal(type, "response.output_item.done"));
     } else if (equal(type, "response.output_text.delta")) {
         yyjson_val *delta = yyjson_obj_get(root, "delta");
         if (!yyjson_is_str(delta))
@@ -214,6 +215,7 @@ ah_code ah_stream_finish(ah_stream *s, char **response) {
 }
 
 void ah_stream_destroy(ah_stream *s) {
+    ah_stream_items_destroy(s);
     free(s->line);
     free(s->data);
     free(s->response);

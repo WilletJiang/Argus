@@ -8,6 +8,7 @@ consume subscription/API quotas. Tests create temporary state and clean it up.
 | core | Native tool loop, duplicate commands/call IDs, approval/input resume, fork/checkpoint, cancellation/steering, process-crash recovery, receipt-write failure |
 | alloc | Per-document allocation budgets, sticky builder failure, serialization/realloc failure, no partial JSON |
 | stream | Every fragmentation width, UTF-8/CRLF/BOM, duplicate/oversized/deep JSON, terminal barriers |
+| stream_items | Completed item reconstruction when terminal output is empty; out-of-order indices, gaps, duplicate/conflicting identities and snapshots, encrypted reasoning, failure/EOF barriers |
 | tools | Descriptor-relative paths, traversal/symlinks/FIFOs, UTF-8 line/byte paging, exact edits, atomic writes, schema numeric edges, process environment/FD isolation, cancellation/flood/descendant cleanup |
 | parallel | Opt-in concurrency, write/input/approval barriers, cancellation/deadlines, budget enforcement, ordered receipts/model input |
 | context | Over-budget/failed-turn compaction recovery, retained user constraints/steering, unresolved exchange rejection, transactional forks |

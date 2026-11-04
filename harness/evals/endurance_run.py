@@ -94,7 +94,7 @@ async def run(args):
         (d / "workspace" / "README.md").write_text(
             "Empty model access probe workspace.\n"
         )
-        prompt = "Reply with exactly READY. Do not call tools."
+        prompt = "Read README.md using a tool, then reply with exactly READY. Do not change files."
         if runner == "harness":
             r = await run_harness(
                 d, args.driver, args.codex, args.model, args.effort, prompt, 120
@@ -116,6 +116,8 @@ async def run(args):
             raise RuntimeError(
                 runner + " preflight did not verify requested model/route"
             )
+        if r["observed_tool_actions"] < 1:
+            raise RuntimeError(runner + " preflight did not execute a tool")
     barrier = StartBarrier(args.repetitions * 2)
     tasks = []
     results = []

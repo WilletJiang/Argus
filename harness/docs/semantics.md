@@ -51,6 +51,14 @@ such as `previous_response_id`, `background`, or `max_output_tokens`. Authentica
 scope and model availability remain the host's responsibility. Native stored
 items are not claimed portable across providers.
 
+Streaming output items are indexed and collected from `response.output_item.done`.
+The successful terminal response supplies metadata and usage; its output snapshot
+may be empty. Completed item payloads retain encrypted reasoning. Conflicting
+identities, duplicate items, missing indices and unresolved items are rejected;
+the collector accepts at most 4096 streamed indices within the wire byte budget.
+No collected call is dispatched without a successful terminal response and full
+stream validation. A failed or truncated stream cannot authorize tool execution.
+
 Byte and call limits stop execution explicitly. They are not tokenizer-based
 context-window prediction or a hard remote billing ceiling. Provider usage remains
 available in `model.completed` records. A caller must configure model-appropriate

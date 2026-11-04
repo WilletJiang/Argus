@@ -44,6 +44,8 @@ against the installed `ah::ah` package.
 - Stable per-session prompt cache keys, retained across reopen, resume and checkpoints.
 - Streaming HTTPS with connection reuse, bounded parser buffers, strict UTF-8/JSON,
   conservative retries, and interruption during stalled network I/O or backoff.
+- Completed streaming output-item collection, including providers whose terminal
+  response omits output; tool dispatch still waits for successful response completion.
 - Paged UTF-8 reads, directory listing, atomic writes/exact edits, and opt-in process execution.
 - Bounded parallel reads, ordered receipts, and durable full results with compact model views.
 - Embedding API, structured events, JSON-lines control interface and CLI.

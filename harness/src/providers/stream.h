@@ -4,6 +4,7 @@
 
 /* Private, transport-independent incremental Responses SSE decoder. */
 typedef struct {
+    struct ah_stream_items *items;
     char *line, *data, *response;
     size_t line_len, line_cap, data_len, data_cap, frame_bytes, total_bytes;
     size_t event_limit, response_limit;
@@ -19,4 +20,8 @@ void ah_stream_init(ah_stream *stream, size_t event_limit, size_t response_limit
 ah_code ah_stream_feed(ah_stream *stream, const char *bytes, size_t length);
 ah_code ah_stream_finish(ah_stream *stream, char **response);
 void ah_stream_destroy(ah_stream *stream);
+struct yyjson_val;
+ah_code ah_stream_item(ah_stream *stream, struct yyjson_val *event, bool done);
+ah_code ah_stream_response(ah_stream *stream, struct yyjson_val *response);
+void ah_stream_items_destroy(ah_stream *stream);
 #endif

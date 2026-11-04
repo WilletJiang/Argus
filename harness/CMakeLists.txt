@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(ah VERSION 0.2.1 LANGUAGES C)
+project(ah VERSION 0.2.2 LANGUAGES C)
 include(CTest)
 include(GNUInstallDirs)
 option(AH_SANITIZE "Enable address and undefined behavior sanitizers" OFF)
@@ -22,7 +22,7 @@ add_library(ah STATIC
   src/core/context.c src/core/engine.c src/core/execute.c src/core/mailbox.c
   src/core/operations.c src/core/parallel.c src/core/recovery.c src/core/response.c
   src/core/results.c src/core/runtime.c src/core/session.c src/core/store.c
-  src/providers/responses.c src/providers/stream.c
+  src/providers/responses.c src/providers/stream.c src/providers/stream_items.c
   src/tools/exec.c src/tools/file.c src/tools/file_read.c src/tools/local.c src/tools/schema.c)
 add_library(ah::ah ALIAS ah)
 target_include_directories(ah PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
@@ -41,7 +41,7 @@ target_compile_options(ah_cli PRIVATE -Wall -Wextra -Wpedantic -Werror)
 target_link_libraries(ah_cli PRIVATE ah ah_json Threads::Threads)
 if(BUILD_TESTING)
   find_package(Python3 COMPONENTS Interpreter REQUIRED)
-  foreach(test core stream tools alloc parallel context results recovery cache)
+  foreach(test core stream stream_items tools alloc parallel context results recovery cache)
       add_executable(test_${test} tests/test_${test}.c)
       target_include_directories(test_${test} PRIVATE src src/providers vendor/yyjson)
       target_compile_definitions(test_${test} PRIVATE _POSIX_C_SOURCE=200809L _GNU_SOURCE=1 _DARWIN_C_SOURCE=1)
@@ -80,7 +80,7 @@ if(AH_FUZZ)
   if(NOT CMAKE_C_COMPILER_ID MATCHES "Clang")
     message(FATAL_ERROR "AH_FUZZ requires Clang libFuzzer")
   endif()
-  add_executable(fuzz_stream tests/fuzz_stream.c src/providers/stream.c src/common.c vendor/yyjson/yyjson.c)
+  add_executable(fuzz_stream tests/fuzz_stream.c src/providers/stream.c src/providers/stream_items.c src/common.c vendor/yyjson/yyjson.c)
   target_include_directories(fuzz_stream PRIVATE include src src/providers vendor/yyjson)
   target_compile_definitions(fuzz_stream PRIVATE _POSIX_C_SOURCE=200809L _DARWIN_C_SOURCE=1)
   target_compile_options(fuzz_stream PRIVATE -fsanitize=fuzzer,undefined)

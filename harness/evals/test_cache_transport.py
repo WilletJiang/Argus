@@ -29,6 +29,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
         ):
             output = [
                 {
+                    "id": "fc_read_1",
                     "type": "function_call",
                     "namespace": "local",
                     "name": "read_file",
@@ -50,8 +51,22 @@ class Handler(http.server.BaseHTTPRequestHandler):
             "prompt_cache_diagnostics": {"type": "cache_hit"},
         }
         wire = (
-            "data: "
-            + json.dumps({"type": "response.completed", "response": response})
+            "".join(
+                "data: "
+                + json.dumps(
+                    {
+                        "type": "response.output_item.done",
+                        "output_index": i,
+                        "item": item,
+                    }
+                )
+                + "\n\n"
+                for i, item in enumerate(output)
+            )
+            + "data: "
+            + json.dumps(
+                {"type": "response.completed", "response": dict(response, output=[])}
+            )
             + "\n\n"
         ).encode()
         self.send_response(200)

@@ -95,6 +95,8 @@ python3 -B evals/endurance_run.py --driver build/live_driver   --output /private
 
 The host supplies `AH_ACCESS_TOKEN` in memory. It is not a Platform API key. Two
 separate access probes must complete before a barrier releases all six task runs.
+Each probe reads a fixture file through a tool before responding, so a dropped
+streamed tool call cannot pass as a successful text-only access check.
 Their usage is recorded separately. The external controller interrupts active runs
 at the observation boundary, then allows a short shutdown grace period. Execution
 can end sooner on completion, failure or a request for unavailable human input.
