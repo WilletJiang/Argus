@@ -24,6 +24,18 @@ or real tool work. These measurements support keeping the C loop small; they do
 not profile the entire live transport or establish a refactor speedup. See
 [measurement details](evaluations/local-performance.md).
 
+The subsequent subscription transport experiment compared pooled HTTP, full-history
+WebSocket and incremental WebSocket in three paired short chains. Incremental WS
+sent 57.1% fewer JSON bytes and finished 15.3–20.4% sooner than HTTP, but did not
+consistently beat full-history WS. Cache hits and generation differed, and one
+full-history WS answer failed validation. This Python protocol experiment does not
+establish a production C speedup. See the [complete transport record](evaluations/websocket-evaluation.md).
+
+The [execution optimization proposal](execution-optimization.md) specifies how to
+reduce avoidable model turns and repeated generation, including revision-bound
+context, edit/check groups, acceptance evidence and recovery. It is a design with
+measured adoption gates, not a list of implemented optimizations.
+
 ## First: separate the time components
 
 Before choosing an optimization, record a monotonic timeline for request assembly,
@@ -82,6 +94,7 @@ if representative long-context cases show meaningful host time. Current microsec
 file callbacks and millisecond mock loops do not justify treating these as the
 primary live bottleneck.
 
-No live optimization comparison was run as part of the layout cleanup. The changes
-establish clearer ownership, shared evaluators and reproducible local measurements
-for the next experiments; they do not claim faster model inference.
+No live optimization comparison was run as part of the November 4 layout cleanup.
+The November 5 transport experiment is separate. The cleanup established clearer
+ownership, shared evaluators and reproducible local measurements; it does not claim
+faster model inference.

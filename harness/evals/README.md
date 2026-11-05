@@ -9,6 +9,7 @@ servers only; live inference is always an explicit command.
 | `smoke/` | Three small, fixed tasks and independent validators |
 | `endurance/` | Workboard task, original checks, additional audit and parallel comparison |
 | `cache/` | Controlled prefix/key/layout experiments |
+| `transport/` | Optional Python HTTP/WS protocol experiment, incremental history and recovery |
 | `runners/` | C executable and Codex app-server lifecycle, cutoff and wire checks |
 | `trace.py`, `metrics.py` | Content-safe traces and token subset/cumulative accounting |
 | `drivers/` | Optional native C evaluation executables and request decorator |
@@ -106,6 +107,15 @@ The native agent driver also accepts these evaluation-only environment variables
 raw driver stdout when request tracing is enabled. Ordinary model/tool events still
 contain task data. Token summaries include cached tokens within input and reasoning
 within output; never add these subsets twice. Interrupted calls may omit usage.
+
+## Transport experiment
+
+The optional [transport package](transport/README.md) compares pooled HTTP/SSE,
+full-history WebSocket and same-socket incremental WebSocket. It has a separate
+Python 3.11+ / `aiohttp` dependency and 14 offline tests; it is not required by the
+C build or default CTest suite. It reuses the host login and retains compact metrics
+without raw model text or credentials. The production C provider remains HTTP/SSE.
+See the [measured results and limits](../docs/evaluations/websocket-evaluation.md).
 
 ## Boundaries and records
 

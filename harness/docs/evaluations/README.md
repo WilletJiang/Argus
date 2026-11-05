@@ -11,6 +11,7 @@ The current entrypoints are documented in [evals](../../evals/README.md).
 | [Terra endurance](endurance-evaluation.md) | Three concurrent paired long tasks before the cache fix |
 | [Cache routing](cache-evaluation.md) | JSON key versus stable HTTP session identity |
 | [Sol endurance](sol-xhigh-evaluation.md) | Long tasks with cache routing and streamed-item fixes |
+| [WebSocket continuation](websocket-evaluation.md) | Pooled HTTP versus full/incremental WS, subscription recovery and all attempt usage |
 
 The frozen prompt and specification survived the package reorganization unchanged.
 The grader assertions are also unchanged; package imports and their source-file
