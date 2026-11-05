@@ -12,7 +12,7 @@ static void search_cases(workflow *w) {
     wf_put(w, "a.txt", text);
     wf_put(w, "b.txt", "needle second file\n");
     wf_result r =
-        wf_call(w, ah_local_search,
+        wf_call(w, ah_local_find,
                 "{\"path\":\".\",\"query\":\"needle\",\"context_lines\":1,\"max_results\":1}", 0);
     assert(r.code == AH_OK && !r.failed);
     assert(yyjson_get_uint(yyjson_obj_get(r.root, "total_excerpts")) == 3);
@@ -31,7 +31,7 @@ static void search_cases(workflow *w) {
              "{\"path\":\".\",\"query\":\"needle\",\"context_lines\":1,\"max_results\":1,"
              "\"offset\":1,\"snapshot\":\"%s\"}",
              snapshot);
-    r = wf_call(w, ah_local_search, args, 0);
+    r = wf_call(w, ah_local_find, args, 0);
     assert(!r.failed);
     row = yyjson_arr_get(yyjson_obj_get(r.root, "results"), 0);
     assert(field(row, "content", "\nneedle last\nend\n") &&
@@ -42,37 +42,37 @@ static void search_cases(workflow *w) {
              "{\"path\":\".\",\"query\":\"needle\",\"context_lines\":1,\"max_results\":1,"
              "\"offset\":1.0,\"snapshot\":\"%s\"}",
              snapshot);
-    r = wf_call(w, ah_local_search, real_offset, 0);
+    r = wf_call(w, ah_local_find, real_offset, 0);
     row = yyjson_arr_get(yyjson_obj_get(r.root, "results"), 0);
     if (!field(row, "content", "\nneedle last\nend\n"))
         fprintf(stderr, "BUG: schema-valid offset 1.0 did not select the same page as offset 1\n");
     assert(!r.failed && field(row, "content", "\nneedle last\nend\n"));
     wf_result_free(&r);
     wf_put(w, "b.txt", "different\n");
-    r = wf_call(w, ah_local_search, args, 0);
+    r = wf_call(w, ah_local_find, args, 0);
     assert(r.failed && field(r.root, "error", "stale_snapshot"));
     assert(yyjson_arr_size(yyjson_obj_get(r.root, "results")) == 0);
     wf_result_free(&r);
-    r = wf_call(w, ah_local_search, "{\"path\":\".\",\"query\":\"needle\",\"offset\":1}", 0);
+    r = wf_call(w, ah_local_find, "{\"path\":\".\",\"query\":\"needle\",\"offset\":1}", 0);
     assert(r.failed);
     wf_result_free(&r);
     char link[PATH_MAX];
     wf_path(w, "link.txt", link);
     assert(symlink("a.txt", link) == 0);
-    r = wf_call(w, ah_local_search, "{\"path\":\".\",\"query\":\"needle\",\"glob\":\"*.txt\"}", 0);
+    r = wf_call(w, ah_local_find, "{\"path\":\".\",\"query\":\"needle\",\"glob\":\"*.txt\"}", 0);
     assert(!r.failed && yyjson_get_uint(yyjson_obj_get(r.root, "skipped_files")) >= 1);
     size_t i, n;
     yyjson_val *item;
     yyjson_arr_foreach(yyjson_obj_get(r.root, "results"), i, n, item)
         assert(!field(item, "path", "link.txt"));
     wf_result_free(&r);
-    r = wf_call(w, ah_local_search, "{\"path\":\"link.txt\",\"query\":\"needle\"}", 0);
+    r = wf_call(w, ah_local_find, "{\"path\":\"link.txt\",\"query\":\"needle\"}", 0);
     assert(r.failed);
     wf_result_free(&r);
     assert(unlink(link) == 0);
     wf_path(w, "linked_dir", link);
     assert(symlink(".", link) == 0);
-    r = wf_call(w, ah_local_search, "{\"path\":\"linked_dir\",\"query\":\"needle\"}", 0);
+    r = wf_call(w, ah_local_find, "{\"path\":\"linked_dir\",\"query\":\"needle\"}", 0);
     assert(r.failed);
     wf_result_free(&r);
     assert(unlink(link) == 0);
@@ -81,11 +81,12 @@ static void search_cases(workflow *w) {
     assert(field(r.root, "revision",
                  "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"));
     wf_result_free(&r);
-    r = wf_call(w, ah_local_edit_file,
-                "{\"path\":\"a.txt\",\"old_text\":\"a\",\"new_text\":\"z\",\"base_revision\":"
-                "\"0000000000000000000000000000000000000000000000000000000000000000\"}",
-                0);
-    assert(r.failed && field(r.root, "error", "conflict"));
+    r = wf_call(
+        w, ah_local_apply,
+        "{\"files\":[{\"path\":\"a.txt\",\"edits\":[{\"old_text\":\"a\",\"new_text\":\"z\"}],"
+        "\"base_revision\":\"0000000000000000000000000000000000000000000000000000000000000000\"}]}",
+        0);
+    assert(r.failed && field(yyjson_obj_get(r.root, "conflict"), "error", "conflict"));
     wf_result_free(&r);
     wf_expect_file(w, "a.txt", "abc");
 }
@@ -97,7 +98,7 @@ static void bounded_excerpt(workflow *w) {
     text[19999] = '\n';
     text[20000] = 0;
     wf_put(w, "long.txt", text);
-    wf_result r = wf_call(w, ah_local_search, "{\"path\":\"long.txt\",\"query\":\"needle\"}", 4096);
+    wf_result r = wf_call(w, ah_local_find, "{\"path\":\"long.txt\",\"query\":\"needle\"}", 4096);
     assert(!r.failed);
     yyjson_val *row = yyjson_arr_get(yyjson_obj_get(r.root, "results"), 0);
     const char *prefix = yyjson_get_str(yyjson_obj_get(row, "content"));
@@ -279,7 +280,7 @@ static void binary_scan_budget(const char *executable) {
         assert(ftruncate(fd, 1024 * 1024) == 0);
         assert(close(fd) == 0);
     }
-    wf_result r = wf_call(&w, ah_local_search, "{\"path\":\".\",\"query\":\"needle\"}", 0);
+    wf_result r = wf_call(&w, ah_local_find, "{\"path\":\".\",\"query\":\"needle\"}", 0);
     assert(r.code == AH_OK && !r.failed);
     assert(yyjson_is_true(yyjson_obj_get(r.root, "scan_truncated")));
     assert(yyjson_get_uint(yyjson_obj_get(r.root, "skipped_files")) == 32);

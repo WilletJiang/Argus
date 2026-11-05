@@ -72,12 +72,18 @@ with tempfile.TemporaryDirectory(prefix='ah-cli-') as tmp:
     plain = run('new', '--model', 'simple')['id']
     state = run('run', '--session', plain, '--prompt', 'Hello', '--command-id', 'u1')
     assert state['state'] == 'completed'
+    names = {tool['name'] for tool in requests[-1]['tools'][0]['tools']}
+    assert 'apply_changes' in names and 'find' not in names
+    assert not names.intersection({'list_directory', 'edit_file', 'search'})
     before = len(requests)
     run('run', '--session', plain, '--prompt', 'Hello', '--command-id', 'u1')
     assert len(requests) == before, 'Duplicate command must not execute again'
     run('run', '--session', plain, '--prompt', 'Changed', '--command-id', 'u1', ok=False)
     read = run('new', '--model', 'read')['id']
-    assert run('run', '--session', read, '--prompt', 'Read source', '--command-id', 'r1')['state'] == 'completed'
+    assert run('run', '--session', read, '--prompt', 'Read source', '--command-id', 'r1', '--workflows')['state'] == 'completed'
+    names = {tool['name'] for tool in requests[-1]['tools'][0]['tools']}
+    assert 'find' in names and 'apply_changes' in names
+    assert not names.intersection({'list_directory', 'edit_file', 'search'})
     assert 'hello' in json.dumps(requests[-1]['input'])
     write = run('new', '--model', 'write')['id']
     state = run('run', '--session', write, '--prompt', 'Write file', '--command-id', 'w1')

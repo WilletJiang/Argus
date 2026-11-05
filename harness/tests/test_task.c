@@ -5,6 +5,10 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
+#include <errno.h>
+#include <spawn.h>
+
+extern char **environ;
 
 typedef struct {
     unsigned models, checks, version;
@@ -187,7 +191,7 @@ static void expired_and_changed_policy(void) {
     assert(ah_task_run(e, sid, &v, &error) == AH_LIMIT && !f.models);
     ah_close(e);
 }
-static void recovery_boundaries(void) {
+static void recovery_boundaries(const char *executable) {
     const char *boundaries[] = {"task.verification.started", "task.repair_requested"};
     for (unsigned which = 0; which < 2; which++) {
         char path[] = "/tmp/ah-task-crash-XXXXXX", sid[AH_ID_CAP];
@@ -198,19 +202,22 @@ static void recovery_boundaries(void) {
         ah_engine *e = open_engine(&f, path);
         setup(e, &f, sid, 4, 2);
         ah_close(e);
-        pid_t pid = fork();
-        assert(pid >= 0);
-        if (!pid) {
-            f.crash_event = boundaries[which];
-            e = open_engine(&f, path);
-            ah_task_verifier v = {policy, revision, verify, &f};
-            ah_error error = {0};
-            ah_task_run(e, sid, &v, &error);
-            _exit(7);
-        }
+        /* macOS SQLite logging is not safe in a forked pre-exec child. A fresh
+         * process also models the actual restart/recovery boundary accurately. */
+        pid_t pid;
+        char *arguments[] = {(char *)executable,        "--crash", path, sid,
+                             (char *)boundaries[which], NULL};
+        assert(posix_spawn(&pid, executable, NULL, NULL, arguments, environ) == 0);
         int child_status = 0;
-        assert(waitpid(pid, &child_status, 0) == pid && WIFEXITED(child_status) &&
-               !WEXITSTATUS(child_status));
+        pid_t waited;
+        do {
+            waited = waitpid(pid, &child_status, 0);
+        } while (waited < 0 && errno == EINTR);
+        if (waited != pid || !WIFEXITED(child_status) || WEXITSTATUS(child_status))
+            fprintf(stderr, "Boundary %s: wait=%ld status=%d signal=%d\n", boundaries[which],
+                    (long)waited, child_status,
+                    WIFSIGNALED(child_status) ? WTERMSIG(child_status) : 0);
+        assert(waited == pid && WIFEXITED(child_status) && !WEXITSTATUS(child_status));
         f.models = 1;
         f.repair_changes = true;
         e = open_engine(&f, path);
@@ -310,12 +317,23 @@ static void check_authority(void) {
         ah_local_tools_close(tools);
     }
 }
-int main(void) {
+int main(int argc, char **argv) {
+    if (argc == 5 && !strcmp(argv[1], "--crash")) {
+        fixture f = {.sid = argv[3], .crash_event = argv[4]};
+        ah_engine *e = open_engine(&f, argv[2]);
+        ah_task_verifier v = {policy, revision, verify, &f};
+        ah_error error = {0};
+        ah_code code = ah_task_run(e, argv[3], &v, &error);
+        fprintf(stderr, "Boundary %s not reached: %s %s\n", argv[4], ah_code_name(code),
+                error.message);
+        ah_close(e);
+        return 7;
+    }
     accepted_and_stale();
     no_progress_and_stale_pass();
     persisted_budget_and_unknown();
     expired_and_changed_policy();
-    recovery_boundaries();
+    recovery_boundaries(argv[0]);
     local_verifier();
     check_authority();
     puts("task tests passed");

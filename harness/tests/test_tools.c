@@ -32,6 +32,15 @@ static ah_tool *lookup(const char *name) {
     return NULL;
 }
 
+static ah_code checkpoint(void *context, const char *json, ah_error *error) {
+    (void)context;
+    (void)error;
+    yyjson_doc *doc = yyjson_read(json, strlen(json), 0);
+    CHECK(doc && yyjson_is_str(yyjson_obj_get(yyjson_doc_get_root(doc), "phase")));
+    yyjson_doc_free(doc);
+    return AH_OK;
+}
+
 yyjson_doc *tools_invoke(const char *name, const char *args, size_t limit, uint64_t deadline,
                          ah_cancel_check cancelled, void *cancel_context, ah_code expected,
                          bool unknown) {
@@ -43,7 +52,8 @@ yyjson_doc *tools_invoke(const char *name, const char *args, size_t limit, uint6
                          .cancelled = cancelled,
                          .cancel_context = cancel_context,
                          .deadline_ms = deadline,
-                         .output_limit = limit};
+                         .output_limit = limit,
+                         .checkpoint = checkpoint};
     ah_tool_result result = {0};
     ah_error error = {0};
     ah_code code = tool->execute(tool->context, &call, &result, &error);
@@ -263,10 +273,11 @@ int main(int argc, char **argv) {
     ah_local_tools_config config = {.workspace = workspace, .approve_writes = true};
     CHECK(ah_local_tools_open(&config, &tools, &error) == AH_OK);
     CHECK(ah_local_tools_register(tools, (ah_engine *)(void *)&config, &error) == AH_OK);
-    CHECK(tool_count == 4 && !lookup("exec") && lookup("write_file")->requires_approval);
-    CHECK(lookup("read_file")->parallel_safe && lookup("list_directory")->parallel_safe);
-    CHECK(!lookup("write_file")->parallel_safe && !lookup("edit_file")->parallel_safe);
-    CHECK(lookup("edit_file")->requires_approval);
+    CHECK(tool_count == 3 && !lookup("exec") && lookup("write_file")->requires_approval);
+    CHECK(lookup("read_file")->parallel_safe);
+    CHECK(!lookup("list_directory") && !lookup("edit_file") && !lookup("search"));
+    CHECK(!lookup("write_file")->parallel_safe && !lookup("apply_changes")->parallel_safe);
+    CHECK(lookup("apply_changes")->requires_approval);
     test_file_pages(workspace);
     test_file_edits(workspace);
     tools_expect("write_file", "{\"path\":\"hello.txt\",\"content\":\"hello 世界\"}", AH_OK);
@@ -284,7 +295,9 @@ int main(int argc, char **argv) {
     CHECK(symlink(outside, path) == 0);
     tools_expect("read_file", "{\"path\":\"link\"}", AH_IO);
     tools_expect("write_file", "{\"path\":\"link\",\"content\":\"bad\"}", AH_INVALID);
-    tools_expect("edit_file", "{\"path\":\"link\",\"old_text\":\"outside\",\"new_text\":\"bad\"}",
+    tools_expect("apply_changes",
+                 "{\"files\":[{\"path\":\"link\",\"edits\":[{\"old_text\":\"outside\",\"new_text\":"
+                 "\"bad\"}]}]}",
                  AH_IO);
     snprintf(path, sizeof(path), "%s/dirlink", workspace);
     CHECK(symlink("/tmp", path) == 0);
@@ -300,16 +313,15 @@ int main(int argc, char **argv) {
     snprintf(path, sizeof(path), "%s/binary", workspace);
     tools_put_file(path, binary, sizeof(binary));
     tools_expect("read_file", "{\"path\":\"binary\"}", AH_INVALID);
-    tools_expect("edit_file", "{\"path\":\"binary\",\"old_text\":\"x\",\"new_text\":\"y\"}",
-                 AH_INVALID);
+    tools_expect(
+        "apply_changes",
+        "{\"files\":[{\"path\":\"binary\",\"edits\":[{\"old_text\":\"x\",\"new_text\":\"y\"}]}]}",
+        AH_INVALID);
     char many[16384];
     memset(many, 'a', sizeof(many));
     snprintf(path, sizeof(path), "%s/many", workspace);
     tools_put_file(path, many, sizeof(many));
     doc = tools_invoke("read_file", "{\"path\":\"many\"}", 512, 0, NULL, NULL, AH_OK, false);
-    CHECK(yyjson_get_bool(yyjson_obj_get(yyjson_doc_get_root(doc), "truncated")));
-    yyjson_doc_free(doc);
-    doc = tools_invoke("list_directory", "{\"path\":\".\"}", 128, 0, NULL, NULL, AH_OK, false);
     CHECK(yyjson_get_bool(yyjson_obj_get(yyjson_doc_get_root(doc), "truncated")));
     yyjson_doc_free(doc);
     doc = tools_invoke("write_file", "{\"path\":\"cancelled\",\"content\":\"bad\"}", 4096, 0,
@@ -336,8 +348,8 @@ int main(int argc, char **argv) {
     tool_count = 0;
     CHECK(ah_local_tools_open(&config, &tools, &error) == AH_OK);
     CHECK(ah_local_tools_register(tools, (ah_engine *)(void *)&config, &error) == AH_OK);
-    CHECK(tool_count == 5 && lookup("exec")->requires_approval &&
-          !lookup("write_file")->requires_approval && !lookup("edit_file")->requires_approval);
+    CHECK(tool_count == 4 && lookup("exec")->requires_approval &&
+          !lookup("write_file")->requires_approval && !lookup("apply_changes")->requires_approval);
     const char *literal = "space $HOME ; $(touch forbidden) * ' \"";
     char *args = exec_arguments(executable, "args", literal);
     doc = tools_invoke("exec", args, 4096, ah_now_ms() + 5000, NULL, NULL, AH_OK, false);

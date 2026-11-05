@@ -40,6 +40,11 @@ passed all six tasks but was faster on only one of three pairs. Expanded tools
 remain opt-in. Host check presets and task acceptance still need an isolated live
 comparison; they were not enabled in that cohort.
 
+Version 0.4 removes the directory-listing and separate single-edit tools, names the
+native search `find`, and makes `apply_changes` the unified editing entrypoint.
+Its [callback measurements](evaluations/find-performance.md) compare identical
+results against 0.3; those local improvements are not a model-task latency claim.
+
 ## First: separate the time components
 
 Before choosing an optimization, record a monotonic timeline for request assembly,

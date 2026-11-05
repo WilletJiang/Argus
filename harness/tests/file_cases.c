@@ -1,5 +1,6 @@
 #include "tools_test.h"
 #include <fcntl.h>
+#include <dirent.h>
 #include <limits.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -7,12 +8,23 @@
 
 typedef struct {
     const char *path;
-    unsigned checks;
+    const char *workspace;
+    bool changed;
 } concurrent_edit;
 static bool change_before_commit(void *context) {
     concurrent_edit *change = context;
-    if (++change->checks == 5)
+    DIR *dir = opendir(change->workspace);
+    CHECK(dir);
+    struct dirent *entry;
+    bool prepared = false;
+    while ((entry = readdir(dir)))
+        if (!strncmp(entry->d_name, ".ah-write-", 10))
+            prepared = true;
+    closedir(dir);
+    if (prepared && !change->changed) {
+        change->changed = true;
         tools_put_file(change->path, "external", 8);
+    }
     return false;
 }
 
@@ -146,7 +158,9 @@ void test_file_edits(const char *workspace) {
     char path[PATH_MAX];
     snprintf(path, sizeof(path), "%s/edit", workspace);
     CHECK(chmod(path, 0751) == 0);
-    tools_expect("edit_file", "{\"path\":\"edit\",\"old_text\":\"世界\",\"new_text\":\"你好\"}",
+    tools_expect("apply_changes",
+                 "{\"files\":[{\"path\":\"edit\",\"edits\":[{\"old_text\":\"世界\",\"new_text\":"
+                 "\"你好\"}]}]}",
                  AH_OK);
     struct stat st;
     CHECK(stat(path, &st) == 0 && (st.st_mode & 07777) == 0751);
@@ -155,26 +169,42 @@ void test_file_edits(const char *workspace) {
     CHECK(yyjson_equals_str(yyjson_obj_get(yyjson_doc_get_root(doc), "content"),
                             "prefix 你好 suffix"));
     yyjson_doc_free(doc);
-    tools_expect("edit_file", "{\"path\":\"edit\",\"old_text\":\"世界\",\"new_text\":\"bad\"}",
+    tools_expect("apply_changes",
+                 "{\"files\":[{\"path\":\"edit\",\"edits\":[{\"old_text\":\"世界\",\"new_text\":"
+                 "\"bad\"}]}]}",
                  AH_INVALID);
-    tools_expect("edit_file", "{\"path\":\"edit\",\"old_text\":\"\",\"new_text\":\"bad\"}",
-                 AH_INVALID);
-    tools_expect("edit_file", "{\"path\":\"edit\",\"old_text\":\"你好\",\"new_text\":\"\\u0000\"}",
+    tools_expect(
+        "apply_changes",
+        "{\"files\":[{\"path\":\"edit\",\"edits\":[{\"old_text\":\"\",\"new_text\":\"bad\"}]}]}",
+        AH_INVALID);
+    tools_expect("apply_changes",
+                 "{\"files\":[{\"path\":\"edit\",\"edits\":[{\"old_text\":\"你好\",\"new_text\":"
+                 "\"\\u0000\"}]}]}",
                  AH_INVALID);
     tools_expect("write_file", "{\"path\":\"edit\",\"content\":\"aaa\"}", AH_OK);
-    tools_expect("edit_file", "{\"path\":\"edit\",\"old_text\":\"aa\",\"new_text\":\"b\"}",
-                 AH_INVALID);
-    tools_expect("edit_file", "{\"path\":\"edit\",\"old_text\":\"aaa\",\"new_text\":\"\"}", AH_OK);
+    tools_expect(
+        "apply_changes",
+        "{\"files\":[{\"path\":\"edit\",\"edits\":[{\"old_text\":\"aa\",\"new_text\":\"b\"}]}]}",
+        AH_INVALID);
+    tools_expect(
+        "apply_changes",
+        "{\"files\":[{\"path\":\"edit\",\"edits\":[{\"old_text\":\"aaa\",\"new_text\":\"\"}]}]}",
+        AH_OK);
     CHECK(stat(path, &st) == 0 && st.st_size == 0 && (st.st_mode & 07777) == 0751);
-    tools_expect("edit_file", "{\"path\":\"missing\",\"old_text\":\"x\",\"new_text\":\"y\"}",
-                 AH_IO);
-    tools_expect("edit_file", "{\"path\":\"../escape\",\"old_text\":\"x\",\"new_text\":\"y\"}",
+    tools_expect(
+        "apply_changes",
+        "{\"files\":[{\"path\":\"missing\",\"edits\":[{\"old_text\":\"x\",\"new_text\":\"y\"}]}]}",
+        AH_IO);
+    tools_expect("apply_changes",
+                 "{\"files\":[{\"path\":\"../"
+                 "escape\",\"edits\":[{\"old_text\":\"x\",\"new_text\":\"y\"}]}]}",
                  AH_INVALID);
     tools_put_file(path, "source", 6);
-    concurrent_edit change = {.path = path};
-    doc = tools_invoke("edit_file",
-                       "{\"path\":\"edit\",\"old_text\":\"source\",\"new_text\":\"edited\"}", 4096,
-                       0, change_before_commit, &change, AH_INVALID, false);
+    concurrent_edit change = {.path = path, .workspace = workspace};
+    doc = tools_invoke("apply_changes",
+                       "{\"files\":[{\"path\":\"edit\",\"edits\":[{\"old_text\":\"source\",\"new_"
+                       "text\":\"edited\"}]}]}",
+                       4096, 0, change_before_commit, &change, AH_INVALID, false);
     yyjson_doc_free(doc);
     doc = tools_invoke("read_file", "{\"path\":\"edit\"}", 4096, 0, NULL, NULL, AH_OK, false);
     CHECK(yyjson_equals_str(yyjson_obj_get(yyjson_doc_get_root(doc), "content"), "external"));
@@ -185,11 +215,34 @@ void test_file_edits(const char *workspace) {
     memcpy(ambiguous, "needle", 6);
     memcpy(ambiguous + 99994, "needle", 6);
     tools_put_file(path, ambiguous, 100000);
-    free(ambiguous);
-    tools_expect("edit_file", "{\"path\":\"edit\",\"old_text\":\"needle\",\"new_text\":\"x\"}",
+    tools_expect("apply_changes",
+                 "{\"files\":[{\"path\":\"edit\",\"edits\":[{\"old_text\":\"needle\",\"new_text\":"
+                 "\"x\"}]}]}",
                  AH_INVALID);
+    /* The unified tool retains the former single-edit range above 64 KiB. */
+    yyjson_mut_doc *builder = yyjson_mut_doc_new(NULL);
+    yyjson_mut_val *root = yyjson_mut_obj(builder);
+    yyjson_mut_doc_set_root(builder, root);
+    yyjson_mut_val *files = yyjson_mut_obj_add_arr(builder, root, "files"),
+                   *file = yyjson_mut_obj(builder);
+    yyjson_mut_arr_append(files, file);
+    yyjson_mut_obj_add_str(builder, file, "path", "edit");
+    yyjson_mut_val *edits = yyjson_mut_obj_add_arr(builder, file, "edits"),
+                   *edit = yyjson_mut_obj(builder);
+    yyjson_mut_arr_append(edits, edit);
+    yyjson_mut_obj_add_strn(builder, edit, "old_text", ambiguous, 100000);
+    yyjson_mut_obj_add_str(builder, edit, "new_text", "small");
+    char *arguments = yyjson_mut_write(builder, 0, NULL);
+    CHECK(arguments);
+    yyjson_mut_doc_free(builder);
+    free(ambiguous);
+    tools_expect("apply_changes", arguments, AH_OK);
+    free(arguments);
+    CHECK(stat(path, &st) == 0 && st.st_size == 5);
     int fd = open(path, O_WRONLY);
     CHECK(fd >= 0 && ftruncate(fd, 1024 * 1024 + 1) == 0 && close(fd) == 0);
-    tools_expect("edit_file", "{\"path\":\"edit\",\"old_text\":\"x\",\"new_text\":\"y\"}",
-                 AH_LIMIT);
+    tools_expect(
+        "apply_changes",
+        "{\"files\":[{\"path\":\"edit\",\"edits\":[{\"old_text\":\"x\",\"new_text\":\"y\"}]}]}",
+        AH_LIMIT);
 }

@@ -2,15 +2,8 @@
 #define _GNU_SOURCE 1
 #endif
 #include "local_internal.h"
-#include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <stdio.h>
-#include <sys/stat.h>
-
-static const char path_schema[] = "{\"type\":\"object\",\"properties\":{\"path\":{\"type\":"
-                                  "\"string\",\"minLength\":1,\"maxLength\":4096}},"
-                                  "\"required\":[\"path\"],\"additionalProperties\":false}";
 
 size_t ah_local_limit(const ah_tool_call *call) {
     size_t limit = call->output_limit ? call->output_limit : 65536;
@@ -79,6 +72,18 @@ bool ah_local_utf8(const char *text, size_t length, size_t *complete) {
     size_t i = 0;
     *complete = 0;
     while (i < length) {
+        /* Most source text is ASCII. memcpy permits unaligned input without
+         * aliasing assumptions; the byte-high-bit mask works on either endian. */
+        while (length - i >= sizeof(uint64_t)) {
+            uint64_t word;
+            memcpy(&word, text + i, sizeof(word));
+            if (word & UINT64_C(0x8080808080808080))
+                break;
+            i += sizeof(word);
+            *complete = i;
+        }
+        if (i == length)
+            break;
         unsigned char c = (unsigned char)text[i];
         if (c < 0x80) {
             ++i;
@@ -165,80 +170,6 @@ yyjson_doc *ah_local_arguments(const ah_tool_call *call, const char *schema, ah_
     return doc;
 }
 
-static ah_code list_directory(void *context, const ah_tool_call *call, ah_tool_result *result,
-                              ah_error *error) {
-    ah_error local_error;
-    if (!error)
-        error = &local_error;
-    ah_local_tools *tools = context;
-    yyjson_doc *args = ah_local_arguments(call, path_schema, result, error);
-    if (!args)
-        return error ? error->code : AH_INVALID;
-    yyjson_val *path = yyjson_obj_get(yyjson_doc_get_root(args), "path");
-    char leaf[4097];
-    int fd = -1;
-    if (yyjson_equals_str(path, "."))
-        fd = openat(tools->workspace_fd, ".", O_RDONLY | O_DIRECTORY | O_CLOEXEC);
-    else {
-        int parent = ah_local_parent_fd(tools, path, leaf);
-        if (parent >= 0) {
-            fd = openat(parent, leaf, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_NONBLOCK | O_CLOEXEC);
-            close(parent);
-        }
-    }
-    yyjson_doc_free(args);
-    if (fd < 0)
-        return ah_local_error(call, result, error, AH_INVALID,
-                              "Cannot open directory without following symlinks");
-    DIR *dir = fdopendir(fd);
-    if (!dir) {
-        close(fd);
-        return ah_local_error(call, result, error, AH_IO, "Cannot list directory");
-    }
-    yyjson_mut_doc *doc = ah_mut_doc_new();
-    yyjson_mut_val *root = yyjson_mut_obj(doc);
-    yyjson_mut_doc_set_root(doc, root);
-    yyjson_mut_obj_add_bool(doc, root, "ok", true);
-    yyjson_mut_val *entries = yyjson_mut_obj_add_arr(doc, root, "entries");
-    size_t estimated = 64, count = 0;
-    bool truncated = false;
-    ah_code code = AH_OK;
-    for (;;) {
-        code = ah_local_stopped(call);
-        if (code != AH_OK)
-            break;
-        errno = 0;
-        struct dirent *entry = readdir(dir);
-        if (!entry) {
-            if (errno)
-                code = AH_IO;
-            break;
-        }
-        if (!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
-            continue;
-        size_t length = strlen(entry->d_name), complete;
-        if (!ah_local_utf8(entry->d_name, length, &complete) || complete != length) {
-            code = AH_INVALID;
-            break;
-        }
-        size_t size = length * 6 + 4;
-        if (++count > 4096 || estimated + size > ah_local_limit(call)) {
-            truncated = true;
-            break;
-        }
-        estimated += size;
-        yyjson_mut_arr_append(entries, yyjson_mut_strncpy(doc, entry->d_name, length));
-    }
-    closedir(dir);
-    if (code != AH_OK) {
-        ah_mut_doc_free(doc);
-        return ah_local_error(call, result, error, code,
-                              "Directory contains invalid UTF-8 names, or listing was interrupted");
-    }
-    yyjson_mut_obj_add_bool(doc, root, "truncated", truncated);
-    return ah_local_finish(call, result, doc, error);
-}
-
 ah_code ah_local_tools_open(const ah_local_tools_config *config, ah_local_tools **out,
                             ah_error *error) {
     if (out)
@@ -280,21 +211,21 @@ ah_code ah_local_tools_register(ah_local_tools *tools, ah_engine *engine, ah_err
         approval |= tools->checks[i].approval;
     ah_tool definitions[] = {
         {"apply_changes",
-         "Apply one or more files' non-overlapping exact hunks against base_revision "
-         "from read_file/search. Each old_text must match once in the original file. All files are "
+         "Apply one or more files' non-overlapping exact hunks against optional base_revision "
+         "from read_file/find. Each old_text must match once in the original file. All files are "
          "validated first; per-file writes are atomic, the group is not. Optionally run named host "
          "checks after all edits succeed. On partial/unknown results inspect receipts; never "
          "replay "
-         "the whole group. Use edit_file for one small replacement.",
+         "the whole group. Use one file and one edit for a single replacement.",
          ah_apply_schema, AH_EFFECT_EXTERNAL, approval, ah_local_apply, tools, false},
-        {"search",
+        {"find",
          "Search a single-line literal in workspace UTF-8 files and return merged source "
          "excerpts with SHA-256 revisions. Use path '.' for root; optional glob matches relative "
          "paths. "
          "Skips symlinks, .git, non-text and files over 1 MiB. Bounded scan: narrow path/glob when "
          "scan_truncated. Paginate with next_offset and snapshot; use read_file for truncated "
          "excerpts.",
-         ah_search_schema, AH_EFFECT_READ, false, ah_local_search, tools, true},
+         ah_find_schema, AH_EFFECT_READ, false, ah_local_find, tools, true},
         {"read_file",
          "Read UTF-8 file lines (default 200, max 1000) from offset_line (default 1). "
          "Use next_offset_bytes as offset_bytes for exact continuation, including partial lines. "
@@ -303,26 +234,19 @@ ah_code ah_local_tools_register(ah_local_tools *tools, ah_engine *engine, ah_err
          "for files up to 1 MiB. Identical content already visible in context may be referenced; "
          "set force=true to repeat the content. Group independent reads in one response.",
          ah_read_schema, AH_EFFECT_READ, false, ah_local_read_file, tools, true},
-        {"list_directory",
-         "List bounded workspace directory names. Use path '.' for workspace root; refuses "
-         "symlinks.",
-         path_schema, AH_EFFECT_READ, false, list_directory, tools, true},
         {"write_file",
          "Atomically replace a workspace-relative regular file with UTF-8 content; refuses "
          "symlinks.",
          ah_write_schema, AH_EFFECT_WRITE, tools->approve_writes, ah_local_write_file, tools,
          false},
-        {"edit_file",
-         "Replace exactly one occurrence of old_text in an existing UTF-8 file (max 1 MiB). "
-         "Refuses missing or ambiguous matches and preserves file permissions. Supply "
-         "base_revision "
-         "from read_file/search to reject changes since observation.",
-         ah_edit_schema, AH_EFFECT_WRITE, tools->approve_writes, ah_local_edit_file, tools, false},
         {"exec",
          "Execute argv in the workspace with broad local process authority. This is NOT a sandbox.",
          ah_exec_schema, AH_EFFECT_EXTERNAL, true, ah_local_exec, tools, false}};
-    size_t count = tools->enable_exec ? 7 : 6;
-    for (size_t i = tools->enable_workflows ? 0 : 2; i < count; ++i) {
+    size_t count = sizeof(definitions) / sizeof(*definitions);
+    for (size_t i = 0; i < count; ++i) {
+        if ((!tools->enable_workflows && !strcmp(definitions[i].name, "find")) ||
+            (!tools->enable_exec && !strcmp(definitions[i].name, "exec")))
+            continue;
         ah_code code = ah_register_tool(engine, &definitions[i], error);
         if (code != AH_OK)
             return code;

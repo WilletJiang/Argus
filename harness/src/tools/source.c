@@ -195,21 +195,20 @@ ah_code ah_local_source(int parent, const char *leaf, const ah_tool_call *call,
         code = AH_INVALID;
     else if (original->st_size < 0 || original->st_size > AH_LOCAL_MAX_BYTES)
         code = AH_LIMIT;
-    char *data = code == AH_OK ? malloc(AH_LOCAL_MAX_BYTES + 2) : NULL;
+    size_t expected = code == AH_OK ? (size_t)original->st_size : 0;
+    char *data = code == AH_OK ? malloc(expected + 1) : NULL;
     if (code == AH_OK && !data)
         code = AH_IO;
     size_t used = 0;
-    while (code == AH_OK) {
+    while (code == AH_OK && used < expected) {
         code = ah_local_stopped(call);
         if (code != AH_OK)
             break;
-        ssize_t n = read(fd, data + used, AH_LOCAL_MAX_BYTES + 1 - used);
+        ssize_t n = read(fd, data + used, expected - used);
         if (n > 0) {
             used += (size_t)n;
-            if (used > AH_LOCAL_MAX_BYTES)
-                code = AH_LIMIT;
         } else if (!n)
-            break;
+            code = AH_INVALID; /* Short source: it changed since fstat. */
         else if (errno != EINTR)
             code = AH_IO;
     }

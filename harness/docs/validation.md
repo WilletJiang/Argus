@@ -17,6 +17,7 @@ consume subscription/API quotas. Tests create temporary state and clean it up.
 | cache | Stable per-session keys across reopen/resume/checkpoint; fork and new-session isolation |
 | observations | SHA-256 known-answer/boundary behavior, active-content reuse, forced reads, changed revisions, compaction/fork invalidation, no reuse of generic previews |
 | workflow | Real dispatch and durable phase evidence, contextual search/pagination, stale/overlapping/partial edits, checkpoint faults, fixed checks/cache invalidation, unknown effects |
+| find | Independent line-mask oracle, seeded Unicode/CR/overlap cases, dense matches, unaligned ASCII/UTF-8 validation boundaries |
 | task | Bounded repair, revision/policy validation, budgets across submissions/restarts, killed verification/repair-intent recovery, explicit reconciliation and local-check adapter |
 | http | Scripted real HTTP/SSE, rate/transport retries, no retry after output, auth/MIME/redirect rejection, deadline/cancellation, connection reuse |
 | cli | Actual executable: network-to-tool-to-model loop, persisted approval and Ask across restarts, dedupe/fork/checkpoint, RPC |

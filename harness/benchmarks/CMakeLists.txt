@@ -1,4 +1,4 @@
-foreach(name runtime files parallel)
+foreach(name runtime files parallel find)
   add_executable(bench_${name} ${name}.c)
   ah_compile_target(bench_${name})
   target_link_libraries(bench_${name} PRIVATE ah ah_json)

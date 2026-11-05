@@ -74,17 +74,18 @@ the earlier `harness_ask` and `harness_wait` names remain supported.
 | `ask` | `question`, optional `options` | Wait for a host `reply` with the user's answer |
 | `wait` | `reason` | Wait for an explicit host `reply` |
 | `read_result` | `operation_id`, optional `offset`, `limit` | Read a UTF-8 page of a captured JSON tool result available to this session |
-| `read_file` | `path`, optional `offset_line` or `offset_bytes`, `max_lines` | Read a UTF-8 file page; defaults to line 1 and 200 lines, with at most 1000 lines |
-| `list_directory` | `path` | List bounded directory names; `.` selects the workspace root |
+| `read_file` | `path`, optional `offset_line` or `offset_bytes`, `max_lines`, `force` | Read a UTF-8 file page; report its revision; reuse identical active content unless forced |
 | `write_file` | `path`, `content` | Replace a workspace file atomically |
-| `edit_file` | `path`, `old_text`, `new_text` | Replace exactly one matching occurrence in an existing UTF-8 file, up to 1 MiB |
+| `apply_changes` | `files` containing `path`, `edits`, optional `base_revision`; optional `checks` | Unified exact edits, one or multiple hunks/files; optional named checks after successful application |
+| `find` (workflow profile) | `path`, `query`, optional `glob`, `context_lines`, `max_results`, `offset`, `snapshot` | Native literal search with merged source context, revisions and bounded pagination |
+| `check` (registered presets) | `checks` | Run host-fixed named checks for current inputs |
 | `exec` | `argv` | Execute a process when explicitly enabled, with approval |
 
 The filesystem and process tools require the local tool host. File paths are
 workspace-relative and reject symlink traversal. `read_file` line offsets start
 at 1; byte offsets start at 0 and cannot be combined with a line offset. Continue
 from `next_offset_bytes` to avoid repeating or skipping partial lines. Returned
-pages are also bounded by bytes and the tool-output budget. `edit_file` rejects
+pages are also bounded by bytes and the tool-output budget. `apply_changes` rejects
 missing or ambiguous matches and preserves file permissions; its change check
 does not provide compare-and-swap protection against concurrent external writers.
 `exec` has broad local process authority and is not a sandbox.

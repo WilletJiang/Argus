@@ -46,3 +46,7 @@ and public registration paths are retained. Public C headers, SQLite schema and
 runtime behavior were unchanged by that layout refactor. The subsequent 0.3 workflow
 implementation extends public structs and adds schema-3 task/observation tables.
 See [workflows](workflows.md) for ownership, recovery and migration contracts.
+
+Version 0.4 consolidates editing in `src/tools/changes.c` and native text retrieval
+in `src/tools/find.c`. Directory listing and the separate exact-edit implementation
+are removed. The public C structs and schema 3 remain unchanged from 0.3.

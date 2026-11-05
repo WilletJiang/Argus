@@ -1,4 +1,4 @@
-# Versioned work and task acceptance (0.3)
+# Versioned work and task acceptance (0.4)
 
 These facilities reduce mechanical model turns without changing the default
 provider or turning the session engine into a general workflow language. Actual
@@ -8,13 +8,15 @@ did not establish a general speedup. Select the extra tool profile before a sess
 ## Tool profile and context
 
 Set `ah_local_tools_config.enable_workflows=true` (CLI: `--workflows` with
-`--workspace`) to register `search` and `apply_changes`. The default profile retains
-read/list/write/exact-edit, plus explicitly enabled exec. Host check presets also
+`--workspace`) to register `find`. The default profile contains `read_file`,
+`write_file` and the unified `apply_changes`, plus explicitly enabled `exec`.
+Directory listing uses commands through `exec`; there is no `list_directory` tool.
+Host check presets also
 require the workflow profile and must be added before registration. The first
 registration attempt freezes presets, including on partial failure; recreate the
 tools/engine on such a failure rather than changing published callback policies.
 
-`search` accepts a single-line literal `query`, a workspace-relative `path` (`.` for
+`find` accepts a single-line literal `query`, a workspace-relative `path` (`.` for
 the root), optional `glob`, `context_lines` (default 2, maximum 5), `max_results`
 (default 20, maximum 100), and pagination `offset`/`snapshot`. It returns sorted
 paths with merged source excerpts, SHA-256 file revisions, ranges and exact byte
@@ -29,6 +31,15 @@ traversal preserves workspace path rules; no shell search command or index servi
 is needed. These explicit limits trade exhaustive large-tree discovery for bounded
 latency; the caller must not interpret a partial scan as absence of matches.
 
+The native implementation searches for a hit before deriving line context. It
+tracks only six recent line starts, skips repeated hits within a matching line,
+and avoids allocating an entire file's line index. Source buffers are sized to
+the observed file length; short reads and observed changes are rejected. ASCII
+validation uses unaligned-safe word checks while preserving full UTF-8 validation.
+Full content hashing and snapshot validation remain enabled, including on files
+without a match. See [measurements](evaluations/find-performance.md) for the bounded
+callback speedup and its distinction from model-task latency.
+
 `read_file` now reports a full-file SHA-256 revision for files up to 1 MiB; larger
 files remain paged but have `revision:null`. Pages account for the separate model
 view budget, including JSON escaping and the result envelope. The engine may replace
@@ -42,17 +53,28 @@ this is context deduplication, not an unchecked filesystem read cache.
 
 ## Editing and finite combinations
 
-Use `edit_file` for one unique replacement. Its optional `base_revision` rejects
-edits against a stale observation. A no-op reports `unchanged` without rewriting.
+Use `apply_changes` for both one replacement and multi-file/multi-hunk edits.
+A no-op reports `unchanged` without rewriting. There is no separate `edit_file` tool.
 Use `write_file` for creation or deliberate replacement.
 
-`apply_changes` accepts `files`, each containing `path`, required `base_revision`
-and an `edits` array of `{old_text,new_text}` hunks. Every old text must occur
+`apply_changes` accepts `files`, each containing `path`, optional `base_revision`
+and an `edits` array of `{old_text,new_text}` hunks. A single replacement uses one
+file and one hunk. Supplying a revision from `read_file`/`find` enforces that base;
+without it, unique matching text is the precondition, so no extra hash-reading turn
+is required. Observed changes between source read and commit are still rejected.
+Every old text must occur
 exactly once in the original file; hunks may arrive in any order but cannot overlap.
 All files are prepared and checked before writing starts. Limits: 16 files, 64 hunks
-per file, 64 KiB per hunk string and 1 MiB resulting file. A stale/ambiguous source
+per file, 1 MiB per hunk string and 1 MiB source/resulting file (UTF-8 bytes).
+The engine's separate argument-byte budget still applies. A stale/ambiguous source
 returns its revision and a bounded source preview. This structured hunk interface
 does not add a model-native/custom `apply_patch_call` wire format.
+
+A single replacement uses the same interface, without a mandatory hash lookup:
+
+```json
+{"files":[{"path":"client.py","edits":[{"old_text":"TIMEOUT_MS = 800","new_text":"TIMEOUT_MS = 1200"}]}]}
+```
 
 An optional `checks` array names up to eight host presets to run after **all** edits
 succeed. Unknown or duplicate check names fail before any file write. Each file is
@@ -150,7 +172,13 @@ does not authorize tools. The live evaluation driver records both measurement st
 
 Version 0.3 extends public structs: rebuild C clients. Schema 1/2 databases migrate
 transactionally to schema 3, adding task and observation tables. Older runtimes reject
-schema 3. Default C builds require no new package. WebSocket remains gated: the tested
+schema 3. Version 0.4 preserves those C structs and schema 3 but changes the model
+tool interface: `list_directory` and `edit_file` are removed, `search` becomes `find`,
+and `apply_changes` is available in the base profile with optional revisions. No
+aliases preserve removed names. Saved pending calls to removed tools, or calls with
+the older apply schema, fail the normal availability/policy check before effects;
+historical receipts are not rewritten. Default C builds require no new package.
+WebSocket remains gated: the tested
 system libcurl 8.7.1 has exported WS APIs but no compiled `ws/wss` protocol support.
 Early dispatch, asynchronous tool delivery and raw/custom patch protocols remain
 unimplemented experiments, independent of these synchronous combinations.

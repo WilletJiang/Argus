@@ -8,6 +8,8 @@ unified/custom patch encoding and asynchronous overlap remain proposals. The
 [paired smoke evaluation](evaluations/execution-evaluation.md) does not show a general
 speedup, so expanded tools are opt-in. The production provider remains HTTP/SSE;
 native WS is blocked by missing compiled libcurl support on the tested machine.
+Version 0.4 further consolidates editing and removes directory listing from the
+tool surface; its native `find` performance is measured separately from model work.
 
 ## Objective and evidence
 
@@ -121,13 +123,15 @@ new clocks/status text ahead of the reusable prefix each turn.
 
 ## 3. Match the edit representation to the change
 
-Retain exact `edit_file` for a unique small replacement. Add a versioned, multi-hunk
-patch operation for changes that otherwise repeat large sections or require many
-small edit calls. Use `write_file` for creation and deliberate whole-file replacement.
+Use one `apply_changes` entrypoint for a unique small replacement and multi-hunk
+changes that otherwise repeat large sections or require many small edit calls.
+Version 0.4 merges the former `edit_file` into that interface and calls native
+text search `find`; directory listing uses enabled process tools.
+Use `write_file` for creation and deliberate whole-file replacement.
 Tool descriptions must make those choices unambiguous; extra synonymous tools are
 not automatically useful.
 
-An in-memory illustration changed one define in the existing 9,524-byte file reader:
+An earlier in-memory illustration changed one define in the 0.2-era 9,524-byte file reader:
 full-write arguments were 9,984 UTF-8 JSON bytes, existing exact-edit arguments 124,
 and a versioned unified patch 587. The file was not changed. This demonstrates a
 representation difference, not model-token counts, live latency or a universal patch
@@ -135,8 +139,10 @@ advantage; exact replacement was smallest in this example.
 
 Patch invariants:
 
-- Bind edits to an observed base revision. For the current bounded editable-file
-  size, compare content-derived revisions rather than trusting mtime alone.
+- Enforce a supplied content-derived base revision rather than trusting mtime alone.
+  In 0.4 it is optional: unique old text supplies the ordinary edit precondition,
+  avoiding a separate hash-retrieval turn. Without a revision, unrelated edits
+  already present before the source read do not invalidate the requested change.
 - Parse and validate all hunks before writing. Refuse missing/ambiguous context;
   do not guess a fuzzy location. Preserve permissions and existing byte-limit rules.
 - For one file, prepare the final bytes and use the existing atomic replacement path.
@@ -293,8 +299,8 @@ behind the journal or re-enter the owner API from an observer. Any new public st
 or stored operation kinds require an explicit ABI/schema migration and compatibility tests.
 
 The initial coding profile should have clear search/read/edit/execute/verify roles,
-selected once before the task. Existing exact edit remains useful; avoid advertising
-multiple interchangeable edit tools without evidence that the model selects well.
+selected once before the task. Exact replacement remains useful inside the unified
+editing tool; avoid advertising multiple interchangeable editing entrypoints.
 The [tool-design guidance](https://www.anthropic.com/research/writing-tools-for-agents)
 likewise emphasizes useful observations and tool selection that a human can explain.
 On this [subscription route](https://developers.openai.com/siwc/token-sharing-open-source/preview-limitations),

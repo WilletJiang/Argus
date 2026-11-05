@@ -18,7 +18,7 @@ static void usage(void) {
         "  --db PATH            Session database (default ./harness.db)\n"
         "  --workspace PATH     Register bounded local file tools\n"
         "  --enable-exec        Explicitly allow process execution (not sandboxed)\n"
-        "  --workflows          Add search and versioned apply_changes tools\n"
+        "  --workflows          Add find text search (apply_changes is always available)\n"
         "  --model NAME         Model for new session (required by new)\n"
         "  --instructions TEXT  Developer instructions for new session\n"
         "  --session ID         Target session\n"

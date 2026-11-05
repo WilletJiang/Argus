@@ -57,9 +57,9 @@ and [performance investigation](docs/performance.md).
   conservative retries, and interruption during stalled network I/O or backoff.
 - Completed streaming output-item collection, including providers whose terminal
   response omits output; tool dispatch still waits for successful response completion.
-- Paged UTF-8 reads, directory listing, atomic writes/exact edits, and opt-in process execution.
+- Paged UTF-8 reads, atomic writes, unified exact edits, and opt-in process execution.
 - Bounded parallel reads, ordered receipts, and durable full results with compact model views.
-- Opt-in search with source context and revision-bound multi-file edits/check recipes.
+- Opt-in native `find` with source context; `apply_changes` handles single/multi-file edits and check recipes.
 - Active-context read reuse, host check caching and optional persistent task acceptance/repair budgets.
 - Content-free host/provider timing observations, including failed transport attempts.
 - Embedding API, structured events, JSON-lines control interface and CLI.
@@ -130,9 +130,10 @@ Larger results expose an operation reference and UTF-8 preview; `read_result`
 retrieves exact pages, including in forked sessions. The view is fixed when the
 receipt commits, so later configuration changes do not rewrite past prompts.
 These are byte budgets, not token estimates. `read_file` defaults to 200 lines;
-use its continuation cursor for complete access to long files. `edit_file` replaces
-one exact match and rejects missing or ambiguous text instead of rewriting a
-whole file from the model response.
+use its continuation cursor for complete access to long files. `apply_changes` uses
+unique exact replacements for single or multi-file edits. Base revisions are optional;
+when supplied, they reject a stale observation. Directory listing goes through enabled
+process tools such as `ls`; there is no dedicated listing tool.
 
 Context checkpoint summaries are explicit host inputs; automatic summarization,
 semantic memory and provider switching are not silently performed. Text-stream
@@ -150,5 +151,9 @@ Version 0.3 extends public C structures. Rebuild embedding clients against the n
 headers and library together; it is not ABI-compatible with 0.1/0.2 objects. Source
 initializers should use designated fields. Database versions 1/2 migrate transactionally to version 3;
 back up persistent databases before upgrading.
+
+Version 0.4 retains the 0.3 C structs and schema 3, removes `list_directory` and
+`edit_file`, renames native `search` to `find`, and makes `apply_changes` the default
+editing interface. See the [workflow migration notes](docs/workflows.md).
 
 MIT license. Third-party licenses and checksums are in [vendor](vendor/README.md).

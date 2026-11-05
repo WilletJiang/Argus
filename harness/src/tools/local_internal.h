@@ -55,8 +55,8 @@ ah_code ah_local_paths(ah_local_tools *, yyjson_val *, const ah_tool_call *, ah_
 void ah_local_paths_free(ah_paths *);
 ah_code ah_local_input_revision(ah_local_tools *, yyjson_val *, const ah_tool_call *, char[65]);
 void ah_local_stat_hash(ah_hash *, const struct stat *);
-ah_code ah_local_search(void *, const ah_tool_call *, ah_tool_result *, ah_error *);
-extern const char ah_search_schema[];
+ah_code ah_local_find(void *, const ah_tool_call *, ah_tool_result *, ah_error *);
+extern const char ah_find_schema[];
 ah_code ah_local_check_run(ah_local_tools *, ah_local_check *, const ah_tool_call *,
                            ah_tool_result *, ah_error *);
 ah_local_check *ah_local_check_find(ah_local_tools *, const char *);
@@ -78,7 +78,5 @@ ah_code ah_local_read_file(void *context, const ah_tool_call *call, ah_tool_resu
                            ah_error *error);
 ah_code ah_local_write_file(void *context, const ah_tool_call *call, ah_tool_result *result,
                             ah_error *error);
-ah_code ah_local_edit_file(void *context, const ah_tool_call *call, ah_tool_result *result,
-                           ah_error *error);
-extern const char ah_read_schema[], ah_write_schema[], ah_edit_schema[], ah_exec_schema[];
+extern const char ah_read_schema[], ah_write_schema[], ah_exec_schema[];
 #endif

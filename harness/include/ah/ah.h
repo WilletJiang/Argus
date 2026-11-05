@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-#define AH_VERSION "0.3.0"
+#define AH_VERSION "0.4.0"
 #define AH_ID_CAP 37
 #define AH_ERROR_CAP 512
 

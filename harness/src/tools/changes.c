@@ -7,10 +7,10 @@ const char ah_apply_schema[] =
     "\"path\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":4096},"
     "\"base_revision\":{\"type\":\"string\",\"minLength\":64,\"maxLength\":64},"
     "\"edits\":{\"type\":\"array\",\"minItems\":1,\"maxItems\":64,\"items\":{\"type\":\"object\","
-    "\"properties\":{\"old_text\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":65536},"
-    "\"new_text\":{\"type\":\"string\",\"maxLength\":65536}},"
+    "\"properties\":{\"old_text\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":1048576},"
+    "\"new_text\":{\"type\":\"string\",\"maxLength\":1048576}},"
     "\"required\":[\"old_text\",\"new_text\"],\"additionalProperties\":false}}},"
-    "\"required\":[\"path\",\"base_revision\",\"edits\"],\"additionalProperties\":false}},"
+    "\"required\":[\"path\",\"edits\"],\"additionalProperties\":false}},"
     "\"checks\":{\"type\":\"array\",\"maxItems\":8,\"items\":{\"type\":\"string\",\"minLength\":1,"
     "\"maxLength\":64}}},"
     "\"required\":[\"files\"],\"additionalProperties\":false}";
@@ -45,7 +45,8 @@ static ah_code prepare(ah_local_tools *tools, change *c, yyjson_val *file, const
         return ah_fail(error, code, "Cannot read stable edit source");
     ah_hash_bytes(c->source, c->old_size, c->before);
     const char *conflict = NULL;
-    if (!yyjson_equals_str(yyjson_obj_get(file, "base_revision"), c->before))
+    yyjson_val *base = yyjson_obj_get(file, "base_revision");
+    if (base && !yyjson_equals_str(base, c->before))
         conflict = "Base revision changed";
     hunk hunks[64];
     size_t i, n, removed = 0, added = 0;
@@ -56,6 +57,8 @@ static ah_code prepare(ah_local_tools *tools, change *c, yyjson_val *file, const
         yyjson_val *old = yyjson_obj_get(item, "old_text"), *new = yyjson_obj_get(item, "new_text");
         const char *needle = yyjson_get_str(old), *text = yyjson_get_str(new);
         size_t a = yyjson_get_len(old), b = yyjson_get_len(new);
+        if (a > AH_LOCAL_MAX_BYTES || b > AH_LOCAL_MAX_BYTES)
+            return ah_fail(error, AH_LIMIT, "Edit text exceeds 1 MiB");
         if (memchr(needle, 0, a) || memchr(text, 0, b))
             return ah_fail(error, AH_INVALID, "NUL in edit");
         const char *match = strstr(c->source, needle);
@@ -132,9 +135,10 @@ ah_code ah_local_apply(void *context, const ah_tool_call *call, ah_tool_result *
         changes[i].parent = -1;
     size_t count = yyjson_arr_size(files), i, n;
     ah_code code = validate_checks(tools, checks, error);
-    if (code == AH_OK && (!call->checkpoint || ah_local_limit(call) < 4096))
-        code = ah_fail(error, AH_INVALID,
-                       "Durable checkpoints and a 4096-byte result budget are required");
+    if (code == AH_OK && !call->checkpoint)
+        code = ah_fail(error, AH_INVALID, "Durable checkpoints are required");
+    if (code == AH_OK && ah_local_limit(call) < 4096)
+        code = ah_fail(error, AH_LIMIT, "A 4096-byte result budget is required");
     yyjson_val *file;
     yyjson_arr_foreach(files, i, n, file) {
         if (code != AH_OK)
