@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-#define AH_VERSION "0.2.2"
+#define AH_VERSION "0.3.0"
 #define AH_ID_CAP 37
 #define AH_ERROR_CAP 512
 
@@ -67,6 +67,10 @@ typedef struct {
 } ah_provider;
 
 typedef enum { AH_EFFECT_READ, AH_EFFECT_WRITE, AH_EFFECT_EXTERNAL } ah_effect;
+/* Owner-thread effect callbacks may persist bounded phase receipts. A checkpoint
+ * is evidence for reconciliation, not permission to repeat an uncertain effect.
+ * NULL for parallel READ callbacks. Borrowed only during execute(). */
+typedef ah_code (*ah_checkpoint_fn)(void *context, const char *json, ah_error *error);
 typedef struct {
     const char *session_id;
     const char *operation_id; /* Stable across recovery; not provider call_id. */
@@ -75,6 +79,9 @@ typedef struct {
     void *cancel_context;
     uint64_t deadline_ms; /* Monotonic absolute milliseconds. */
     size_t output_limit;
+    size_t model_output_limit; /* 0 means no separate model-view bound. */
+    ah_checkpoint_fn checkpoint;
+    void *checkpoint_context;
 } ah_tool_call;
 typedef struct {
     char *json; /* malloc-owned valid JSON; runtime frees it. */

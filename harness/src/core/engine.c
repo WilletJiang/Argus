@@ -90,7 +90,7 @@ ah_code ah_open(const ah_config *config, ah_engine **out, ah_error *err) {
             rc = ah_fail(err, AH_IO, "cannot read schema version");
         else {
             version = sqlite3_column_int(s, 0);
-            if (version > 2)
+            if (version > 3)
                 rc = ah_fail(err, AH_PROTOCOL, "database schema is newer than this runtime");
         }
     }
@@ -124,16 +124,32 @@ ah_code ah_open(const ah_config *config, ah_engine **out, ah_error *err) {
             "CREATE INDEX IF NOT EXISTS operations_session ON operations(session_id,seq);"
             "CREATE TABLE IF NOT EXISTS result_refs(session_id TEXT NOT NULL REFERENCES "
             "sessions(id),operation_id TEXT NOT NULL REFERENCES operations(id),"
-            "PRIMARY KEY(session_id,operation_id));",
+            "PRIMARY KEY(session_id,operation_id));"
+            "CREATE TABLE IF NOT EXISTS observations(session_id TEXT NOT NULL REFERENCES "
+            "sessions(id),"
+            "operation_id TEXT NOT NULL REFERENCES operations(id),digest TEXT NOT NULL,"
+            "item_seq INTEGER NOT NULL REFERENCES items(seq),PRIMARY KEY(session_id,operation_id));"
+            "CREATE INDEX IF NOT EXISTS observations_digest ON observations(session_id,digest);"
+            "CREATE TABLE IF NOT EXISTS tasks(session_id TEXT PRIMARY KEY REFERENCES sessions(id),"
+            "contract TEXT NOT NULL,revision TEXT NOT NULL,verifier_revision TEXT NOT NULL,"
+            "model_limit INTEGER NOT NULL,tool_limit INTEGER NOT NULL,repair_limit INTEGER NOT "
+            "NULL,"
+            "timeout_ms INTEGER NOT NULL,deadline_ms INTEGER NOT NULL,model_used INTEGER NOT NULL "
+            "DEFAULT 0,"
+            "tool_used INTEGER NOT NULL DEFAULT 0,repairs INTEGER NOT NULL DEFAULT 0,"
+            "state TEXT NOT NULL DEFAULT 'active',last_failure TEXT NOT NULL DEFAULT '',receipt "
+            "TEXT);",
             err);
     if (rc == AH_OK && version < 2)
         rc = core_migrate_result_refs(e, err);
     if (rc == AH_OK)
-        rc = core_sql(e, "PRAGMA user_version=2; COMMIT", err);
+        rc = core_sql(e, "PRAGMA user_version=3; COMMIT", err);
     if (rc != AH_OK)
         core_rollback(e);
     if (rc == AH_OK)
         rc = core_recover(e, err);
+    if (rc == AH_OK)
+        rc = core_task_recover(e, err);
     if (rc != AH_OK) {
         ah_close(e);
         return rc;

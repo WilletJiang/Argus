@@ -6,6 +6,8 @@
 
 typedef struct {
     ah_stream stream;
+    responses_measurement measurement;
+    bool measure;
     ah_cancel_check cancelled;
     void *cancel_context;
     uint64_t deadline;
@@ -29,8 +31,9 @@ static ah_code check_stop(transfer *t) {
 static int progress(void *context, curl_off_t a, curl_off_t b, curl_off_t c, curl_off_t d) {
     (void)a;
     (void)b;
-    (void)c;
-    (void)d;
+    transfer *t = context;
+    if (t->measure && c > 0 && d >= c)
+        responses_stamp(&t->measurement.metrics.upload_complete, t->measurement.started);
     return check_stop(context) != AH_OK;
 }
 
@@ -39,6 +42,8 @@ static size_t header(char *bytes, size_t size, size_t count, void *context) {
     if (!size || count > SIZE_MAX / size)
         return 0;
     size_t length = size * count;
+    if (t->measure && length)
+        responses_stamp(&t->measurement.metrics.first_byte, t->measurement.started);
     if (check_stop(t))
         return 0;
     if (length > 65536 - t->header_bytes) {
@@ -98,6 +103,11 @@ static size_t body(char *bytes, size_t size, size_t count, void *context) {
     if (!size || count > SIZE_MAX / size)
         return 0;
     size_t length = size * count;
+    if (t->measure) {
+        t->measurement.metrics.response_bytes += length;
+        if (length)
+            responses_stamp(&t->measurement.metrics.first_byte, t->measurement.started);
+    }
     if (check_stop(t))
         return 0;
     if (length > t->limit - t->received) {
@@ -124,6 +134,7 @@ static CURLcode perform(ah_responses *provider, transfer *t) {
     int running = 1;
     CURLcode result = CURLE_FAILED_INIT;
     while (running && !check_stop(t)) {
+        t->measurement.curl_started = true;
         if (curl_multi_perform(provider->multi, &running) != CURLM_OK)
             break;
         if (running && !check_stop(t)) {
@@ -244,14 +255,23 @@ ah_code responses_complete(void *context, const char *request_json, ah_delta_sin
         transfer t = {.cancelled = cancelled,
                       .cancel_context = cancel_context,
                       .deadline = deadline,
-                      .limit = provider->config.max_response_bytes};
+                      .limit = provider->config.max_response_bytes,
+                      .measure = provider->config.observe != NULL};
         ah_stream_init(&t.stream, provider->config.max_event_bytes, t.limit, delta, delta_context);
+        if (t.measure) {
+            t.measurement.metrics.attempt = attempt + 1;
+            t.measurement.metrics.request_bytes = strlen(request_json);
+            t.stream.phase = responses_phase;
+            t.stream.phase_context = &t.measurement;
+        }
         SET(CURLOPT_WRITEDATA, &t);
         SET(CURLOPT_HEADERDATA, &t);
         SET(CURLOPT_XFERINFODATA, &t);
         now = ah_now_ms();
         uint64_t remaining = now < deadline ? deadline - now : 1;
         SET(CURLOPT_TIMEOUT_MS, (long)remaining);
+        if (t.measure)
+            t.measurement.started = ah_now_us();
         CURLcode curl_result = perform(provider, &t);
         bool local_failure = t.error.code != AH_OK;
         if (t.error.code)
@@ -282,6 +302,13 @@ ah_code responses_complete(void *context, const char *request_json, ah_delta_sin
                      ah_now_ms() < deadline;
         if (error)
             *error = t.error;
+        if (t.measure) {
+            t.measurement.metrics.result = result;
+            t.measurement.metrics.http_status = t.status;
+            t.measurement.metrics.retry_planned = retry;
+            t.measurement.metrics.terminal_completed = t.stream.terminal;
+            responses_observe(provider, &t.measurement);
+        }
         ah_stream_destroy(&t.stream);
         if (!retry)
             break;

@@ -172,10 +172,68 @@ static void configuration(void) {
     ah_responses_close(provider);
 }
 
+typedef struct {
+    unsigned content, item, terminal;
+} phases;
+static void phase(void *context, ah_stream_phase kind) {
+    phases *seen = context;
+    if (kind == AH_STREAM_CONTENT)
+        seen->content++;
+    else if (kind == AH_STREAM_OUTPUT_ITEM)
+        seen->item++;
+    else if (kind == AH_STREAM_TERMINAL)
+        seen->terminal++;
+}
+static void content_phases(void) {
+    struct {
+        const char *event;
+        unsigned content, item, terminal;
+    } cases[] = {
+        {"{\"type\":\"response.created\",\"response\":{}}", 0, 0, 0},
+        {"{\"type\":\"response.in_progress\",\"response\":{}}", 0, 0, 0},
+        {"{\"type\":\"response.output_text.delta\",\"delta\":\"\"}", 0, 0, 0},
+        {"{\"type\":\"response.output_text.delta\",\"delta\":\" \"}", 1, 0, 0},
+        {"{\"type\":\"response.function_call_arguments.delta\",\"delta\":\"{}\"}", 1, 0, 0},
+        {"{\"type\":\"response.function_call_arguments.delta\",\"delta\":\"\"}", 0, 0, 0},
+        {"{\"type\":\"response.custom_tool_call_input.delta\",\"delta\":\"call()\"}", 1, 0, 0},
+        {"{\"type\":\"response.custom_tool_call_input.delta\",\"delta\":\"\"}", 0, 0, 0},
+        {"{\"type\":\"response.reasoning_text.delta\",\"delta\":\"thinking\"}", 0, 0, 0},
+        {"{\"type\":\"future.delta\",\"delta\":\"not classified\"}", 0, 0, 0},
+        {"{\"type\":\"response.output_item.done\",\"output_index\":0,"
+         "\"item\":{\"id\":\"f\",\"type\":\"function_call\",\"arguments\":\"\"}}",
+         0, 1, 0},
+        {"{\"type\":\"response.output_item.done\",\"output_index\":0,\"item\":{\"id\":\"m\","
+         "\"type\":\"message\",\"content\":[{\"type\":\"output_text\",\"text\":\"hello\"}]}}",
+         1, 1, 0},
+        {"{\"type\":\"response.output_item.done\",\"output_index\":0,"
+         "\"item\":{\"id\":\"c\",\"type\":\"custom_tool_call\",\"input\":\"call()\"}}",
+         1, 1, 0},
+        {"{\"type\":\"response.completed\",\"response\":{\"status\":\"completed\","
+         "\"output\":[{\"type\":\"message\",\"content\":[{\"type\":\"output_text\",\"text\":"
+         "\"done\"}]}]}}",
+         1, 0, 1},
+    };
+    for (size_t i = 0; i < sizeof(cases) / sizeof(cases[0]); i++) {
+        phases seen = {0};
+        ah_stream stream;
+        ah_stream_init(&stream, 4096, 16384, NULL, NULL);
+        stream.phase = phase;
+        stream.phase_context = &seen;
+        char wire[1024];
+        int length = snprintf(wire, sizeof(wire), "data: %s\n\n", cases[i].event);
+        assert(length > 0 && (size_t)length < sizeof(wire));
+        assert(ah_stream_feed(&stream, wire, (size_t)length) == AH_OK);
+        assert(seen.content == cases[i].content && seen.item == cases[i].item &&
+               seen.terminal == cases[i].terminal);
+        ah_stream_destroy(&stream);
+    }
+}
+
 int main(void) {
     fragments();
     failures();
     configuration();
+    content_phases();
     puts("stream: fragmentation, terminal, limits, UTF-8, endpoint checks passed");
     return 0;
 }

@@ -140,7 +140,7 @@ static void migration(ah_engine *engine, const char *path, const char *source) {
        &error);
     ah_close(engine);
     engine = open_engine(path);
-    assert(scalar(engine, "PRAGMA user_version") == 2);
+    assert(scalar(engine, "PRAGMA user_version") == 3);
     assert(scalar(engine, "SELECT count(*) FROM operations") == 5);
     assert(scalar(engine, "SELECT count(*) FROM result_refs") == 18);
     result_access(engine, source, "a", true);
@@ -181,13 +181,13 @@ static void migration(ah_engine *engine, const char *path, const char *source) {
     assert(scalar(&view, "SELECT count(*) FROM sqlite_master WHERE "
                          "name IN('result_refs','operations_session')") == 0);
     assert(scalar(&view, "SELECT count(*) FROM operations") == 5);
-    assert(sqlite3_exec(db, "PRAGMA user_version=3", NULL, NULL, NULL) == SQLITE_OK);
+    assert(sqlite3_exec(db, "PRAGMA user_version=4", NULL, NULL, NULL) == SQLITE_OK);
     assert(sqlite3_close(db) == SQLITE_OK);
     assert(ah_open(&config, &engine, &error) == AH_PROTOCOL);
     assert(!engine && strstr(error.message, "newer"));
     assert(sqlite3_open(path, &db) == SQLITE_OK);
     view.db = db;
-    assert(scalar(&view, "PRAGMA user_version") == 3);
+    assert(scalar(&view, "PRAGMA user_version") == 4);
     assert(scalar(&view, "SELECT count(*) FROM sqlite_master WHERE name='result_refs'") == 0);
     assert(sqlite3_close(db) == SQLITE_OK);
 }

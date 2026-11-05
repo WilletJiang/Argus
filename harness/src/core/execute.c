@@ -2,6 +2,31 @@
 
 static ah_code count_call(ah_engine *, const char *, ah_error *);
 
+typedef struct {
+    ah_engine *engine;
+    const char *session, *operation;
+    unsigned count;
+} checkpoint_context;
+
+static ah_code checkpoint(void *context, const char *json, ah_error *error) {
+    checkpoint_context *c = context;
+    if (c->engine->observing || !json || strlen(json) > 16384 || !ah_json_valid(json))
+        return ah_fail(error, AH_INVALID, "checkpoint must be bounded JSON on the owner callback");
+    if (c->count >= 128)
+        return ah_fail(error, AH_LIMIT, "checkpoint count exceeded");
+    uint64_t after = 0;
+    ah_code code = core_begin(c->engine, &after, error);
+    if (code == AH_OK)
+        code = core_event(c->engine, c->session, c->operation, "tool.checkpoint", json, error);
+    if (code == AH_OK)
+        code = core_commit(c->engine, after, error);
+    else
+        core_rollback(c->engine);
+    if (code == AH_OK)
+        c->count++;
+    return code;
+}
+
 static ah_code finish_error(ah_engine *e, core_session *session, core_operation *op,
                             const char *message, bool count, ah_error *err) {
     char *json = core_object_string("error", message);
@@ -50,7 +75,8 @@ static ah_code count_call(ah_engine *e, const char *sid, ah_error *err) {
     if (rc != AH_OK)
         return rc;
     sqlite3_bind_text(s, 1, sid, -1, SQLITE_TRANSIENT);
-    return core_done(e, s, err);
+    rc = core_done(e, s, err);
+    return rc == AH_OK ? core_task_charge(e, sid, false, 1, err) : rc;
 }
 static ah_code publish_received(ah_engine *e, core_session *session, core_operation *op,
                                 ah_error *err) {
@@ -91,6 +117,9 @@ ah_code core_execute_operation(ah_engine *e, core_session *session, core_operati
         return ah_fail(err, AH_PROTOCOL, "unexpected operation status");
     if (session->tool_calls >= e->config.max_tool_calls)
         return ah_fail(err, AH_LIMIT, "tool call budget exhausted");
+    ah_code allowed = core_task_allow(e, session->id, false, 1, NULL, err);
+    if (allowed != AH_OK)
+        return allowed;
     core_tool *registered = core_find_tool(e, op->name);
     const char *builtin = core_builtin_schema(op->name),
                *schema = builtin ? builtin : (registered ? registered->schema : NULL);
@@ -164,18 +193,25 @@ ah_code core_execute_operation(ah_engine *e, core_session *session, core_operati
     if (run_deadline && tool_deadline > run_deadline)
         tool_deadline = run_deadline;
     e->deadline = tool_deadline;
-    ah_tool_call call = {session->id,
-                         op->id,
-                         op->arguments,
-                         core_cancelled,
-                         e,
-                         tool_deadline,
-                         e->config.max_output_bytes};
+    checkpoint_context checkpoints = {e, session->id, op->id, 0};
+    ah_tool_call call = {.session_id = session->id,
+                         .operation_id = op->id,
+                         .arguments_json = op->arguments,
+                         .cancelled = core_cancelled,
+                         .cancel_context = e,
+                         .deadline_ms = tool_deadline,
+                         .output_limit = e->config.max_output_bytes,
+                         .model_output_limit = e->config.max_model_tool_bytes,
+                         .checkpoint = op->effect == AH_EFFECT_READ ? NULL : checkpoint,
+                         .checkpoint_context = &checkpoints};
     ah_tool_result result = {0};
     ah_error execution = {0};
+    uint64_t started = ah_now_us();
     ah_code executed =
         builtin ? core_read_result(e, &call, &result, &execution)
                 : registered->tool.execute(registered->tool.context, &call, &result, &execution);
+    core_metric(e, session->id, op->id, "tool", started, ah_now_us(),
+                result.json ? strlen(result.json) : 0, 1, executed);
     bool late = core_cancelled(e);
     e->deadline = run_deadline;
     bool valid_result = result.json && strlen(result.json) <= e->config.max_output_bytes &&

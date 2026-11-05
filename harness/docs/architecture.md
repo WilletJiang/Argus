@@ -43,4 +43,6 @@ python3 -B -m evals.cache.run --help
 
 The former flat script names are removed. Existing Keychain service/account names
 and public registration paths are retained. Public C headers, SQLite schema and
-runtime behavior are unchanged by this layout refactor.
+runtime behavior were unchanged by that layout refactor. The subsequent 0.3 workflow
+implementation extends public structs and adds schema-3 task/observation tables.
+See [workflows](workflows.md) for ownership, recovery and migration contracts.

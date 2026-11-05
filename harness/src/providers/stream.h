@@ -3,6 +3,8 @@
 #include "ah/ah.h"
 
 /* Private, transport-independent incremental Responses SSE decoder. */
+typedef enum { AH_STREAM_CONTENT, AH_STREAM_OUTPUT_ITEM, AH_STREAM_TERMINAL } ah_stream_phase;
+typedef void (*ah_stream_phase_sink)(void *context, ah_stream_phase phase);
 typedef struct {
     struct ah_stream_items *items;
     char *line, *data, *response;
@@ -12,6 +14,8 @@ typedef struct {
     bool after_cr, terminal, observed_output;
     ah_delta_sink delta;
     void *delta_context;
+    ah_stream_phase_sink phase;
+    void *phase_context;
     ah_error error;
 } ah_stream;
 
@@ -23,5 +27,6 @@ void ah_stream_destroy(ah_stream *stream);
 struct yyjson_val;
 ah_code ah_stream_item(ah_stream *stream, struct yyjson_val *event, bool done);
 ah_code ah_stream_response(ah_stream *stream, struct yyjson_val *response);
+bool ah_stream_content(struct yyjson_val *item);
 void ah_stream_items_destroy(ah_stream *stream);
 #endif

@@ -9,13 +9,15 @@ const char ah_read_schema[] =
     "\"maxLength\":4096},\"offset_line\":{\"type\":\"integer\",\"minimum\":1,"
     "\"maximum\":2147483647},\"offset_bytes\":{\"type\":\"integer\",\"minimum\":0,"
     "\"maximum\":9007199254740991},\"max_lines\":{\"type\":\"integer\",\"minimum\":1,"
-    "\"maximum\":1000}},\"required\":[\"path\"],\"additionalProperties\":false}";
+    "\"maximum\":1000},\"force\":{\"type\":\"boolean\"}},\"required\":[\"path\"],"
+    "\"additionalProperties\":false}";
 
 typedef struct {
     char *content;
     size_t length, lines;
     uint64_t start, next, offset, file_bytes;
     bool truncated, partial_line;
+    char revision[65];
 } read_page;
 
 static yyjson_mut_doc *page_receipt(const char *path, const read_page *page) {
@@ -24,6 +26,10 @@ static yyjson_mut_doc *page_receipt(const char *path, const read_page *page) {
     yyjson_mut_doc_set_root(doc, root);
     yyjson_mut_obj_add_bool(doc, root, "ok", true);
     yyjson_mut_obj_add_strcpy(doc, root, "path", path);
+    if (page->revision[0])
+        yyjson_mut_obj_add_strcpy(doc, root, "revision", page->revision);
+    else
+        yyjson_mut_obj_add_null(doc, root, "revision");
     yyjson_mut_obj_add_strncpy(doc, root, "content", page->content, page->length);
     yyjson_mut_obj_add_uint(doc, root, "bytes", page->length);
     yyjson_mut_obj_add_uint(doc, root, "file_bytes", page->file_bytes);
@@ -196,6 +202,13 @@ ah_code ah_local_read_file(void *context, const ah_tool_call *call, ah_tool_resu
                               "Cannot read a regular file without following symlinks");
     }
     page.file_bytes = (uint64_t)st.st_size;
+    if (st.st_size <= AH_LOCAL_MAX_BYTES)
+        code = ah_local_revision(fd, call, page.revision);
+    if (code != AH_OK) {
+        close(fd);
+        yyjson_doc_free(args);
+        return ah_local_error(call, result, error, code, "File changed or revision read failed");
+    }
     if (byte_offset && lseek(fd, (off_t)page.offset, SEEK_SET) < 0) {
         close(fd);
         yyjson_doc_free(args);
@@ -207,7 +220,7 @@ ah_code ah_local_read_file(void *context, const ah_tool_call *call, ah_tool_resu
     /* Allow for larger byte, line, and continuation numbers in the final receipt. */
     size_t overhead = empty ? strlen(empty) + 64 : 0;
     free(empty);
-    size_t limit = ah_local_limit(call), budget = limit > overhead ? limit - overhead : 0;
+    size_t limit = ah_local_view_limit(call), budget = limit > overhead ? limit - overhead : 0;
     page.content = overhead && budget ? malloc(READ_MAX_BYTES) : NULL;
     if (!overhead || !page.content) {
         close(fd);
@@ -216,6 +229,9 @@ ah_code ah_local_read_file(void *context, const ah_tool_call *call, ah_tool_resu
                               "Cannot allocate read buffer or output limit is too small");
     }
     code = read_page_from_fd(fd, call, &page, max_lines, budget);
+    struct stat after;
+    if (code == AH_OK && (fstat(fd, &after) || !ah_local_same_file(&st, &after)))
+        code = AH_INVALID;
     close(fd);
     yyjson_mut_doc *doc = code == AH_OK ? page_receipt(yyjson_get_str(path), &page) : NULL;
     free(page.content);

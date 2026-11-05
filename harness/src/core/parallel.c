@@ -13,10 +13,12 @@ typedef struct {
     atomic_bool *aborted;
     pthread_t thread;
     bool started, late;
+    uint64_t began, ended;
 } read_worker;
 
 static bool worker_cancelled(void *context) {
     read_worker *worker = context;
+    worker->began = ah_now_us();
     return atomic_load_explicit(&worker->engine->cancelled, memory_order_relaxed) ||
            atomic_load_explicit(worker->aborted, memory_order_relaxed) ||
            ah_now_ms() >= worker->call.deadline_ms;
@@ -30,6 +32,7 @@ static void *execute_read(void *context) {
         worker->executed = worker->registered->tool.execute(
             worker->registered->tool.context, &worker->call, &worker->result, &worker->error);
     worker->late = worker_cancelled(worker);
+    worker->ended = ah_now_us();
     return NULL;
 }
 
@@ -96,6 +99,8 @@ static ah_code commit_intents(ah_engine *e, core_session *session, read_worker *
         sqlite3_bind_text(stmt, 2, session->id, -1, SQLITE_TRANSIENT);
         rc = core_done(e, stmt, err);
     }
+    if (rc == AH_OK)
+        rc = core_task_charge(e, session->id, false, count, err);
     for (unsigned i = 0; i < count && rc == AH_OK; i++) {
         core_operation *op = &workers[i].operation;
         rc = core_set_operation(e, session->id, op->id, "executing", err);
@@ -178,6 +183,9 @@ ah_code core_execute_parallel(ah_engine *e, core_session *session, const core_op
     if (limit > MAX_PARALLEL_TOOLS)
         limit = MAX_PARALLEL_TOOLS;
     unsigned remaining = e->config.max_tool_calls - session->tool_calls;
+    ah_code allowed = core_task_allow(e, session->id, false, 1, &remaining, err);
+    if (allowed != AH_OK)
+        return allowed;
     if (limit > remaining)
         limit = remaining;
     if (limit < 2)
@@ -208,13 +216,14 @@ ah_code core_execute_parallel(ah_engine *e, core_session *session, const core_op
         read_worker *worker = &workers[i];
         worker->engine = e;
         worker->aborted = &aborted;
-        worker->call = (ah_tool_call){session->id,
-                                      worker->operation.id,
-                                      worker->operation.arguments,
-                                      worker_cancelled,
-                                      worker,
-                                      deadline,
-                                      e->config.max_output_bytes};
+        worker->call = (ah_tool_call){.session_id = session->id,
+                                      .operation_id = worker->operation.id,
+                                      .arguments_json = worker->operation.arguments,
+                                      .cancelled = worker_cancelled,
+                                      .cancel_context = worker,
+                                      .deadline_ms = deadline,
+                                      .output_limit = e->config.max_output_bytes,
+                                      .model_output_limit = e->config.max_model_tool_bytes};
         if (!launch_failed && pthread_create(&worker->thread, NULL, execute_read, worker) == 0)
             worker->started = true;
         else {
@@ -227,6 +236,11 @@ ah_code core_execute_parallel(ah_engine *e, core_session *session, const core_op
     for (unsigned i = 0; i < count; i++) {
         if (workers[i].started)
             pthread_join(workers[i].thread, NULL);
+        if (workers[i].started)
+            core_metric(e, session->id, workers[i].operation.id, "tool", workers[i].began,
+                        workers[i].ended,
+                        workers[i].result.json ? strlen(workers[i].result.json) : 0, 1,
+                        workers[i].executed);
         late = late || workers[i].late;
     }
     /* Joining all workers keeps callbacks from outliving their call/context and

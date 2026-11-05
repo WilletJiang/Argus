@@ -17,6 +17,13 @@ size_t ah_local_limit(const ah_tool_call *call) {
     return limit < AH_LOCAL_MAX_BYTES ? limit : AH_LOCAL_MAX_BYTES;
 }
 
+size_t ah_local_view_limit(const ah_tool_call *call) {
+    size_t limit = ah_local_limit(call);
+    if (call->model_output_limit && call->model_output_limit < limit)
+        limit = call->model_output_limit;
+    return limit > 32 ? limit - 32 : 0; /* core is_error/result envelope */
+}
+
 ah_code ah_local_stopped(const ah_tool_call *call) {
     if (call->cancelled && call->cancelled(call->cancel_context))
         return AH_CANCELLED;
@@ -101,8 +108,9 @@ bool ah_local_utf8(const char *text, size_t length, size_t *complete) {
 
 /* Walk each directory using the pinned workspace descriptor. Never follow links. */
 int ah_local_parent_fd(ah_local_tools *tools, yyjson_val *path, char leaf[4097]) {
-    const char *text = yyjson_get_str(path);
-    size_t length = yyjson_get_len(path);
+    return ah_local_parent_path(tools, yyjson_get_str(path), yyjson_get_len(path), leaf);
+}
+int ah_local_parent_path(ah_local_tools *tools, const char *text, size_t length, char leaf[4097]) {
     if (!text || !length || length > 4096 || text[0] == '/' || memchr(text, '\0', length)) {
         errno = EINVAL;
         return -1;
@@ -255,19 +263,45 @@ ah_code ah_local_tools_open(const ah_local_tools_config *config, ah_local_tools 
     tools->workspace_fd = fd;
     tools->enable_exec = config->enable_exec;
     tools->approve_writes = config->approve_writes;
+    tools->enable_workflows = config->enable_workflows;
     *out = tools;
     ah_error_clear(error);
     return AH_OK;
 }
 
 ah_code ah_local_tools_register(ah_local_tools *tools, ah_engine *engine, ah_error *error) {
-    if (!tools || !engine)
+    if (!tools || !engine || tools->registered)
         return ah_fail(error, AH_INVALID, "Missing local tools or engine");
+    /* Even a partial registration has copied policies into the engine. Freeze
+     * presets before publishing any callback that can consult their context. */
+    tools->registered = true;
+    bool approval = tools->approve_writes;
+    for (size_t i = 0; i < tools->check_count; i++)
+        approval |= tools->checks[i].approval;
     ah_tool definitions[] = {
+        {"apply_changes",
+         "Apply one or more files' non-overlapping exact hunks against base_revision "
+         "from read_file/search. Each old_text must match once in the original file. All files are "
+         "validated first; per-file writes are atomic, the group is not. Optionally run named host "
+         "checks after all edits succeed. On partial/unknown results inspect receipts; never "
+         "replay "
+         "the whole group. Use edit_file for one small replacement.",
+         ah_apply_schema, AH_EFFECT_EXTERNAL, approval, ah_local_apply, tools, false},
+        {"search",
+         "Search a single-line literal in workspace UTF-8 files and return merged source "
+         "excerpts with SHA-256 revisions. Use path '.' for root; optional glob matches relative "
+         "paths. "
+         "Skips symlinks, .git, non-text and files over 1 MiB. Bounded scan: narrow path/glob when "
+         "scan_truncated. Paginate with next_offset and snapshot; use read_file for truncated "
+         "excerpts.",
+         ah_search_schema, AH_EFFECT_READ, false, ah_local_search, tools, true},
         {"read_file",
          "Read UTF-8 file lines (default 200, max 1000) from offset_line (default 1). "
          "Use next_offset_bytes as offset_bytes for exact continuation, including partial lines. "
-         "Line and byte offsets are mutually exclusive; refuses symlinks.",
+         "Line and byte offsets are mutually exclusive; refuses symlinks. Returns a SHA-256 "
+         "revision "
+         "for files up to 1 MiB. Identical content already visible in context may be referenced; "
+         "set force=true to repeat the content. Group independent reads in one response.",
          ah_read_schema, AH_EFFECT_READ, false, ah_local_read_file, tools, true},
         {"list_directory",
          "List bounded workspace directory names. Use path '.' for workspace root; refuses "
@@ -280,23 +314,27 @@ ah_code ah_local_tools_register(ah_local_tools *tools, ah_engine *engine, ah_err
          false},
         {"edit_file",
          "Replace exactly one occurrence of old_text in an existing UTF-8 file (max 1 MiB). "
-         "Refuses missing or ambiguous matches and preserves file permissions.",
+         "Refuses missing or ambiguous matches and preserves file permissions. Supply "
+         "base_revision "
+         "from read_file/search to reject changes since observation.",
          ah_edit_schema, AH_EFFECT_WRITE, tools->approve_writes, ah_local_edit_file, tools, false},
         {"exec",
          "Execute argv in the workspace with broad local process authority. This is NOT a sandbox.",
          ah_exec_schema, AH_EFFECT_EXTERNAL, true, ah_local_exec, tools, false}};
-    size_t count = tools->enable_exec ? 5 : 4;
-    for (size_t i = 0; i < count; ++i) {
+    size_t count = tools->enable_exec ? 7 : 6;
+    for (size_t i = tools->enable_workflows ? 0 : 2; i < count; ++i) {
         ah_code code = ah_register_tool(engine, &definitions[i], error);
         if (code != AH_OK)
             return code;
     }
-    return AH_OK;
+    ah_code code = ah_local_checks_register(tools, engine, error);
+    return code;
 }
 
 void ah_local_tools_close(ah_local_tools *tools) {
     if (!tools)
         return;
     close(tools->workspace_fd);
+    ah_local_checks_free(tools);
     free(tools);
 }

@@ -34,7 +34,11 @@ establish a production C speedup. See the [complete transport record](evaluation
 The [execution optimization proposal](execution-optimization.md) specifies how to
 reduce avoidable model turns and repeated generation, including revision-bound
 context, edit/check groups, acceptance evidence and recovery. It is a design with
-measured adoption gates, not a list of implemented optimizations.
+measured adoption gates. Its bounded phase 0–3 mechanisms are implemented in 0.3;
+see [workflow contracts](workflows.md). The [first paired smoke study](evaluations/execution-evaluation.md)
+passed all six tasks but was faster on only one of three pairs. Expanded tools
+remain opt-in. Host check presets and task acceptance still need an isolated live
+comparison; they were not enabled in that cohort.
 
 ## First: separate the time components
 

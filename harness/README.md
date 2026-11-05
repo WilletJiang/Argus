@@ -59,10 +59,14 @@ and [performance investigation](docs/performance.md).
   response omits output; tool dispatch still waits for successful response completion.
 - Paged UTF-8 reads, directory listing, atomic writes/exact edits, and opt-in process execution.
 - Bounded parallel reads, ordered receipts, and durable full results with compact model views.
+- Opt-in search with source context and revision-bound multi-file edits/check recipes.
+- Active-context read reuse, host check caching and optional persistent task acceptance/repair budgets.
+- Content-free host/provider timing observations, including failed transport attempts.
 - Embedding API, structured events, JSON-lines control interface and CLI.
 
 See [execution semantics](docs/semantics.md), [control protocol](docs/protocol.md),
 [security boundary](SECURITY.md), and [validation](docs/validation.md).
+The [workflow guide](docs/workflows.md) documents the opt-in tools, checks and task API.
 
 ## An offline session
 
@@ -142,10 +146,9 @@ remain in `evals/`. This small evaluation does not establish industry leadership
 Advertised behavior is covered by executable contracts; validation boundaries
 are documented.
 
-Version 0.2 extends public C structures. Rebuild embedding clients against the new
-headers and library together; it is not ABI-compatible with 0.1 objects. Source
-initializers should use designated fields or explicitly initialize the new
-`parallel_safe` field. Database version 1 is migrated transactionally to version 2;
+Version 0.3 extends public C structures. Rebuild embedding clients against the new
+headers and library together; it is not ABI-compatible with 0.1/0.2 objects. Source
+initializers should use designated fields. Database versions 1/2 migrate transactionally to version 3;
 back up persistent databases before upgrading.
 
 MIT license. Third-party licenses and checksums are in [vendor](vendor/README.md).

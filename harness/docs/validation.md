@@ -15,6 +15,9 @@ consume subscription/API quotas. Tests create temporary state and clean it up.
 | results | Bounded previews, exact UTF-8 retrieval, session/fork access, stable history, new/legacy pause names |
 | recovery | Whole-batch process-crash recovery, no silent retries, version 1 schema migration/backfill |
 | cache | Stable per-session keys across reopen/resume/checkpoint; fork and new-session isolation |
+| observations | SHA-256 known-answer/boundary behavior, active-content reuse, forced reads, changed revisions, compaction/fork invalidation, no reuse of generic previews |
+| workflow | Real dispatch and durable phase evidence, contextual search/pagination, stale/overlapping/partial edits, checkpoint faults, fixed checks/cache invalidation, unknown effects |
+| task | Bounded repair, revision/policy validation, budgets across submissions/restarts, killed verification/repair-intent recovery, explicit reconciliation and local-check adapter |
 | http | Scripted real HTTP/SSE, rate/transport retries, no retry after output, auth/MIME/redirect rejection, deadline/cancellation, connection reuse |
 | cli | Actual executable: network-to-tool-to-model loop, persisted approval and Ask across restarts, dedupe/fork/checkpoint, RPC |
 | rpc | Malformed frames, asynchronous cancel, EOF and signals, busy response, no-token metadata commands |
@@ -45,6 +48,12 @@ Apple's bundled Clang may not include the libFuzzer runtime; use an upstream LLV
 installation in that case. Fuzzer temporary corpora/artifacts should stay outside
 the source tree.
 
+On this macOS host, Homebrew LLVM's fuzzer also required its matching C++ runtime:
+`-DCMAKE_EXE_LINKER_FLAGS='-L/opt/homebrew/opt/llvm/lib/c++ -Wl,-rpath,/opt/homebrew/opt/llvm/lib/c++'`.
+The system C++ library lacked a symbol used by that LLVM build. With the matched
+runtime, the 0.3 stream changes passed 20,000 libFuzzer/UBSan iterations; this
+toolchain setting is not a production C dependency.
+
 Before claiming live provider support in a release environment, run a separately
 authorized smoke test with its actual model/catalog and OAuth/API grant: text,
 tool loop, reasoning continuation, wait/approval, cancellation, and usage limits.
@@ -63,6 +72,7 @@ side effects cannot be transactionally rolled back.
 - [Terra endurance comparison](evaluations/endurance-evaluation.md)
 - [Cache routing investigation](evaluations/cache-evaluation.md)
 - [Sol endurance comparison](evaluations/sol-xhigh-evaluation.md)
+- [Workflow profile smoke comparison](evaluations/execution-evaluation.md)
 
 Historical claims are tied to the versions and workloads in those records. Current
 optimization questions and the required measurements are in [performance](performance.md).

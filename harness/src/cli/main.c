@@ -18,6 +18,7 @@ static void usage(void) {
         "  --db PATH            Session database (default ./harness.db)\n"
         "  --workspace PATH     Register bounded local file tools\n"
         "  --enable-exec        Explicitly allow process execution (not sandboxed)\n"
+        "  --workflows          Add search and versioned apply_changes tools\n"
         "  --model NAME         Model for new session (required by new)\n"
         "  --instructions TEXT  Developer instructions for new session\n"
         "  --session ID         Target session\n"
@@ -49,11 +50,15 @@ int main(int argc, char **argv) {
     const char *model = NULL, *instructions = "", *session = NULL, *prompt = NULL;
     const char *command_id = NULL, *operation = NULL, *value = NULL, *summary = NULL;
     const char *endpoint = "https://api.openai.com/v1/responses", *token_file = NULL;
-    bool exec_enabled = false, events = false, allow_http = false;
+    bool exec_enabled = false, events = false, allow_http = false, workflows = false;
     unsigned keep = 4, parallel = 4;
     size_t model_tool_bytes = 16384;
     for (int i = 2; i < argc; ++i) {
         const char *arg = argv[i];
+        if (!strcmp(arg, "--workflows")) {
+            workflows = true;
+            continue;
+        }
         if (!strcmp(arg, "--enable-exec")) {
             exec_enabled = true;
             continue;
@@ -123,8 +128,8 @@ int main(int argc, char **argv) {
             return 2;
         }
     }
-    if (exec_enabled && !workspace) {
-        fputs("--enable-exec requires --workspace\n", stderr);
+    if ((exec_enabled || workflows) && !workspace) {
+        fputs("--enable-exec/--workflows require --workspace\n", stderr);
         return 2;
     }
     if (prompt && !command_id) {
@@ -189,8 +194,10 @@ int main(int argc, char **argv) {
     code = ah_open(&config, &cli.engine, &error);
     ah_local_tools *tools = NULL;
     if (code == AH_OK && workspace) {
-        ah_local_tools_config tc = {
-            .workspace = workspace, .enable_exec = exec_enabled, .approve_writes = true};
+        ah_local_tools_config tc = {.workspace = workspace,
+                                    .enable_exec = exec_enabled,
+                                    .approve_writes = true,
+                                    .enable_workflows = workflows};
         code = ah_local_tools_open(&tc, &tools, &error);
         if (code == AH_OK)
             code = ah_local_tools_register(tools, cli.engine, &error);

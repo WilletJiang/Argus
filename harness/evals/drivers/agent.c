@@ -52,7 +52,7 @@ static ah_code sandbox_exec(void *context, const ah_tool_call *call, ah_tool_res
 
 static void observe(void *context, const ah_event *event) {
     (void)context;
-    if (!event->seq)
+    if (!event->seq && strcmp(event->type, "runtime.metrics"))
         return;
     yyjson_mut_doc *doc = ah_mut_doc_new();
     yyjson_mut_val *root = yyjson_mut_obj(doc);
@@ -114,6 +114,7 @@ int main(int argc, char **argv) {
     pc.allow_loopback_http = loopback && !strcmp(loopback, "1");
     pc.timeout_ms = run_seconds * 1000;
     pc.max_retries = 0;
+    pc.observe = eval_transport_observe;
     ah_code code = ah_responses_open(&pc, &provider, &error);
     evaluation eval = {.model = {.inner = ah_responses_provider(provider), .effort = effort},
                        .workspace = argv[1],
@@ -147,8 +148,10 @@ int main(int argc, char **argv) {
         config.max_tool_arguments_bytes = 1024 * 1024;
     }
     config.tool_timeout_ms = 30000;
-    ah_local_tools_config file_config = {
-        .workspace = argv[1], .enable_exec = false, .approve_writes = false};
+    ah_local_tools_config file_config = {.workspace = argv[1],
+                                         .enable_exec = false,
+                                         .approve_writes = false,
+                                         .enable_workflows = true};
     ah_local_tools_config exec_config = {
         .workspace = argv[1], .enable_exec = true, .approve_writes = false};
     if (code == AH_OK)

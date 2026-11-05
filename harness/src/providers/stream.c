@@ -77,6 +77,11 @@ static bool equal(yyjson_val *value, const char *text) {
     return yyjson_is_str(value) && yyjson_equals_str(value, text);
 }
 
+static void phase(ah_stream *s, ah_stream_phase kind) {
+    if (s->phase)
+        s->phase(s->phase_context, kind);
+}
+
 static ah_code event(ah_stream *s) {
     if (!s->data_len)
         return AH_OK;
@@ -102,8 +107,17 @@ static ah_code event(ah_stream *s) {
             code = fail(s, AH_PROTOCOL, "invalid completed response");
         } else {
             code = ah_stream_response(s, response);
-            if (code == AH_OK)
+            if (code == AH_OK) {
                 s->terminal = true;
+                if (s->phase) {
+                    size_t index, count;
+                    yyjson_val *item;
+                    yyjson_arr_foreach(yyjson_obj_get(response, "output"), index, count,
+                                       item) if (ah_stream_content(item))
+                        phase(s, AH_STREAM_CONTENT);
+                }
+                phase(s, AH_STREAM_TERMINAL);
+            }
         }
     } else if (equal(type, "response.failed") || equal(type, "response.incomplete") ||
                equal(type, "error")) {
@@ -123,15 +137,23 @@ static ah_code event(ah_stream *s) {
         else if (equal(error_code, "invalid_api_key") || equal(error_code, "authentication_error"))
             status = AH_AUTH;
         code = fail(s, status, "provider returned a failed or incomplete response");
+        phase(s, AH_STREAM_TERMINAL);
     } else if (equal(type, "response.output_item.added") ||
                equal(type, "response.output_item.done")) {
         code = ah_stream_item(s, root, equal(type, "response.output_item.done"));
+        if (code == AH_OK && equal(type, "response.output_item.done")) {
+            if (s->phase && ah_stream_content(yyjson_obj_get(root, "item")))
+                phase(s, AH_STREAM_CONTENT);
+            phase(s, AH_STREAM_OUTPUT_ITEM);
+        }
     } else if (equal(type, "response.output_text.delta")) {
         yyjson_val *delta = yyjson_obj_get(root, "delta");
         if (!yyjson_is_str(delta))
             code = fail(s, AH_PROTOCOL, "text delta is not a string");
         else {
             s->observed_output = true;
+            if (yyjson_get_len(delta))
+                phase(s, AH_STREAM_CONTENT);
             if (s->delta)
                 s->delta(s->delta_context, yyjson_get_str(delta), yyjson_get_len(delta));
         }
@@ -139,6 +161,12 @@ static ah_code event(ah_stream *s) {
                !equal(type, "response.queued")) {
         /* Unknown semantic events are ignored, but make retries unsafe. */
         s->observed_output = true;
+        if (equal(type, "response.function_call_arguments.delta") ||
+            equal(type, "response.custom_tool_call_input.delta")) {
+            yyjson_val *delta = yyjson_obj_get(root, "delta");
+            if (yyjson_is_str(delta) && yyjson_get_len(delta))
+                phase(s, AH_STREAM_CONTENT);
+        }
     }
     yyjson_doc_free(doc);
     return code;

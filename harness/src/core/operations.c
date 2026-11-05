@@ -111,7 +111,8 @@ ah_code core_receipt(ah_engine *e, const char *sid, const core_operation *op, co
     yyjson_mut_doc_set_root(d, o);
     yyjson_mut_obj_add_str(d, o, "type", "function_call_output");
     yyjson_mut_obj_add_strcpy(d, o, "call_id", op->call_id);
-    char *encoded = core_result_view(e, op->id, result, is_error);
+    char digest[65];
+    char *encoded = core_observation_view(e, sid, op, result, is_error, digest, err);
     if (!encoded) {
         ah_mut_doc_free(d);
         core_session_free(&session);
@@ -126,6 +127,8 @@ ah_code core_receipt(ah_engine *e, const char *sid, const core_operation *op, co
         return ah_fail(err, AH_IO, "out of memory");
     }
     rc = core_add_item(e, sid, session.turn, json, err);
+    if (rc == AH_OK)
+        rc = core_observation_save(e, sid, op->id, digest, err);
     free(json);
     core_session_free(&session);
     if (rc == AH_OK)

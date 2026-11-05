@@ -9,7 +9,7 @@
 #include <time.h>
 #include <unistd.h>
 
-static ah_tool registered[5];
+static ah_tool registered[16];
 static size_t tool_count;
 
 /* Capture the production tool definitions without constructing an engine. */

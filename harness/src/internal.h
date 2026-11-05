@@ -20,4 +20,5 @@ bool ah_json_valid(const char *json);
 ah_code ah_json_check(yyjson_val *value, ah_error *error);
 ah_code ah_schema_check(const char *schema, ah_error *error);
 void ah_error_clear(ah_error *error);
+uint64_t ah_now_us(void);
 #endif

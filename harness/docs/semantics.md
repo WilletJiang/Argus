@@ -140,6 +140,14 @@ are atomic, but the summary's semantic accuracy remains the host's responsibilit
 Schema version 2 adds result references and an operation-order index. Version 1
 stores migrate transactionally and backfill references for captured results;
 existing model-visible history is unchanged. Newer schema versions are rejected.
+
+Schema version 3 adds task budgets/acceptance receipts and an active-observation
+index. Task attempts are charged in the same transactions as model/tool intents;
+submitting another turn cannot reset them. Interrupted verification requires explicit
+task reconciliation. See [workflow semantics](workflows.md) for optional task control,
+phase checkpoints, context visibility and check-cache boundaries. Rebuild embedding
+clients for the extended 0.3 C structs; saved pending tools still undergo schema/policy
+comparison before execution after an upgrade.
 Back up durable databases before upgrading; older runtimes cannot reopen version 2.
 
 ## Schema subset

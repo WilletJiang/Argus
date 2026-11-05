@@ -131,6 +131,12 @@ uint64_t ah_now_ms(void) {
         return 0;
     return (uint64_t)t.tv_sec * UINT64_C(1000) + (uint64_t)t.tv_nsec / UINT64_C(1000000);
 }
+uint64_t ah_now_us(void) {
+    struct timespec time;
+    if (clock_gettime(CLOCK_MONOTONIC, &time))
+        return 0;
+    return (uint64_t)time.tv_sec * 1000000 + (uint64_t)time.tv_nsec / 1000;
+}
 const char *ah_code_name(ah_code code) {
     static const char *const names[] = {"ok",        "invalid",   "io",     "protocol",
                                         "limit",     "cancelled", "busy",   "not_found",

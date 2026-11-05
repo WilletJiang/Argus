@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(ah VERSION 0.2.2 LANGUAGES C)
+project(ah VERSION 0.3.0 LANGUAGES C)
 
 include(CTest)
 include(GNUInstallDirs)
@@ -35,12 +35,14 @@ target_include_directories(ah_json PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOUR
 set_target_properties(ah_json PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 add_library(ah STATIC
-  src/common.c
-  src/core/context.c src/core/engine.c src/core/execute.c src/core/mailbox.c
+  src/common.c src/hash.c
+  src/core/context.c src/core/engine.c src/core/execute.c src/core/mailbox.c src/core/observations.c
   src/core/operations.c src/core/parallel.c src/core/recovery.c src/core/response.c
-  src/core/results.c src/core/runtime.c src/core/session.c src/core/store.c
-  src/providers/responses.c src/providers/responses_http.c
+  src/core/results.c src/core/runtime.c src/core/session.c src/core/store.c src/core/telemetry.c
+  src/core/task_budget.c src/core/task_store.c src/core/task_verify.c src/core/task.c
+  src/providers/responses.c src/providers/responses_http.c src/providers/responses_metrics.c
   src/providers/stream.c src/providers/stream_items.c
+  src/tools/source.c src/tools/walk.c src/tools/search.c src/tools/changes.c src/tools/check.c src/tools/check_registry.c src/tools/diagnostics.c
   src/tools/exec.c src/tools/file.c src/tools/file_read.c src/tools/local.c src/tools/schema.c)
 add_library(ah::ah ALIAS ah)
 ah_compile_target(ah)

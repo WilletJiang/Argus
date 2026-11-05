@@ -2,6 +2,53 @@
 #include "internal.h"
 #include <stdio.h>
 
+void eval_transport_observe(void *context, const ah_responses_metrics *m) {
+    (void)context;
+    yyjson_mut_doc *doc = ah_mut_doc_new();
+    yyjson_mut_val *root = yyjson_mut_obj(doc);
+    yyjson_mut_doc_set_root(doc, root);
+    yyjson_mut_obj_add_str(doc, root, "event", "provider.metrics");
+    yyjson_mut_obj_add_uint(doc, root, "attempt", m->attempt);
+    yyjson_mut_obj_add_str(doc, root, "code", ah_code_name(m->result));
+    yyjson_mut_obj_add_int(doc, root, "http_status", m->http_status);
+    yyjson_mut_obj_add_uint(doc, root, "request_bytes", m->request_bytes);
+    yyjson_mut_obj_add_uint(doc, root, "response_bytes", m->response_bytes);
+    yyjson_mut_obj_add_bool(doc, root, "retry_planned", m->retry_planned);
+    if (m->elapsed_present)
+        yyjson_mut_obj_add_uint(doc, root, "elapsed_us", m->elapsed_us);
+    else
+        yyjson_mut_obj_add_null(doc, root, "elapsed_us");
+    if (m->new_connections_present)
+        yyjson_mut_obj_add_int(doc, root, "new_connections", m->new_connections);
+    else
+        yyjson_mut_obj_add_null(doc, root, "new_connections");
+    const char *names[] = {"first_byte_us",    "upload_complete_us",
+                           "first_content_us", "first_item_us",
+                           "terminal_us",      "dns_us",
+                           "connect_us",       "tls_us",
+                           "pretransfer_us",   "curl_first_byte_us",
+                           "curl_total_us"};
+    ah_responses_time times[] = {m->first_byte,    m->upload_complete,
+                                 m->first_content, m->first_output_item,
+                                 m->terminal,      m->dns,
+                                 m->connect,       m->tls,
+                                 m->pretransfer,   m->curl_first_byte,
+                                 m->curl_total};
+    for (size_t i = 0; i < sizeof(times) / sizeof(*times); i++) {
+        if (times[i].present)
+            yyjson_mut_obj_add_uint(doc, root, names[i], times[i].us);
+        else
+            yyjson_mut_obj_add_null(doc, root, names[i]);
+    }
+    char *line = ah_mut_write(doc);
+    ah_mut_doc_free(doc);
+    if (line) {
+        puts(line);
+        fflush(stdout);
+        free(line);
+    }
+}
+
 static void response_event(const char *json, ah_code code, const ah_error *error,
                            uint64_t elapsed) {
     yyjson_doc *parsed = json ? yyjson_read(json, strlen(json), 0) : NULL;

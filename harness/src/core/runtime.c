@@ -47,6 +47,8 @@ static ah_code model_intent(ah_engine *e, core_session *session, ah_error *err) 
         rc = core_done(e, s, err);
     }
     if (rc == AH_OK)
+        rc = core_task_charge(e, session->id, true, 1, err);
+    if (rc == AH_OK)
         rc = core_event(e, session->id, NULL, "model.started", "{}", err);
     if (rc == AH_OK)
         rc = core_commit(e, after, err);
@@ -81,7 +83,11 @@ ah_code ah_run(ah_engine *e, const char *sid, ah_error *err) {
     e->deadline = now + e->config.run_timeout_ms;
     if (e->deadline < now)
         e->deadline = UINT64_MAX;
-    rc = transition(e, sid, AH_RUNNING, "run.started", "{}", err);
+    rc = core_task_allow(e, sid, true, 0, NULL, err);
+    if (rc == AH_OK)
+        rc = core_task_deadline(e, sid, &e->deadline, err);
+    if (rc == AH_OK)
+        rc = transition(e, sid, AH_RUNNING, "run.started", "{}", err);
     session.state = AH_RUNNING;
     while (rc == AH_OK && session.state == AH_RUNNING) {
         if (core_cancelled(e)) {
@@ -112,8 +118,14 @@ ah_code ah_run(ah_engine *e, const char *sid, ah_error *err) {
             rc = ah_fail(err, AH_LIMIT, "model call budget exhausted");
             break;
         }
+        rc = core_task_allow(e, sid, true, 1, NULL, err);
+        if (rc != AH_OK)
+            break;
         char *request = NULL;
+        uint64_t assembled = ah_now_us();
         rc = core_request(e, &session, &request, err);
+        core_metric(e, sid, NULL, "request", assembled, ah_now_us(), request ? strlen(request) : 0,
+                    session.model_calls + 1, rc);
         if (rc != AH_OK)
             break;
         rc = model_intent(e, &session, err);
@@ -128,8 +140,11 @@ ah_code ah_run(ah_engine *e, const char *sid, ah_error *err) {
         }
         char *response = NULL;
         delta_context sink = {e, sid};
+        uint64_t started = ah_now_us();
         rc = e->config.provider.complete(e->config.provider.context, request, on_delta, &sink,
                                          core_cancelled, e, &response, err);
+        core_metric(e, sid, NULL, "model", started, ah_now_us(), response ? strlen(response) : 0,
+                    session.model_calls, rc);
         free(request);
         if (core_cancelled(e)) {
             uint64_t after = 0;

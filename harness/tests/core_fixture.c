@@ -71,7 +71,8 @@ void fixture_observe(void *context, const ah_event *event) {
     assert(doc);
     yyjson_doc_free(doc);
     if (!event->seq) {
-        f->provisional++;
+        if (!strcmp(event->type, "model.delta"))
+            f->provisional++;
         return;
     }
     assert(event->seq > f->last_seq);

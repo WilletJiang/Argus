@@ -18,6 +18,14 @@ RESPONSE = {"id": "r-test", "status": "completed", "output": [
      "arguments": '{"text":"🌍"}', "status": "completed"}]}
 TERMINAL = event({"type": "response.completed", "response": RESPONSE})
 DELTA = event({"type": "response.output_text.delta", "delta": "hello 🌍"})
+EMPTY_RESPONSE = {"id": "r-test", "status": "completed", "output": []}
+EMPTY_TERMINAL = event({"type": "response.completed", "response": EMPTY_RESPONSE})
+EMPTY_ITEMS = [
+    {"id": "empty-msg", "type": "message", "content": [{"type": "output_text", "text": ""}]},
+    {"id": "empty-fn", "type": "function_call", "arguments": ""},
+    {"id": "empty-custom", "type": "custom_tool_call", "input": ""},
+    {"id": "reason", "type": "reasoning", "summary": [{"type": "summary_text", "text": "reason"}]},
+]
 COUNTS = collections.Counter()
 REQUEST_ERRORS = []
 
@@ -95,6 +103,29 @@ class Handler(BaseHTTPRequestHandler):
             payload = b""
         elif path == "/after-delta":
             payload = DELTA
+        elif path == "/after-terminal":
+            payload = TERMINAL
+        elif path == "/empty-content":
+            payload = (event({"type": "response.output_text.delta", "delta": ""}) +
+                       event({"type": "response.function_call_arguments.delta", "delta": ""}) +
+                       event({"type": "response.custom_tool_call_input.delta", "delta": ""}) +
+                       event({"type": "response.reasoning_text.delta", "delta": "reason"}) +
+                       EMPTY_TERMINAL)
+        elif path == "/empty-items":
+            payload = b"".join(event({"type": "response.output_item.done", "output_index": i,
+                                      "item": item}) for i, item in enumerate(EMPTY_ITEMS)) + EMPTY_TERMINAL
+        elif path == "/failed-before-content":
+            payload = event({"type": "response.failed", "response": {
+                "error": {"code": "rate_limit_exceeded"}}})
+        elif path == "/phases":
+            chunks = [
+                event({"type": "response.created", "response": {"status": "in_progress"}}) +
+                event({"type": "response.output_text.delta", "delta": ""}),
+                event({"type": "response.function_call_arguments.delta", "delta": "{}"}),
+                event({"type": "response.output_item.done", "output_index": 0, "item": RESPONSE["output"][0]}),
+                TERMINAL,
+            ]
+            payload = b"".join(chunks)
         elif path == "/before-output" and COUNTS[path] < 3:
             payload = event({"type": "response.created", "response": {"status": "in_progress"}})
         self.send_response(status)
@@ -102,13 +133,18 @@ class Handler(BaseHTTPRequestHandler):
             self.send_header("Content-Type", content_type)
         if path == "/duplicate-mime":
             self.send_header("Content-Type", content_type)
-        incomplete = path in ("/hang", "/timeout", "/after-delta") or (
+        incomplete = path in ("/hang", "/timeout", "/after-delta", "/after-terminal") or (
             path == "/before-output" and COUNTS[path] < 3)
         self.send_header("Content-Length", str(len(payload) + (100 if incomplete else 0)))
         for name, value in headers.items():
             self.send_header(name, value)
         self.end_headers()
-        if path == "/fragmented":
+        if path == "/phases":
+            for chunk in chunks:
+                self.wfile.write(chunk)
+                self.wfile.flush()
+                time.sleep(0.04)
+        elif path == "/fragmented":
             for byte in payload:
                 self.wfile.write(bytes([byte]))
                 self.wfile.flush()
@@ -128,10 +164,12 @@ def main():
     worker.start()
     endpoint = f"http://127.0.0.1:{server.server_port}"
 
-    def run(path, code=0, requests=1, timeout=4000, cancel=0, repeat=False):
+    def run(path, code=0, requests=1, timeout=4000, cancel=0, repeat=False,
+            expected=RESPONSE, observe=True, cancel_repeat=False, attempts=None):
         before = COUNTS[path]
         completed = subprocess.run(
-            [sys.argv[1], endpoint + path, str(timeout), str(cancel), "repeat" if repeat else "once"],
+            [sys.argv[1], endpoint + path, str(timeout), str(cancel),
+             "cancel-repeat" if cancel_repeat else "repeat" if repeat else "once" if observe else "no-observer"],
             text=True, capture_output=True, timeout=8, check=True)
         value = json.loads(completed.stdout)
         assert value["code"] == code, (path, value, completed.stderr)
@@ -139,15 +177,40 @@ def main():
         if code:
             assert value["response"] is None, (path, value)
         else:
-            assert value["response"] == RESPONSE, (path, value)
+            assert value["response"] == expected, (path, value)
+        assert value["observer_guarded"], (path, value)
+        assert len(value["metrics"]) == ((attempts or requests) if observe else 0), (path, value)
+        for metric in value["metrics"]:
+            assert metric["request_bytes"] == len('{"model":"test","input":[],"stream":true}')
+            assert metric["elapsed_present"] and metric["elapsed_us"] >= 0
+            for name in ("first_byte", "first_content", "first_output_item", "terminal"):
+                point = metric[name]
+                assert not point["present"] or point["us"] <= metric["elapsed_us"], (path, name, metric)
+            for name in ("dns", "connect", "tls", "pretransfer", "curl_first_byte", "curl_total"):
+                assert metric[name]["present"] == metric["new_connections_present"], (path, name, metric)
+        if observe and path != "/backoff":
+            assert value["metrics"][-1]["result"] == code, (path, value)
         return value
 
     try:
-        run("/ok")
+        metric = run("/ok")["metrics"][0]
+        assert metric["first_byte"]["present"] and metric["first_content"]["present"]
+        assert metric["terminal"]["present"] and metric["terminal_completed"]
+        assert metric["upload_complete"]["present"]
+        assert metric["response_bytes"] == len(DELTA + TERMINAL)
+        run("/ok", observe=False)
         run("/no-mime-sse")
         run("/fragmented")
-        run("/reuse", requests=2, repeat=True)
-        run("/429", requests=3)
+        reused = run("/reuse", requests=2, repeat=True)["metrics"]
+        assert [m["attempt"] for m in reused] == [1, 1]
+        assert [m["new_connections"] for m in reused] == [1, 0]
+        cancelled = run("/cancel-before-reuse", code=5, cancel_repeat=True, attempts=2)["metrics"][1]
+        assert not cancelled["new_connections_present"]
+        assert not cancelled["first_byte"]["present"] and not cancelled["terminal_completed"]
+        retried = run("/429", requests=3)["metrics"]
+        assert [m["attempt"] for m in retried] == [1, 2, 3]
+        assert [m["retry_planned"] for m in retried] == [True, True, False]
+        assert not retried[0]["first_content"]["present"]
         run("/500", requests=3)
         run("/before-output", requests=3)
         run("/401", code=9)
@@ -166,9 +229,25 @@ def main():
         run("/large-error", code=4)
         value = run("/after-delta", code=10)
         assert value["deltas"] == len("hello 🌍".encode())
+        late = run("/after-terminal", code=10)["metrics"][0]
+        assert late["terminal_completed"] and late["terminal"]["present"]
+        assert late["result"] != 0 and not late["retry_planned"]
+        empty = run("/empty-content", expected=EMPTY_RESPONSE)["metrics"][0]
+        assert not empty["first_content"]["present"] and empty["terminal_completed"]
+        empty_items = run("/empty-items", expected={**EMPTY_RESPONSE, "output": EMPTY_ITEMS})["metrics"][0]
+        assert empty_items["first_output_item"]["present"] and not empty_items["first_content"]["present"]
+        failed = run("/failed-before-content", code=4)["metrics"][0]
+        assert failed["terminal"]["present"] and not failed["terminal_completed"]
+        assert not failed["first_content"]["present"]
+        phases = run("/phases")["metrics"][0]
+        marks = [phases[name]["us"] for name in ("first_byte", "first_content", "first_output_item", "terminal")]
+        assert all(phases[name]["present"] for name in ("first_byte", "first_content", "first_output_item", "terminal"))
+        assert marks == sorted(marks), phases
         for path in ("/hang", "/backoff"):
             value = run(path, code=5, cancel=120)
             assert 100 <= value["elapsed"] < 600, (path, value)
+            assert not value["metrics"][-1]["first_content"]["present"]
+            assert not value["metrics"][-1]["terminal"]["present"]
         value = run("/timeout", code=4, timeout=150)
         assert 100 <= value["elapsed"] < 600, value
         assert not REQUEST_ERRORS, REQUEST_ERRORS

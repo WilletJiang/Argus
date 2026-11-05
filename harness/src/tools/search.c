@@ -1,0 +1,226 @@
+#include "local_internal.h"
+#include <fnmatch.h>
+#include <fcntl.h>
+
+const char ah_search_schema[] =
+    "{\"type\":\"object\",\"properties\":{"
+    "\"path\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":4096},"
+    "\"query\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":1024},"
+    "\"glob\":{\"type\":\"string\",\"maxLength\":256},"
+    "\"context_lines\":{\"type\":\"integer\",\"minimum\":0,\"maximum\":5},"
+    "\"max_results\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":100},"
+    "\"offset\":{\"type\":\"integer\",\"minimum\":0,\"maximum\":10000000},"
+    "\"snapshot\":{\"type\":\"string\",\"minLength\":64,\"maxLength\":64}},"
+    "\"required\":[\"path\",\"query\"],\"additionalProperties\":false}";
+
+typedef struct {
+    yyjson_mut_doc *doc;
+    yyjson_mut_val *results;
+    size_t offset, total, emitted, max_results, remaining;
+    unsigned context;
+    bool full;
+} search_output;
+
+static void excerpt(search_output *out, const char *path, const char *revision, const char *source,
+                    const size_t *lines, size_t first, size_t last, const char *query) {
+    size_t ordinal = out->total++;
+    if (ordinal < out->offset || out->full)
+        return;
+    size_t length = lines[last + 1] - lines[first];
+    yyjson_mut_val *row = yyjson_mut_obj(out->doc);
+    yyjson_mut_obj_add_strcpy(out->doc, row, "path", path);
+    yyjson_mut_obj_add_strcpy(out->doc, row, "revision", revision);
+    yyjson_mut_obj_add_uint(out->doc, row, "start_line", first + 1);
+    yyjson_mut_obj_add_uint(out->doc, row, "end_line", last + 1);
+    yyjson_mut_obj_add_strcpy(out->doc, row, "match", query);
+    yyjson_mut_obj_add_uint(out->doc, row, "offset_bytes", lines[first]);
+    /* Cap individual excerpts too; the continuation is an exact read_file offset. */
+    size_t cap = out->remaining > 1024 ? (out->remaining - 1024) / 6 : 0;
+    if (cap > 8192)
+        cap = 8192;
+    size_t keep = length < cap ? length : cap, complete = 0;
+    if (!keep) {
+        out->full = true;
+        return;
+    }
+    if (!ah_local_utf8(source + lines[first], keep, &complete)) {
+        out->full = true;
+        return;
+    }
+    keep = complete;
+    yyjson_mut_obj_add_strncpy(out->doc, row, "content", source + lines[first], keep);
+    yyjson_mut_obj_add_bool(out->doc, row, "truncated", keep < length);
+    if (keep < length)
+        yyjson_mut_obj_add_uint(out->doc, row, "next_offset_bytes", lines[first] + keep);
+    char *encoded = yyjson_mut_val_write(row, 0, NULL);
+    size_t bytes = encoded ? strlen(encoded) + 1 : SIZE_MAX;
+    free(encoded);
+    if (bytes > out->remaining) {
+        out->full = true;
+        return;
+    }
+    yyjson_mut_arr_append(out->results, row);
+    out->remaining -= bytes;
+    out->emitted++;
+    if (out->emitted >= out->max_results)
+        out->full = true;
+}
+
+static ah_code search_source(search_output *out, const char *path, const char *revision,
+                             const char *source, size_t length, const char *query,
+                             const ah_tool_call *call) {
+    size_t count = 0;
+    for (size_t i = 0; i < length; i++)
+        if (source[i] == '\n')
+            count++;
+    size_t *lines = malloc((count + 2) * sizeof(*lines));
+    if (!lines)
+        return AH_IO;
+    lines[0] = 0;
+    count = 1;
+    for (size_t i = 0; i < length; i++)
+        if (source[i] == '\n' && i + 1 < length)
+            lines[count++] = i + 1;
+    lines[count] = length;
+    bool pending = false;
+    size_t first = 0, last = 0, line = 0;
+    const char *match = source;
+    ah_code code = AH_OK;
+    while ((match = strstr(match, query))) {
+        if ((code = ah_local_stopped(call)) != AH_OK)
+            break;
+        size_t position = (size_t)(match - source);
+        while (line + 1 < count && lines[line + 1] <= position)
+            line++;
+        size_t start = line > out->context ? line - out->context : 0;
+        size_t end = line + out->context < count ? line + out->context : count - 1;
+        if (pending && start <= last + 1) {
+            if (end > last)
+                last = end;
+        } else {
+            if (pending)
+                excerpt(out, path, revision, source, lines, first, last, query);
+            first = start;
+            last = end;
+            pending = true;
+        }
+        match++; /* overlaps count as matches within the same merged excerpt */
+    }
+    if (pending && code == AH_OK)
+        excerpt(out, path, revision, source, lines, first, last, query);
+    free(lines);
+    return code;
+}
+
+ah_code ah_local_search(void *context, const ah_tool_call *call, ah_tool_result *result,
+                        ah_error *error) {
+    ah_error fallback;
+    if (!error)
+        error = &fallback;
+    yyjson_doc *args = ah_local_arguments(call, ah_search_schema, result, error);
+    if (!args)
+        return error->code;
+    yyjson_val *root = yyjson_doc_get_root(args), *scope = yyjson_obj_get(root, "path"),
+               *q = yyjson_obj_get(root, "query"), *g = yyjson_obj_get(root, "glob"),
+               *snap = yyjson_obj_get(root, "snapshot");
+    const char *query = yyjson_get_str(q), *glob = g ? yyjson_get_str(g) : "*";
+    size_t offset = (size_t)yyjson_get_num(yyjson_obj_get(root, "offset"));
+    if (memchr(query, 0, yyjson_get_len(q)) || strchr(query, '\n') ||
+        (g && memchr(glob, 0, yyjson_get_len(g))) || (offset && !snap)) {
+        yyjson_doc_free(args);
+        return ah_local_error(call, result, error, AH_INVALID,
+                              "Use a single-line literal query and snapshot for pagination");
+    }
+    yyjson_mut_doc *doc = ah_mut_doc_new();
+    yyjson_mut_val *output = yyjson_mut_obj(doc);
+    yyjson_mut_doc_set_root(doc, output);
+    search_output out = {.doc = doc,
+                         .results = yyjson_mut_obj_add_arr(doc, output, "results"),
+                         .offset = offset,
+                         .context = 2,
+                         .max_results = 20};
+    yyjson_val *v = yyjson_obj_get(root, "context_lines");
+    if (v)
+        out.context = (unsigned)yyjson_get_num(v);
+    v = yyjson_obj_get(root, "max_results");
+    if (v)
+        out.max_results = (size_t)yyjson_get_num(v);
+    size_t limit = ah_local_view_limit(call);
+    out.remaining = limit > 1024 ? limit - 1024 : 0;
+    ah_paths paths;
+    ah_code code = ah_local_paths(context, scope, call, &paths);
+    ah_hash hash;
+    ah_hash_init(&hash);
+    ah_hash_update(&hash, query, strlen(query) + 1);
+    ah_hash_update(&hash, glob, strlen(glob) + 1);
+    ah_hash_update(&hash, yyjson_get_str(scope), yyjson_get_len(scope) + 1);
+    unsigned char context_lines = (unsigned char)out.context;
+    ah_hash_update(&hash, &context_lines, 1);
+    size_t bytes = 0, scanned = 0, skipped = paths.skipped;
+    for (size_t i = 0; code == AH_OK && i < paths.count; i++) {
+        if (fnmatch(glob, paths.items[i], 0))
+            continue;
+        char leaf[4097], *source = NULL, revision[65];
+        size_t length = 0;
+        struct stat st;
+        int parent = ah_local_parent_path(context, paths.items[i], strlen(paths.items[i]), leaf);
+        code = parent < 0 || fstatat(parent, leaf, &st, AT_SYMLINK_NOFOLLOW) ? AH_IO : AH_OK;
+        if (code == AH_OK && S_ISREG(st.st_mode) && st.st_size >= 0 &&
+            st.st_size <= AH_LOCAL_MAX_BYTES) {
+            if ((size_t)st.st_size > 32 * 1024 * 1024 - bytes) {
+                paths.truncated = true;
+                close(parent);
+                break;
+            }
+            /* Invalid UTF-8/binary files consume scan budget too. */
+            bytes += (size_t)st.st_size;
+        }
+        if (code == AH_OK)
+            code = ah_local_source(parent, leaf, call, &st, &source, &length);
+        if (parent >= 0)
+            close(parent);
+        if ((code == AH_INVALID || code == AH_LIMIT) && ah_local_stopped(call) == AH_OK) {
+            skipped++;
+            code = AH_OK;
+            continue;
+        }
+        if (code != AH_OK)
+            break;
+        ah_hash_bytes(source, length, revision);
+        ah_hash_update(&hash, paths.items[i], strlen(paths.items[i]) + 1);
+        ah_hash_update(&hash, revision, 64);
+        scanned++;
+        code = search_source(&out, paths.items[i], revision, source, length, query, call);
+        free(source);
+    }
+    char revision[65];
+    ah_hash_finish(&hash, revision);
+    bool stale = snap && !yyjson_equals_str(snap, revision);
+    yyjson_mut_obj_add_bool(doc, output, "ok", code == AH_OK && !stale);
+    yyjson_mut_obj_add_strcpy(doc, output, "snapshot", revision);
+    yyjson_mut_obj_add_uint(doc, output, "scanned_files", scanned);
+    yyjson_mut_obj_add_uint(doc, output, "skipped_files", skipped);
+    yyjson_mut_obj_add_bool(doc, output, "scan_truncated", paths.truncated);
+    yyjson_mut_obj_add_uint(doc, output, "total_excerpts", out.total);
+    yyjson_mut_obj_add_bool(doc, output, "truncated", offset + out.emitted < out.total);
+    if (offset + out.emitted < out.total)
+        yyjson_mut_obj_add_uint(doc, output, "next_offset", offset + out.emitted);
+    else
+        yyjson_mut_obj_add_null(doc, output, "next_offset");
+    if (stale) {
+        yyjson_mut_obj_remove_str(output, "results");
+        yyjson_mut_obj_add_arr(doc, output, "results");
+        yyjson_mut_obj_add_str(doc, output, "error", "stale_snapshot");
+        yyjson_mut_obj_add_str(doc, output, "message",
+                               "Search inputs changed; restart from offset 0");
+        result->is_error = true;
+    }
+    ah_local_paths_free(&paths);
+    yyjson_doc_free(args);
+    if (code != AH_OK || (!out.emitted && out.total > offset && !stale)) {
+        ah_mut_doc_free(doc);
+        return ah_local_error(call, result, error, code == AH_OK ? AH_LIMIT : code,
+                              "Search interrupted or output budget too small; narrow the scope");
+    }
+    return ah_local_finish(call, result, doc, error);
+}

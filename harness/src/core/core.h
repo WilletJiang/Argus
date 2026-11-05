@@ -1,7 +1,9 @@
 #ifndef AH_CORE_H
 #define AH_CORE_H
 #include "../internal.h"
+#include "../hash.h"
 #include "ah/tools.h"
+#include "ah/task.h"
 #include <sqlite3.h>
 #include <stdatomic.h>
 #include <pthread.h>
@@ -79,6 +81,19 @@ ah_code core_execute_parallel(ah_engine *, core_session *, const core_operation 
                               ah_error *);
 ah_code core_guard(ah_engine *, ah_error *);
 char *core_result_view(ah_engine *, const char *, const char *, bool);
+char *core_observation_view(ah_engine *, const char *, const core_operation *, const char *, bool,
+                            char[65], ah_error *);
+ah_code core_observation_save(ah_engine *, const char *, const char *, const char *, ah_error *);
 ah_code core_read_result(void *, const ah_tool_call *, ah_tool_result *, ah_error *);
 char *core_object_string(const char *, const char *);
+void core_metric(ah_engine *, const char *, const char *, const char *, uint64_t, uint64_t, size_t,
+                 unsigned, ah_code);
+uint64_t core_wall_ms(void);
+ah_code core_task_allow(ah_engine *, const char *, bool, unsigned, unsigned *, ah_error *);
+ah_code core_task_charge(ah_engine *, const char *, bool, unsigned, ah_error *);
+ah_code core_task_deadline(ah_engine *, const char *, uint64_t *, ah_error *);
+bool core_task_valid_revision(char[65]);
+ah_code core_task_recover(ah_engine *, ah_error *);
+ah_code core_task_verify(ah_engine *, const char *, const ah_task_verifier *, const char *,
+                         ah_error *);
 #endif

@@ -14,13 +14,13 @@
 #include <time.h>
 #include <unistd.h>
 
-static ah_tool registered[5];
+static ah_tool registered[16];
 static size_t tool_count;
 
 ah_code ah_register_tool(ah_engine *engine, const ah_tool *tool, ah_error *error) {
     (void)engine;
     (void)error;
-    CHECK(tool_count < 5);
+    CHECK(tool_count < 16);
     registered[tool_count++] = *tool;
     return AH_OK;
 }

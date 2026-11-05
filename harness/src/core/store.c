@@ -44,7 +44,9 @@ ah_code core_begin(ah_engine *e, uint64_t *after, ah_error *err) {
     return rc;
 }
 ah_code core_commit(ah_engine *e, uint64_t after, ah_error *err) {
+    uint64_t started = ah_now_us();
     ah_code rc = core_sql(e, "COMMIT", err);
+    core_metric(e, e->active_session, NULL, "commit", started, ah_now_us(), 0, 1, rc);
     if (rc != AH_OK) {
         core_rollback(e);
         return rc;

@@ -12,6 +12,25 @@ struct ah_stream_items {
     size_t count;
 };
 
+bool ah_stream_content(yyjson_val *item) {
+    yyjson_val *type = yyjson_obj_get(item, "type"), *value = NULL;
+    if (yyjson_equals_str(type, "function_call"))
+        value = yyjson_obj_get(item, "arguments");
+    else if (yyjson_equals_str(type, "custom_tool_call"))
+        value = yyjson_obj_get(item, "input");
+    else if (yyjson_equals_str(type, "message")) {
+        size_t index, count;
+        yyjson_val *part;
+        yyjson_arr_foreach(yyjson_obj_get(item, "content"), index, count, part) {
+            yyjson_val *text = yyjson_obj_get(part, "text");
+            if (yyjson_equals_str(yyjson_obj_get(part, "type"), "output_text") &&
+                yyjson_is_str(text) && yyjson_get_len(text))
+                return true;
+        }
+    }
+    return yyjson_is_str(value) && yyjson_get_len(value);
+}
+
 ah_code ah_stream_item(ah_stream *s, yyjson_val *event, bool done) {
     yyjson_val *index = yyjson_obj_get(event, "output_index"),
                *item = yyjson_obj_get(event, "item"), *id = yyjson_obj_get(item, "id");
