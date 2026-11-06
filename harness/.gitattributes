@@ -1,0 +1,2 @@
+# An SSE event ends with a required empty line, including the final event.
+tests/corpus/stream/*.sse whitespace=-blank-at-eof

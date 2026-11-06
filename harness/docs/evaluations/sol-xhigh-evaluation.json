@@ -1,0 +1,3177 @@
+{
+  "date": "2026-11-04",
+  "model": "gpt-6.1-sol",
+  "reasoning_effort": "xhigh",
+  "cutoff_seconds": 600,
+  "cohorts": {
+    "initial_stream_bug": {
+      "manifest": {
+        "model": "gpt-6.1-sol",
+        "reasoning": "xhigh",
+        "duration_seconds": 600,
+        "repetitions": 3,
+        "same_service_route": true,
+        "codex_wire_request": {
+          "model": "gpt-6.1-sol",
+          "reasoning": {
+            "effort": "xhigh",
+            "context": "all_turns"
+          },
+          "store": false,
+          "stream": true
+        },
+        "endpoint": "https://api.openai.com/v1/responses",
+        "prompt_sha256": "beaebfe35323ba1b9f3525f5e7423389e9ca0a6e9ba1a3038ab024bead417d9e",
+        "spec_sha256": "e63c2c104b8a4698b6c78e0a741d638b8d163248ab916ab96cff7e73d3911801",
+        "grader_sha256": "c20a46c7a84d7464d795abebc39d6148edbeea67936c0f6fbee626b7fd73d200",
+        "cutoff_disclosed_to_model": false,
+        "followup_prompts": 0,
+        "codex_version": "codex-cli 0.164.0"
+      },
+      "trials": [
+        {
+          "runner": "codex",
+          "seconds": 600.028,
+          "timed_out": true,
+          "exit_code": 0,
+          "state": "interrupted",
+          "reported_model": "gpt-6.1-sol",
+          "failure": null,
+          "usage": {
+            "input_tokens": 208117,
+            "output_tokens": 24772,
+            "cached_input_tokens": 191232,
+            "reasoning_output_tokens": 3509,
+            "uncached_input_tokens": 16885,
+            "input_plus_output": 232889
+          },
+          "confirmed_model_responses": 10,
+          "observed_tool_actions": 14,
+          "tool_active_minutes": [
+            0,
+            1,
+            2,
+            4,
+            5,
+            6,
+            7,
+            9
+          ],
+          "last_tool_started_seconds": 568.451,
+          "served_models": [],
+          "served_reasoning_efforts": [],
+          "errors": [],
+          "usage_complete": false,
+          "trial": 1,
+          "model": "gpt-6.1-sol",
+          "reasoning": "xhigh",
+          "frozen_checks": {
+            "passed": 33,
+            "total": 33,
+            "protected_inputs_unchanged": true,
+            "readme_written": false,
+            "additional_test_files": 1
+          },
+          "frozen_check_failures": [],
+          "quality_original": {
+            "passed": 17,
+            "total": 17,
+            "failures": []
+          },
+          "quality_corrected": {
+            "passed": 17,
+            "total": 17,
+            "failures": [],
+            "unscored_ambiguity": [
+              {
+                "test": "observe_idempotency_changed_dependencies_conflict",
+                "passed": true
+              }
+            ]
+          },
+          "own_tests": {
+            "returncode": 1,
+            "passed": false,
+            "tests": 25
+          },
+          "own_test_failures": [
+            "ERROR: test_owned_leases_heartbeat_never_shortens_and_completion_copies (test_store.StoreTests)",
+            "TypeError: 'NoneType' object is not subscriptable"
+          ],
+          "workspace_unchanged_by_audit": true,
+          "source_sha256": {
+            "README.md": "f9af2e301856744dd995cd4b1d1d08f5cd5982685e96c5dad63979133c29513c",
+            "tests/test_smoke.py": "fb6867aa47ff9e5a21dbe28ce2b6f631ae3eeb2f9a7a34d6f32d4190e335648c",
+            "tests/test_store.py": "734ea102e45237ff06f8a1e1862d7224b0dd21b498cee646d91a9eb7ab71ae1c",
+            "workboard/store.py": "85d1dbc81601f7f29edd2dae7570697ba51b3efe93ad4f8c715737bb8cd3b6a0",
+            "workboard/query.py": "960c7d2a0df41931758860781d49704caaff7b41d9316f2d20b54f8d3e47c6e1",
+            "workboard/__init__.py": "24526cb0707afd9b5f58525fdbf8e23f1f1410b7cc6b0be7d9c286b81b8a6c0c",
+            "workboard/cli.py": "fd8365b3b1fe3fa63b44d8e8dfc7b67ee7805356647797f2a4d5bfccd0c56dc9",
+            "workboard/planning.py": "254c4f2ff1c137adfaed4ceb9fad03f3957a43a72707ef35d3cbabd8a051e895",
+            "workboard/errors.py": "f176b6f3b70cc8320097813c7ca5089f070bc1b637c21cc611ab2deee69c7452",
+            "workboard/__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+            "workboard/validation.py": "a275010b54fd10aba9bcb2dd19c3aa46d1c82b1152f782b34c101e6d4b25d89e"
+          },
+          "max_python_file_lines": 413,
+          "python_files": 10
+        },
+        {
+          "runner": "codex",
+          "seconds": 600.022,
+          "timed_out": true,
+          "exit_code": 0,
+          "state": "interrupted",
+          "reported_model": "gpt-6.1-sol",
+          "failure": null,
+          "usage": {
+            "input_tokens": 153495,
+            "output_tokens": 19946,
+            "cached_input_tokens": 137600,
+            "reasoning_output_tokens": 5151,
+            "uncached_input_tokens": 15895,
+            "input_plus_output": 173441
+          },
+          "confirmed_model_responses": 8,
+          "observed_tool_actions": 10,
+          "tool_active_minutes": [
+            0,
+            3,
+            4,
+            6,
+            7
+          ],
+          "last_tool_started_seconds": 445.951,
+          "served_models": [],
+          "served_reasoning_efforts": [],
+          "errors": [],
+          "usage_complete": false,
+          "trial": 2,
+          "model": "gpt-6.1-sol",
+          "reasoning": "xhigh",
+          "frozen_checks": {
+            "passed": 33,
+            "total": 33,
+            "protected_inputs_unchanged": true,
+            "readme_written": false,
+            "additional_test_files": 0
+          },
+          "frozen_check_failures": [],
+          "quality_original": {
+            "passed": 16,
+            "total": 17,
+            "failures": [
+              {
+                "test": "test_history_matches_current_job",
+                "passed": false,
+                "error": "KeyError: 0"
+              }
+            ]
+          },
+          "quality_corrected": {
+            "passed": 17,
+            "total": 17,
+            "failures": [],
+            "unscored_ambiguity": [
+              {
+                "test": "observe_idempotency_changed_dependencies_conflict",
+                "passed": true
+              }
+            ]
+          },
+          "own_tests": {
+            "returncode": 0,
+            "passed": true,
+            "tests": 4
+          },
+          "own_test_failures": [],
+          "workspace_unchanged_by_audit": true,
+          "source_sha256": {
+            "README.md": "f9af2e301856744dd995cd4b1d1d08f5cd5982685e96c5dad63979133c29513c",
+            "tests/test_smoke.py": "fb6867aa47ff9e5a21dbe28ce2b6f631ae3eeb2f9a7a34d6f32d4190e335648c",
+            "workboard/store.py": "62e66df468c083edc7918b049784f9310468754527c752f75ad6a99473b6403c",
+            "workboard/query.py": "72dbb073eec9e90726985b717ea406d8e9e7f77896740e6cd646f1a899bd20ab",
+            "workboard/__init__.py": "7cef0be7cec96a6e8124f3ba77c26da93dcc17ccdef21de232856129cc822287",
+            "workboard/cli.py": "6faf1fb9099f9ce08298261775c0ee3d2355c9ba5bf095d76acf413ee08f0a89",
+            "workboard/storage.py": "d72fb34e83c3c4a6caa2abbd25e2f5d9b44094cc8970b0bf6381a5553fc54ab3",
+            "workboard/planning.py": "dcb394371879bd2334f1061c59d8747dc016096ae9ae2e11bd0a91cef3402e93",
+            "workboard/errors.py": "9d283b0d20681a0f0d037f30b0897bbc9b0b0ab0532ff9cd493ecdb22f597c5e",
+            "workboard/__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+            "workboard/validation.py": "1d131fb69a79a098507f12d7e62bce8f2a32158615cbcef40f9524788954dc72"
+          },
+          "max_python_file_lines": 384,
+          "python_files": 10
+        },
+        {
+          "runner": "codex",
+          "seconds": 600.032,
+          "timed_out": true,
+          "exit_code": 0,
+          "state": "interrupted",
+          "reported_model": "gpt-6.1-sol",
+          "failure": null,
+          "usage": {
+            "input_tokens": 166253,
+            "output_tokens": 26011,
+            "cached_input_tokens": 150656,
+            "reasoning_output_tokens": 4583,
+            "uncached_input_tokens": 15597,
+            "input_plus_output": 192264
+          },
+          "confirmed_model_responses": 8,
+          "observed_tool_actions": 12,
+          "tool_active_minutes": [
+            0,
+            1,
+            2,
+            3,
+            5,
+            6,
+            9
+          ],
+          "last_tool_started_seconds": 567.613,
+          "served_models": [],
+          "served_reasoning_efforts": [],
+          "errors": [],
+          "usage_complete": false,
+          "trial": 3,
+          "model": "gpt-6.1-sol",
+          "reasoning": "xhigh",
+          "frozen_checks": {
+            "passed": 33,
+            "total": 33,
+            "protected_inputs_unchanged": true,
+            "readme_written": false,
+            "additional_test_files": 1
+          },
+          "frozen_check_failures": [],
+          "quality_original": {
+            "passed": 16,
+            "total": 17,
+            "failures": [
+              {
+                "test": "test_history_matches_current_job",
+                "passed": false,
+                "error": "KeyError: 0"
+              }
+            ]
+          },
+          "quality_corrected": {
+            "passed": 17,
+            "total": 17,
+            "failures": [],
+            "unscored_ambiguity": [
+              {
+                "test": "observe_idempotency_changed_dependencies_conflict",
+                "passed": true
+              }
+            ]
+          },
+          "own_tests": {
+            "returncode": 1,
+            "passed": false,
+            "tests": 28
+          },
+          "own_test_failures": [
+            "FAIL: test_reap_is_persisted_when_no_claim_is_possible (test_store.StoreTests)",
+            "AssertionError: 'queued' != 'failed'"
+          ],
+          "workspace_unchanged_by_audit": true,
+          "source_sha256": {
+            "README.md": "f9af2e301856744dd995cd4b1d1d08f5cd5982685e96c5dad63979133c29513c",
+            "tests/test_smoke.py": "fb6867aa47ff9e5a21dbe28ce2b6f631ae3eeb2f9a7a34d6f32d4190e335648c",
+            "tests/test_store.py": "1439f9d1d30755299e8553a846d4c29e25581d79fb1e4f8ae375a4430ca9cc54",
+            "workboard/store.py": "46b45ded36ea2e05b11f1ee618a5132547fa6d4f6f847381286a05293ec1ca0e",
+            "workboard/query.py": "06f254e1f7c067886024720c84fc70770f55ca8796e139c2ce7adffff3558389",
+            "workboard/__init__.py": "84ada2eea29ec505fc224fe61768ef508216e44b8c4c30549050aac841decb03",
+            "workboard/durability.py": "e4a1fdf2206dee6d5a2c857e8a899f29f08fc7b4eda5d59c1187f3c2fff20ff3",
+            "workboard/cli.py": "e90d950a25f5199472b871dd6fe5e91d974252061a6758aa7a9d05f1d1d71b54",
+            "workboard/planning.py": "bfbe51c772dfd0ceac84db3a78847ec5d68c7352e17a264367f616b96e7bebc7",
+            "workboard/errors.py": "5fa1a786f525e4ffa31acdfd07cfa32aeb12c78769ba429bc57ce8036228781c",
+            "workboard/__main__.py": "84d006b80548925535937ae76391d477427411d30ef098e296160513c382fa0f",
+            "workboard/snapshot.py": "22c0768e0a3bcd41cf09265bdf81e55326aee9e4d578eb39ed99ad3a78df96ef",
+            "workboard/validation.py": "71da449b838c2d98b7e2d16a969887583aebfee0d8078d0731fda1ad81984d83"
+          },
+          "max_python_file_lines": 427,
+          "python_files": 12
+        },
+        {
+          "runner": "harness",
+          "seconds": 3.884,
+          "timed_out": false,
+          "exit_code": 0,
+          "state": "completed",
+          "model_calls": 1,
+          "tool_calls": 0,
+          "usage": {
+            "input_tokens": 743,
+            "cached_input_tokens": 0,
+            "output_tokens": 18,
+            "reasoning_output_tokens": 0,
+            "uncached_input_tokens": 743,
+            "input_plus_output": 761
+          },
+          "confirmed_model_responses": 1,
+          "observed_tool_actions": 0,
+          "tool_active_minutes": [],
+          "last_tool_started_seconds": 0,
+          "served_models": [
+            "gpt-6.1-sol"
+          ],
+          "served_reasoning_efforts": [
+            "xhigh"
+          ],
+          "errors": [],
+          "usage_complete": true,
+          "trial": 1,
+          "model": "gpt-6.1-sol",
+          "reasoning": "xhigh",
+          "frozen_checks": {
+            "passed": 0,
+            "total": 33,
+            "protected_inputs_unchanged": true,
+            "readme_written": false,
+            "additional_test_files": 0
+          },
+          "frozen_check_failures": [
+            {
+              "test": "test_bad_create_atomic",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_cancel",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_copy_isolation",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_dependencies",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_dependency_gate",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_events_and_export",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_fail_retry",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_heartbeat",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_id_validation",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_idempotency",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_invalid_claim_does_not_reap",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_lease_ownership",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_priority_and_availability",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_random_priority_order",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_reap_boundary_and_budget",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_record_schema",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_restart_and_compact",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_transaction_rollback",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_transaction_visibility",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_unknown_and_list",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_aggregate",
+              "error": "NotImplementedError: "
+            },
+            {
+              "test": "test_aggregate_empty_invalid",
+              "error": "NotImplementedError: "
+            },
+            {
+              "test": "test_join_left_and_collision",
+              "error": "NotImplementedError: "
+            },
+            {
+              "test": "test_join_many_to_many",
+              "error": "NotImplementedError: "
+            },
+            {
+              "test": "test_logic_validation",
+              "error": "NotImplementedError: "
+            },
+            {
+              "test": "test_predicates",
+              "error": "NotImplementedError: "
+            },
+            {
+              "test": "test_query_filter_copy",
+              "error": "NotImplementedError: "
+            },
+            {
+              "test": "test_query_sort_projection",
+              "error": "NotImplementedError: "
+            },
+            {
+              "test": "test_random_sort",
+              "error": "NotImplementedError: "
+            },
+            {
+              "test": "test_invalid_graph",
+              "error": "NotImplementedError: "
+            },
+            {
+              "test": "test_layers_and_blocked",
+              "error": "NotImplementedError: "
+            },
+            {
+              "test": "test_cli_batch_rollback",
+              "error": "1 != 0 : /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named workboard.__main__; 'workboard' is a package and cannot be directly executed\n"
+            },
+            {
+              "test": "test_cli_roundtrip_errors",
+              "error": "1 != 0 : /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named workboard.__main__; 'workboard' is a package and cannot be directly executed\n"
+            }
+          ],
+          "quality_original": {
+            "passed": 0,
+            "total": 17,
+            "failures": [
+              {
+                "test": "test_all_methods_reject_closed_store",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_completion_validation_and_copy",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_expired_owned_operations_do_not_reap",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_expression_validation_reaches_short_circuited_branch",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_historical_event_record_validation",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_history_matches_current_job",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_invalid_specs_rejected_even_on_empty_input",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_join_and_aggregate_reject_container_keys",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_lease_token_not_reused_after_rollback_restart",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_malformed_store_is_not_replaced",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_mutation_io_failure_rolls_back",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_overflow_is_atomic",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_projection_and_join_results_are_deep_copies",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_sort_null_direction_and_stable_ties",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_staged_export_not_committed_on_rollback",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_transaction_io_failure_rolls_back",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_unmatched_join_field_does_not_collide",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              }
+            ]
+          },
+          "quality_corrected": {
+            "passed": 0,
+            "total": 17,
+            "failures": [
+              {
+                "test": "test_all_methods_reject_closed_store",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_completion_validation_and_copy",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_expired_owned_operations_do_not_reap",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_expression_validation_reaches_short_circuited_branch",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_historical_event_record_validation",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_history_matches_current_job",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_invalid_specs_rejected_even_on_empty_input",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_join_and_aggregate_reject_container_keys",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_lease_token_not_reused_after_rollback_restart",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_malformed_store_is_not_replaced",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_mutation_io_failure_rolls_back",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_overflow_is_atomic",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_projection_and_join_results_are_deep_copies",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_sort_null_direction_and_stable_ties",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_staged_export_not_committed_on_rollback",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_transaction_io_failure_rolls_back",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_unmatched_join_field_does_not_collide",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              }
+            ],
+            "unscored_ambiguity": [
+              {
+                "test": "observe_idempotency_changed_dependencies_conflict",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              }
+            ]
+          },
+          "own_tests": {
+            "returncode": 1,
+            "passed": false,
+            "tests": 4
+          },
+          "own_test_failures": [
+            "ERROR: test_claim (test_smoke.Smoke)",
+            "ERROR: test_plan (test_smoke.Smoke)",
+            "ERROR: test_query (test_smoke.Smoke)",
+            "ERROR: test_transaction (test_smoke.Smoke)"
+          ],
+          "workspace_unchanged_by_audit": true,
+          "source_sha256": {
+            "README.md": "f9af2e301856744dd995cd4b1d1d08f5cd5982685e96c5dad63979133c29513c",
+            "tests/test_smoke.py": "fb6867aa47ff9e5a21dbe28ce2b6f631ae3eeb2f9a7a34d6f32d4190e335648c",
+            "workboard/query.py": "7b78c3d444cda9ada1f0a221c36e5466c03817c4407261b728fe879b7be6766d",
+            "workboard/__init__.py": "ab33619be01fc2d319f90c906cbb6d8293799992e0786839506f825378d449ee",
+            "workboard/planning.py": "7851cfce9a428683ff874aed61c2ec4ebb192ac9b04e4daff7d9a3ed405f5296"
+          },
+          "max_python_file_lines": 25,
+          "python_files": 4,
+          "cache_responses": [
+            {
+              "index": 1,
+              "response_id": "resp_0cf373b85714d72b016aea9dbe32b087d0b87ec8abac3ce914",
+              "status": "completed",
+              "model": "gpt-6.1-sol",
+              "effort": "xhigh",
+              "tier": "default",
+              "input": 743,
+              "cached": 0,
+              "output": 18,
+              "reasoning": 0,
+              "error": null,
+              "key_echo_matches": true,
+              "rewritten_prior_input": false,
+              "previous_items": 0,
+              "matched_items": 0,
+              "changed_fields": [],
+              "request_sha256": "e767f24ff2ae7eb73e819ff9794607aa8854ba710c8ec1adabde8072ed84d934"
+            }
+          ]
+        },
+        {
+          "runner": "harness",
+          "seconds": 5.169,
+          "timed_out": false,
+          "exit_code": 0,
+          "state": "completed",
+          "model_calls": 1,
+          "tool_calls": 0,
+          "usage": {
+            "input_tokens": 743,
+            "cached_input_tokens": 0,
+            "output_tokens": 18,
+            "reasoning_output_tokens": 0,
+            "uncached_input_tokens": 743,
+            "input_plus_output": 761
+          },
+          "confirmed_model_responses": 1,
+          "observed_tool_actions": 0,
+          "tool_active_minutes": [],
+          "last_tool_started_seconds": 0,
+          "served_models": [
+            "gpt-6.1-sol"
+          ],
+          "served_reasoning_efforts": [
+            "xhigh"
+          ],
+          "errors": [],
+          "usage_complete": true,
+          "trial": 2,
+          "model": "gpt-6.1-sol",
+          "reasoning": "xhigh",
+          "frozen_checks": {
+            "passed": 0,
+            "total": 33,
+            "protected_inputs_unchanged": true,
+            "readme_written": false,
+            "additional_test_files": 0
+          },
+          "frozen_check_failures": [
+            {
+              "test": "test_bad_create_atomic",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_cancel",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_copy_isolation",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_dependencies",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_dependency_gate",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_events_and_export",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_fail_retry",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_heartbeat",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_id_validation",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_idempotency",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_invalid_claim_does_not_reap",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_lease_ownership",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_priority_and_availability",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_random_priority_order",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_reap_boundary_and_budget",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_record_schema",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_restart_and_compact",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_transaction_rollback",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_transaction_visibility",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_unknown_and_list",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_aggregate",
+              "error": "NotImplementedError: "
+            },
+            {
+              "test": "test_aggregate_empty_invalid",
+              "error": "NotImplementedError: "
+            },
+            {
+              "test": "test_join_left_and_collision",
+              "error": "NotImplementedError: "
+            },
+            {
+              "test": "test_join_many_to_many",
+              "error": "NotImplementedError: "
+            },
+            {
+              "test": "test_logic_validation",
+              "error": "NotImplementedError: "
+            },
+            {
+              "test": "test_predicates",
+              "error": "NotImplementedError: "
+            },
+            {
+              "test": "test_query_filter_copy",
+              "error": "NotImplementedError: "
+            },
+            {
+              "test": "test_query_sort_projection",
+              "error": "NotImplementedError: "
+            },
+            {
+              "test": "test_random_sort",
+              "error": "NotImplementedError: "
+            },
+            {
+              "test": "test_invalid_graph",
+              "error": "NotImplementedError: "
+            },
+            {
+              "test": "test_layers_and_blocked",
+              "error": "NotImplementedError: "
+            },
+            {
+              "test": "test_cli_batch_rollback",
+              "error": "1 != 0 : /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named workboard.__main__; 'workboard' is a package and cannot be directly executed\n"
+            },
+            {
+              "test": "test_cli_roundtrip_errors",
+              "error": "1 != 0 : /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named workboard.__main__; 'workboard' is a package and cannot be directly executed\n"
+            }
+          ],
+          "quality_original": {
+            "passed": 0,
+            "total": 17,
+            "failures": [
+              {
+                "test": "test_all_methods_reject_closed_store",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_completion_validation_and_copy",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_expired_owned_operations_do_not_reap",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_expression_validation_reaches_short_circuited_branch",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_historical_event_record_validation",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_history_matches_current_job",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_invalid_specs_rejected_even_on_empty_input",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_join_and_aggregate_reject_container_keys",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_lease_token_not_reused_after_rollback_restart",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_malformed_store_is_not_replaced",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_mutation_io_failure_rolls_back",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_overflow_is_atomic",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_projection_and_join_results_are_deep_copies",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_sort_null_direction_and_stable_ties",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_staged_export_not_committed_on_rollback",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_transaction_io_failure_rolls_back",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_unmatched_join_field_does_not_collide",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              }
+            ]
+          },
+          "quality_corrected": {
+            "passed": 0,
+            "total": 17,
+            "failures": [
+              {
+                "test": "test_all_methods_reject_closed_store",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_completion_validation_and_copy",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_expired_owned_operations_do_not_reap",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_expression_validation_reaches_short_circuited_branch",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_historical_event_record_validation",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_history_matches_current_job",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_invalid_specs_rejected_even_on_empty_input",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_join_and_aggregate_reject_container_keys",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_lease_token_not_reused_after_rollback_restart",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_malformed_store_is_not_replaced",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_mutation_io_failure_rolls_back",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_overflow_is_atomic",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_projection_and_join_results_are_deep_copies",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_sort_null_direction_and_stable_ties",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_staged_export_not_committed_on_rollback",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_transaction_io_failure_rolls_back",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_unmatched_join_field_does_not_collide",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              }
+            ],
+            "unscored_ambiguity": [
+              {
+                "test": "observe_idempotency_changed_dependencies_conflict",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              }
+            ]
+          },
+          "own_tests": {
+            "returncode": 1,
+            "passed": false,
+            "tests": 4
+          },
+          "own_test_failures": [
+            "ERROR: test_claim (test_smoke.Smoke)",
+            "ERROR: test_plan (test_smoke.Smoke)",
+            "ERROR: test_query (test_smoke.Smoke)",
+            "ERROR: test_transaction (test_smoke.Smoke)"
+          ],
+          "workspace_unchanged_by_audit": true,
+          "source_sha256": {
+            "README.md": "f9af2e301856744dd995cd4b1d1d08f5cd5982685e96c5dad63979133c29513c",
+            "tests/test_smoke.py": "fb6867aa47ff9e5a21dbe28ce2b6f631ae3eeb2f9a7a34d6f32d4190e335648c",
+            "workboard/query.py": "7b78c3d444cda9ada1f0a221c36e5466c03817c4407261b728fe879b7be6766d",
+            "workboard/__init__.py": "ab33619be01fc2d319f90c906cbb6d8293799992e0786839506f825378d449ee",
+            "workboard/planning.py": "7851cfce9a428683ff874aed61c2ec4ebb192ac9b04e4daff7d9a3ed405f5296"
+          },
+          "max_python_file_lines": 25,
+          "python_files": 4,
+          "cache_responses": [
+            {
+              "index": 1,
+              "response_id": "resp_049a06cedc025cca016aea9dbf55e887d0bd23efc0e3b2c2b7",
+              "status": "completed",
+              "model": "gpt-6.1-sol",
+              "effort": "xhigh",
+              "tier": "default",
+              "input": 743,
+              "cached": 0,
+              "output": 18,
+              "reasoning": 0,
+              "error": null,
+              "key_echo_matches": true,
+              "rewritten_prior_input": false,
+              "previous_items": 0,
+              "matched_items": 0,
+              "changed_fields": [],
+              "request_sha256": "91ca8ed07d788c347a1dcad83cf85514e22c3277faa787ddcae74381680c2735"
+            }
+          ]
+        },
+        {
+          "runner": "harness",
+          "seconds": 4.168,
+          "timed_out": false,
+          "exit_code": 0,
+          "state": "completed",
+          "model_calls": 1,
+          "tool_calls": 0,
+          "usage": {
+            "input_tokens": 743,
+            "cached_input_tokens": 0,
+            "output_tokens": 18,
+            "reasoning_output_tokens": 0,
+            "uncached_input_tokens": 743,
+            "input_plus_output": 761
+          },
+          "confirmed_model_responses": 1,
+          "observed_tool_actions": 0,
+          "tool_active_minutes": [],
+          "last_tool_started_seconds": 0,
+          "served_models": [
+            "gpt-6.1-sol"
+          ],
+          "served_reasoning_efforts": [
+            "xhigh"
+          ],
+          "errors": [],
+          "usage_complete": true,
+          "trial": 3,
+          "model": "gpt-6.1-sol",
+          "reasoning": "xhigh",
+          "frozen_checks": {
+            "passed": 0,
+            "total": 33,
+            "protected_inputs_unchanged": true,
+            "readme_written": false,
+            "additional_test_files": 0
+          },
+          "frozen_check_failures": [
+            {
+              "test": "test_bad_create_atomic",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_cancel",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_copy_isolation",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_dependencies",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_dependency_gate",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_events_and_export",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_fail_retry",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_heartbeat",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_id_validation",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_idempotency",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_invalid_claim_does_not_reap",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_lease_ownership",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_priority_and_availability",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_random_priority_order",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_reap_boundary_and_budget",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_record_schema",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_restart_and_compact",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_transaction_rollback",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_transaction_visibility",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_unknown_and_list",
+              "error": "NotImplementedError: Implement SPEC.md"
+            },
+            {
+              "test": "test_aggregate",
+              "error": "NotImplementedError: "
+            },
+            {
+              "test": "test_aggregate_empty_invalid",
+              "error": "NotImplementedError: "
+            },
+            {
+              "test": "test_join_left_and_collision",
+              "error": "NotImplementedError: "
+            },
+            {
+              "test": "test_join_many_to_many",
+              "error": "NotImplementedError: "
+            },
+            {
+              "test": "test_logic_validation",
+              "error": "NotImplementedError: "
+            },
+            {
+              "test": "test_predicates",
+              "error": "NotImplementedError: "
+            },
+            {
+              "test": "test_query_filter_copy",
+              "error": "NotImplementedError: "
+            },
+            {
+              "test": "test_query_sort_projection",
+              "error": "NotImplementedError: "
+            },
+            {
+              "test": "test_random_sort",
+              "error": "NotImplementedError: "
+            },
+            {
+              "test": "test_invalid_graph",
+              "error": "NotImplementedError: "
+            },
+            {
+              "test": "test_layers_and_blocked",
+              "error": "NotImplementedError: "
+            },
+            {
+              "test": "test_cli_batch_rollback",
+              "error": "1 != 0 : /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named workboard.__main__; 'workboard' is a package and cannot be directly executed\n"
+            },
+            {
+              "test": "test_cli_roundtrip_errors",
+              "error": "1 != 0 : /Applications/Xcode.app/Contents/Developer/usr/bin/python3: No module named workboard.__main__; 'workboard' is a package and cannot be directly executed\n"
+            }
+          ],
+          "quality_original": {
+            "passed": 0,
+            "total": 17,
+            "failures": [
+              {
+                "test": "test_all_methods_reject_closed_store",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_completion_validation_and_copy",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_expired_owned_operations_do_not_reap",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_expression_validation_reaches_short_circuited_branch",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_historical_event_record_validation",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_history_matches_current_job",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_invalid_specs_rejected_even_on_empty_input",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_join_and_aggregate_reject_container_keys",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_lease_token_not_reused_after_rollback_restart",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_malformed_store_is_not_replaced",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_mutation_io_failure_rolls_back",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_overflow_is_atomic",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_projection_and_join_results_are_deep_copies",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_sort_null_direction_and_stable_ties",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_staged_export_not_committed_on_rollback",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_transaction_io_failure_rolls_back",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_unmatched_join_field_does_not_collide",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              }
+            ]
+          },
+          "quality_corrected": {
+            "passed": 0,
+            "total": 17,
+            "failures": [
+              {
+                "test": "test_all_methods_reject_closed_store",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_completion_validation_and_copy",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_expired_owned_operations_do_not_reap",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_expression_validation_reaches_short_circuited_branch",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_historical_event_record_validation",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_history_matches_current_job",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_invalid_specs_rejected_even_on_empty_input",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_join_and_aggregate_reject_container_keys",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_lease_token_not_reused_after_rollback_restart",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_malformed_store_is_not_replaced",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_mutation_io_failure_rolls_back",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_overflow_is_atomic",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_projection_and_join_results_are_deep_copies",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_sort_null_direction_and_stable_ties",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_staged_export_not_committed_on_rollback",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_transaction_io_failure_rolls_back",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              },
+              {
+                "test": "test_unmatched_join_field_does_not_collide",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              }
+            ],
+            "unscored_ambiguity": [
+              {
+                "test": "observe_idempotency_changed_dependencies_conflict",
+                "passed": false,
+                "error": "NotImplementedError: Implement SPEC.md"
+              }
+            ]
+          },
+          "own_tests": {
+            "returncode": 1,
+            "passed": false,
+            "tests": 4
+          },
+          "own_test_failures": [
+            "ERROR: test_claim (test_smoke.Smoke)",
+            "ERROR: test_plan (test_smoke.Smoke)",
+            "ERROR: test_query (test_smoke.Smoke)",
+            "ERROR: test_transaction (test_smoke.Smoke)"
+          ],
+          "workspace_unchanged_by_audit": true,
+          "source_sha256": {
+            "README.md": "f9af2e301856744dd995cd4b1d1d08f5cd5982685e96c5dad63979133c29513c",
+            "tests/test_smoke.py": "fb6867aa47ff9e5a21dbe28ce2b6f631ae3eeb2f9a7a34d6f32d4190e335648c",
+            "workboard/query.py": "7b78c3d444cda9ada1f0a221c36e5466c03817c4407261b728fe879b7be6766d",
+            "workboard/__init__.py": "ab33619be01fc2d319f90c906cbb6d8293799992e0786839506f825378d449ee",
+            "workboard/planning.py": "7851cfce9a428683ff874aed61c2ec4ebb192ac9b04e4daff7d9a3ed405f5296"
+          },
+          "max_python_file_lines": 25,
+          "python_files": 4,
+          "cache_responses": [
+            {
+              "index": 1,
+              "response_id": "resp_0b12ee06f7d119e5016aea9dbe34d487d09e6ab8820ad26420",
+              "status": "completed",
+              "model": "gpt-6.1-sol",
+              "effort": "xhigh",
+              "tier": "default",
+              "input": 743,
+              "cached": 0,
+              "output": 18,
+              "reasoning": 0,
+              "error": null,
+              "key_echo_matches": true,
+              "rewritten_prior_input": false,
+              "previous_items": 0,
+              "matched_items": 0,
+              "changed_fields": [],
+              "request_sha256": "4deac9927ddf5b3a9305f6d16f83bc409985414896b3723d101f0b14de627603"
+            }
+          ]
+        }
+      ],
+      "preflights": [
+        {
+          "runner": "harness",
+          "seconds": 4.887,
+          "timed_out": false,
+          "exit_code": 0,
+          "state": "completed",
+          "model_calls": 1,
+          "tool_calls": 0,
+          "usage": {
+            "input_tokens": 639,
+            "cached_input_tokens": 0,
+            "output_tokens": 48,
+            "reasoning_output_tokens": 41
+          },
+          "confirmed_model_responses": 1,
+          "observed_tool_actions": 0,
+          "tool_active_minutes": [],
+          "last_tool_started_seconds": 0,
+          "served_models": [
+            "gpt-6.1-sol"
+          ],
+          "served_reasoning_efforts": [
+            "xhigh"
+          ],
+          "errors": [],
+          "usage_complete": true
+        },
+        {
+          "runner": "codex",
+          "seconds": 5.024,
+          "timed_out": false,
+          "exit_code": 0,
+          "state": "completed",
+          "reported_model": "gpt-6.1-sol",
+          "failure": null,
+          "usage": {
+            "input_tokens": 10733,
+            "output_tokens": 18,
+            "cached_input_tokens": 3328,
+            "reasoning_output_tokens": 11
+          },
+          "confirmed_model_responses": 1,
+          "observed_tool_actions": 0,
+          "tool_active_minutes": [],
+          "last_tool_started_seconds": 0,
+          "served_models": [],
+          "served_reasoning_efforts": [],
+          "errors": [],
+          "usage_complete": true
+        }
+      ]
+    },
+    "fixed": {
+      "manifest": {
+        "model": "gpt-6.1-sol",
+        "reasoning": "xhigh",
+        "duration_seconds": 600,
+        "repetitions": 3,
+        "same_service_route": true,
+        "codex_wire_request": {
+          "model": "gpt-6.1-sol",
+          "reasoning": {
+            "effort": "xhigh",
+            "context": "all_turns"
+          },
+          "store": false,
+          "stream": true
+        },
+        "endpoint": "https://api.openai.com/v1/responses",
+        "prompt_sha256": "beaebfe35323ba1b9f3525f5e7423389e9ca0a6e9ba1a3038ab024bead417d9e",
+        "spec_sha256": "e63c2c104b8a4698b6c78e0a741d638b8d163248ab916ab96cff7e73d3911801",
+        "grader_sha256": "c20a46c7a84d7464d795abebc39d6148edbeea67936c0f6fbee626b7fd73d200",
+        "cutoff_disclosed_to_model": false,
+        "followup_prompts": 0,
+        "codex_version": "codex-cli 0.164.0"
+      },
+      "trials": [
+        {
+          "runner": "codex",
+          "seconds": 600.03,
+          "timed_out": true,
+          "exit_code": 0,
+          "state": "interrupted",
+          "reported_model": "gpt-6.1-sol",
+          "failure": null,
+          "usage": {
+            "input_tokens": 185639,
+            "output_tokens": 25259,
+            "cached_input_tokens": 157440,
+            "reasoning_output_tokens": 4096,
+            "uncached_input_tokens": 28199,
+            "input_plus_output": 210898
+          },
+          "confirmed_model_responses": 9,
+          "observed_tool_actions": 12,
+          "tool_active_minutes": [
+            0,
+            2,
+            3,
+            5,
+            6,
+            9
+          ],
+          "last_tool_started_seconds": 584.925,
+          "served_models": [],
+          "served_reasoning_efforts": [],
+          "errors": [],
+          "usage_complete": false,
+          "trial": 1,
+          "model": "gpt-6.1-sol",
+          "reasoning": "xhigh",
+          "frozen_checks": {
+            "passed": 33,
+            "total": 33,
+            "protected_inputs_unchanged": true,
+            "readme_written": false,
+            "additional_test_files": 1
+          },
+          "frozen_check_failures": [],
+          "quality_original": {
+            "passed": 16,
+            "total": 17,
+            "failures": [
+              {
+                "test": "test_history_matches_current_job",
+                "passed": false,
+                "error": "KeyError: 0"
+              }
+            ]
+          },
+          "quality_corrected": {
+            "passed": 17,
+            "total": 17,
+            "failures": [],
+            "unscored_ambiguity": [
+              {
+                "test": "observe_idempotency_changed_dependencies_conflict",
+                "passed": false,
+                "error": "NotFound: 'absent'"
+              }
+            ]
+          },
+          "own_tests": {
+            "returncode": 0,
+            "passed": true,
+            "tests": 23
+          },
+          "own_test_failures": [],
+          "workspace_unchanged_by_audit": true,
+          "source_sha256": {
+            "README.md": "f9af2e301856744dd995cd4b1d1d08f5cd5982685e96c5dad63979133c29513c",
+            "tests/test_smoke.py": "fb6867aa47ff9e5a21dbe28ce2b6f631ae3eeb2f9a7a34d6f32d4190e335648c",
+            "tests/test_store.py": "44cc056c1313eadc0f318c3f5ed89984d79b1d974679e3b44a900026d032c01c",
+            "workboard/store.py": "c7257b10a2c8cf06194037140820168d793bab0be1b35788fb1476f0004d9fc7",
+            "workboard/query.py": "2a5f9341f5f6566174fb63d99184183dca08cb24a445a4c054f0d51309b500a6",
+            "workboard/__init__.py": "7cef0be7cec96a6e8124f3ba77c26da93dcc17ccdef21de232856129cc822287",
+            "workboard/cli.py": "9f83c91fa87d3062e4969f1277773080229b2dea50fd0f21ac3af64092711f49",
+            "workboard/storage.py": "b37aff95c174cd053e18ac3ebc17dca825a7cec5e6b0b4c7d25416af21059b34",
+            "workboard/planning.py": "dc7baae299380712e84c8b978d4573c709dc66d5018b4ce5f01a48c62fb84117",
+            "workboard/errors.py": "cb9585a3829dfea2c350260e1f8e558ef8601b9caabba2f86c2142f43a0d016a",
+            "workboard/__main__.py": "27523d9c60570e293b798c2e3ca81a1683f92d42ef984ea6a36bace164e51423",
+            "workboard/validation.py": "f10fb3c35c34db009fd236386594e6425e92536dee63bef1aceeeb25fa8bb9f2"
+          },
+          "max_python_file_lines": 429,
+          "python_files": 11
+        },
+        {
+          "runner": "codex",
+          "seconds": 600.033,
+          "timed_out": true,
+          "exit_code": 0,
+          "state": "interrupted",
+          "reported_model": "gpt-6.1-sol",
+          "failure": null,
+          "usage": {
+            "input_tokens": 190775,
+            "output_tokens": 26080,
+            "cached_input_tokens": 161024,
+            "reasoning_output_tokens": 4902,
+            "uncached_input_tokens": 29751,
+            "input_plus_output": 216855
+          },
+          "confirmed_model_responses": 9,
+          "observed_tool_actions": 10,
+          "tool_active_minutes": [
+            0,
+            1,
+            2,
+            4,
+            6,
+            7,
+            9
+          ],
+          "last_tool_started_seconds": 573.8,
+          "served_models": [],
+          "served_reasoning_efforts": [],
+          "errors": [],
+          "usage_complete": false,
+          "trial": 2,
+          "model": "gpt-6.1-sol",
+          "reasoning": "xhigh",
+          "frozen_checks": {
+            "passed": 33,
+            "total": 33,
+            "protected_inputs_unchanged": true,
+            "readme_written": false,
+            "additional_test_files": 1
+          },
+          "frozen_check_failures": [],
+          "quality_original": {
+            "passed": 16,
+            "total": 17,
+            "failures": [
+              {
+                "test": "test_history_matches_current_job",
+                "passed": false,
+                "error": "KeyError: 0"
+              }
+            ]
+          },
+          "quality_corrected": {
+            "passed": 17,
+            "total": 17,
+            "failures": [],
+            "unscored_ambiguity": [
+              {
+                "test": "observe_idempotency_changed_dependencies_conflict",
+                "passed": false,
+                "error": "NotFound: 'absent'"
+              }
+            ]
+          },
+          "own_tests": {
+            "returncode": 1,
+            "passed": false,
+            "tests": 24
+          },
+          "own_test_failures": [
+            "ERROR: test_heartbeat_never_shortens_and_expiry_is_exclusive (test_store.StoreTests)",
+            "TypeError: 'NoneType' object is not subscriptable"
+          ],
+          "workspace_unchanged_by_audit": true,
+          "source_sha256": {
+            "README.md": "f9af2e301856744dd995cd4b1d1d08f5cd5982685e96c5dad63979133c29513c",
+            "tests/test_smoke.py": "fb6867aa47ff9e5a21dbe28ce2b6f631ae3eeb2f9a7a34d6f32d4190e335648c",
+            "tests/test_store.py": "55aa6fa2d700eed15eb97db07512230df02bb0298439fd3ea61150337e6d1329",
+            "workboard/store.py": "a30d1ad9c16d1ce3989843882961ac73d872073a8d7d5e92b30479b9fa08a4e0",
+            "workboard/query.py": "ca3e0c3a8a362f9272f29f4c8f496cdef4798b059b22935b35260d2f738fb2a6",
+            "workboard/__init__.py": "a70b8450edb3ccd7c90f83701e314e3ca803de11845996dee848b96c5a49ca39",
+            "workboard/model.py": "d15724ab988e9032c3001b1054ef4086297960165bf30cba4d8df65fe40fbf63",
+            "workboard/cli.py": "80371f9f1f3c025142fe56bea47f230c8e48547cc97d3dab3cae55c148910951",
+            "workboard/storage.py": "c6632a3f2bde7deef5186c4c1df4af45d3fb3d5de3afd62dc29e5c4d95587c1c",
+            "workboard/planning.py": "68a80d32b14f1159f4ab80707df24924ebd89c70448cc8f0e4902068cf15a255",
+            "workboard/errors.py": "06f0e1feb410c55a459fbaa4a8aad5168f5049c18d34d8dad6b39105a04c99ea",
+            "workboard/__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+            "workboard/validation.py": "02a31900123ce9a613e73b7b1f515b0cbd21ceec0574cab36a496304c15ab367"
+          },
+          "max_python_file_lines": 361,
+          "python_files": 12
+        },
+        {
+          "runner": "codex",
+          "seconds": 600.018,
+          "timed_out": true,
+          "exit_code": 0,
+          "state": "interrupted",
+          "reported_model": "gpt-6.1-sol",
+          "failure": null,
+          "usage": {
+            "input_tokens": 180034,
+            "output_tokens": 25669,
+            "cached_input_tokens": 155520,
+            "reasoning_output_tokens": 4040,
+            "uncached_input_tokens": 24514,
+            "input_plus_output": 205703
+          },
+          "confirmed_model_responses": 9,
+          "observed_tool_actions": 11,
+          "tool_active_minutes": [
+            0,
+            2,
+            4,
+            5,
+            6,
+            9
+          ],
+          "last_tool_started_seconds": 567.796,
+          "served_models": [],
+          "served_reasoning_efforts": [],
+          "errors": [],
+          "usage_complete": false,
+          "trial": 3,
+          "model": "gpt-6.1-sol",
+          "reasoning": "xhigh",
+          "frozen_checks": {
+            "passed": 33,
+            "total": 33,
+            "protected_inputs_unchanged": true,
+            "readme_written": false,
+            "additional_test_files": 1
+          },
+          "frozen_check_failures": [],
+          "quality_original": {
+            "passed": 17,
+            "total": 17,
+            "failures": []
+          },
+          "quality_corrected": {
+            "passed": 17,
+            "total": 17,
+            "failures": [],
+            "unscored_ambiguity": [
+              {
+                "test": "observe_idempotency_changed_dependencies_conflict",
+                "passed": true
+              }
+            ]
+          },
+          "own_tests": {
+            "returncode": 1,
+            "passed": false,
+            "tests": 28
+          },
+          "own_test_failures": [
+            "ERROR: test_ownership_heartbeat_boundaries_and_no_implicit_reap (test_store.StoreTests)",
+            "TypeError: 'NoneType' object is not subscriptable"
+          ],
+          "workspace_unchanged_by_audit": true,
+          "source_sha256": {
+            "README.md": "f9af2e301856744dd995cd4b1d1d08f5cd5982685e96c5dad63979133c29513c",
+            "tests/test_smoke.py": "fb6867aa47ff9e5a21dbe28ce2b6f631ae3eeb2f9a7a34d6f32d4190e335648c",
+            "tests/test_store.py": "96ae4c7ebc4b8bbddaa2c53701677c0db7307b31e3a29646416a7b844979b558",
+            "workboard/store.py": "eaf85e5c2624993a2b4f0d3810ff07051ad27c4fb2f3e9f0fd274e08b2fecfd9",
+            "workboard/persistence.py": "04f7d12f68cb6972e2b9a6e710a59742bd9c8570b58af287175126da562fb055",
+            "workboard/query.py": "c830a63e63be498f086664cbd270f8a258f33e4189ccde3d5d37201b4ca34988",
+            "workboard/__init__.py": "7cef0be7cec96a6e8124f3ba77c26da93dcc17ccdef21de232856129cc822287",
+            "workboard/cli.py": "e1041d4eb12624dd9ba82388da373e1d5a761decb6f05fc1de852ac73451a884",
+            "workboard/planning.py": "e134cd86fcd115298e2319bf923ef4a012797fac469a783d6075adc3c1003b49",
+            "workboard/errors.py": "3f1154b4118eb0408507a41624fd140b018a906eb4ec8c320ad335276259f7eb",
+            "workboard/__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+            "workboard/validation.py": "46de2d6dfdb4b99fa1b9c27ed30e1c4d7c5df2993c35993e7f5601e2ff12896f"
+          },
+          "max_python_file_lines": 437,
+          "python_files": 11
+        },
+        {
+          "runner": "harness",
+          "seconds": 600.075,
+          "timed_out": true,
+          "exit_code": 1,
+          "state": "stopped",
+          "model_calls": 13,
+          "tool_calls": 26,
+          "usage": {
+            "input_tokens": 171825,
+            "cached_input_tokens": 163456,
+            "output_tokens": 25938,
+            "reasoning_output_tokens": 5192,
+            "uncached_input_tokens": 8369,
+            "input_plus_output": 197763
+          },
+          "confirmed_model_responses": 12,
+          "observed_tool_actions": 26,
+          "tool_active_minutes": [
+            0,
+            1,
+            3,
+            5,
+            6,
+            8,
+            9
+          ],
+          "last_tool_started_seconds": 593.846,
+          "served_models": [
+            "gpt-6.1-sol"
+          ],
+          "served_reasoning_efforts": [
+            "xhigh"
+          ],
+          "errors": [
+            {
+              "error": "model returned after cancellation or deadline"
+            }
+          ],
+          "usage_complete": false,
+          "trial": 1,
+          "model": "gpt-6.1-sol",
+          "reasoning": "xhigh",
+          "frozen_checks": {
+            "passed": 33,
+            "total": 33,
+            "protected_inputs_unchanged": true,
+            "readme_written": false,
+            "additional_test_files": 3
+          },
+          "frozen_check_failures": [],
+          "quality_original": {
+            "passed": 16,
+            "total": 17,
+            "failures": [
+              {
+                "test": "test_history_matches_current_job",
+                "passed": false,
+                "error": "KeyError: 0"
+              }
+            ]
+          },
+          "quality_corrected": {
+            "passed": 17,
+            "total": 17,
+            "failures": [],
+            "unscored_ambiguity": [
+              {
+                "test": "observe_idempotency_changed_dependencies_conflict",
+                "passed": true
+              }
+            ]
+          },
+          "own_tests": {
+            "returncode": 1,
+            "passed": false,
+            "tests": 31
+          },
+          "own_test_failures": [
+            "ERROR: test_lease_ownership_heartbeat_boundary_and_no_implicit_reap (test_store.StoreTests)",
+            "TypeError: 'NoneType' object is not subscriptable"
+          ],
+          "workspace_unchanged_by_audit": true,
+          "source_sha256": {
+            "README.md": "f9af2e301856744dd995cd4b1d1d08f5cd5982685e96c5dad63979133c29513c",
+            "tests/test_smoke.py": "fb6867aa47ff9e5a21dbe28ce2b6f631ae3eeb2f9a7a34d6f32d4190e335648c",
+            "tests/test_store.py": "c224305927a6105fb2c5a3c59bd09a0f211cd2e6cdde81157d8ac1ce2626193f",
+            "tests/test_query.py": "4e91c44b7b02b50e5c779753636af804d52d9907a969a2ec05649780e59ffecc",
+            "tests/test_planning.py": "710916fedc73d7e85aefac97486a693e46261089bce405fe1eec62eb9b4d1792",
+            "workboard/store.py": "5c0181a36db8f19c1a4119902edcae96b962c27edba613a9e25ba72e0beb7256",
+            "workboard/persistence.py": "6bb74c3cf8ea3b730749a3e78f04f7d0e6ed1cbf2556b250f30968fccc05441f",
+            "workboard/query.py": "d54c9550f124d0f7aee36bfad4e1cba19283274c9998b89d30139c22e892b652",
+            "workboard/__init__.py": "a17b3d71e177ad206ecb51aea74c2bcdeb2739a9a72d262e1a346d466f085ea5",
+            "workboard/planning.py": "89c131047f494c547dcb8d999f619a1ca1232595996aff97aa36e14e466dceb0",
+            "workboard/errors.py": "1946a791b85af9f854fb1dbd1bb277ae5a68cd0c9f6a28df01a6144d3ca94212",
+            "workboard/__main__.py": "146fbd61628ba87d9e5c0e346ed6781fd5c3e1c4eac58832c1952de81449be65",
+            "workboard/state.py": "445f2df24e8bc8912cb24d051cebb3edcc0ecd0d92f4f2a098869d8905eca37f",
+            "workboard/validation.py": "e2e249f6f2e278a100abbdab21cdbaf834cecbef023fa510b627735486e65e15"
+          },
+          "max_python_file_lines": 353,
+          "python_files": 13,
+          "cache_responses": [
+            {
+              "index": 1,
+              "response_id": "resp_01f07d7c77f9b567016aeaa0484ab487d0b8c57ce122ba204d",
+              "status": "completed",
+              "model": "gpt-6.1-sol",
+              "effort": "xhigh",
+              "tier": "default",
+              "input": 743,
+              "cached": 0,
+              "output": 18,
+              "reasoning": 0,
+              "error": null,
+              "key_echo_matches": true,
+              "rewritten_prior_input": false,
+              "previous_items": 0,
+              "matched_items": 0,
+              "changed_fields": [],
+              "request_sha256": "f6a47ec5dd7f0c35d9bcbdf16be52f1d4e85b9ff7bd943bd4edd49f902625d41"
+            },
+            {
+              "index": 2,
+              "response_id": "resp_01f07d7c77f9b567016aeaa04c043487d0b86d5d27c9e6eac2",
+              "status": "completed",
+              "model": "gpt-6.1-sol",
+              "effort": "xhigh",
+              "tier": "default",
+              "input": 803,
+              "cached": 0,
+              "output": 91,
+              "reasoning": 0,
+              "error": null,
+              "key_echo_matches": true,
+              "rewritten_prior_input": false,
+              "previous_items": 1,
+              "matched_items": 1,
+              "changed_fields": [],
+              "request_sha256": "6ee009f1002a8919f7b35387dedbdec26abfa4a156ee1b86d8d1728013415dc5"
+            },
+            {
+              "index": 3,
+              "response_id": "resp_01f07d7c77f9b567016aeaa0515f2887d08517858e888785f6",
+              "status": "completed",
+              "model": "gpt-6.1-sol",
+              "effort": "xhigh",
+              "tier": "default",
+              "input": 4030,
+              "cached": 0,
+              "output": 116,
+              "reasoning": 0,
+              "error": null,
+              "key_echo_matches": true,
+              "rewritten_prior_input": false,
+              "previous_items": 3,
+              "matched_items": 3,
+              "changed_fields": [],
+              "request_sha256": "f7f4564bb3af802454d8ecc2b9ea448fbf4742824f6ed99015c956fe4d43caf0"
+            },
+            {
+              "index": 4,
+              "response_id": "resp_01f07d7c77f9b567016aeaa057418487d08ad1c7ac5ea4ab17",
+              "status": "completed",
+              "model": "gpt-6.1-sol",
+              "effort": "xhigh",
+              "tier": "default",
+              "input": 4961,
+              "cached": 3968,
+              "output": 4051,
+              "reasoning": 2006,
+              "error": null,
+              "key_echo_matches": true,
+              "rewritten_prior_input": false,
+              "previous_items": 11,
+              "matched_items": 11,
+              "changed_fields": [],
+              "request_sha256": "e8077026b97cb49e865050abea226ea2f126f0fd7e7c629a2203cfe73db97155"
+            },
+            {
+              "index": 5,
+              "response_id": "resp_01f07d7c77f9b567016aeaa0b3e9fc87d0993bfcec694fe4e7",
+              "status": "completed",
+              "model": "gpt-6.1-sol",
+              "effort": "xhigh",
+              "tier": "default",
+              "input": 9116,
+              "cached": 8832,
+              "output": 5108,
+              "reasoning": 516,
+              "error": null,
+              "key_echo_matches": true,
+              "rewritten_prior_input": false,
+              "previous_items": 19,
+              "matched_items": 19,
+              "changed_fields": [],
+              "request_sha256": "fe23175e1c97c7f1c91b2c1b74ebd8c5bfab2d4c873fec23c55af003ea730b52"
+            },
+            {
+              "index": 6,
+              "response_id": "resp_01f07d7c77f9b567016aeaa11e131c87d0bb134ad63e0fff3c",
+              "status": "completed",
+              "model": "gpt-6.1-sol",
+              "effort": "xhigh",
+              "tier": "default",
+              "input": 14278,
+              "cached": 14080,
+              "output": 4588,
+              "reasoning": 516,
+              "error": null,
+              "key_echo_matches": true,
+              "rewritten_prior_input": false,
+              "previous_items": 32,
+              "matched_items": 32,
+              "changed_fields": [],
+              "request_sha256": "f9fc52cd298949825889a149d88804f63eacdf7d47bd3abc2c6f1edcd74a1a49"
+            },
+            {
+              "index": 7,
+              "response_id": "resp_01f07d7c77f9b567016aeaa17e264087d094a8f345bc30d528",
+              "status": "completed",
+              "model": "gpt-6.1-sol",
+              "effort": "xhigh",
+              "tier": "default",
+              "input": 18946,
+              "cached": 18688,
+              "output": 38,
+              "reasoning": 0,
+              "error": null,
+              "key_echo_matches": true,
+              "rewritten_prior_input": false,
+              "previous_items": 37,
+              "matched_items": 37,
+              "changed_fields": [],
+              "request_sha256": "7399bdf92c4a6f828f85f14e162dd2ed9af0e45b25362ea9b7952fa7924f9fe8"
+            },
+            {
+              "index": 8,
+              "response_id": "resp_01f07d7c77f9b567016aeaa182f29887d086f7018ab5eca031",
+              "status": "completed",
+              "model": "gpt-6.1-sol",
+              "effort": "xhigh",
+              "tier": "default",
+              "input": 19148,
+              "cached": 18816,
+              "output": 1641,
+              "reasoning": 1552,
+              "error": null,
+              "key_echo_matches": true,
+              "rewritten_prior_input": false,
+              "previous_items": 44,
+              "matched_items": 44,
+              "changed_fields": [],
+              "request_sha256": "eef50b3c8d0acdc0d03cc9cec2acbec7d3d2d5b8b9218392bb181aadc2ecbb2c"
+            },
+            {
+              "index": 9,
+              "response_id": "resp_01f07d7c77f9b567016aeaa1b79ee087d0aac8410dd84c9b22",
+              "status": "completed",
+              "model": "gpt-6.1-sol",
+              "effort": "xhigh",
+              "tier": "default",
+              "input": 20849,
+              "cached": 20608,
+              "output": 270,
+              "reasoning": 0,
+              "error": null,
+              "key_echo_matches": true,
+              "rewritten_prior_input": false,
+              "previous_items": 46,
+              "matched_items": 46,
+              "changed_fields": [],
+              "request_sha256": "4559e7af71776cb4460fe74bd74525f21b274c2beeceeb114d5a743be51e5ba2"
+            },
+            {
+              "index": 10,
+              "response_id": "resp_01f07d7c77f9b567016aeaa1c2765487d0a7d96f1ce5afef2b",
+              "status": "completed",
+              "model": "gpt-6.1-sol",
+              "effort": "xhigh",
+              "tier": "default",
+              "input": 21173,
+              "cached": 20992,
+              "output": 5463,
+              "reasoning": 392,
+              "error": null,
+              "key_echo_matches": true,
+              "rewritten_prior_input": false,
+              "previous_items": 52,
+              "matched_items": 52,
+              "changed_fields": [],
+              "request_sha256": "46b5cc01f640caa2d9ec45a242acc875413e215851ebb44869aa2869d63c06ce"
+            },
+            {
+              "index": 11,
+              "response_id": "resp_01f07d7c77f9b567016aeaa233258887d08fa1463da3e13240",
+              "status": "completed",
+              "model": "gpt-6.1-sol",
+              "effort": "xhigh",
+              "tier": "default",
+              "input": 26664,
+              "cached": 26496,
+              "output": 4396,
+              "reasoning": 102,
+              "error": null,
+              "key_echo_matches": true,
+              "rewritten_prior_input": false,
+              "previous_items": 56,
+              "matched_items": 56,
+              "changed_fields": [],
+              "request_sha256": "a71b1bded6f72a4de77504cfa033ea0f1b75eb8dd23341d8c4158abcf57a5eea"
+            },
+            {
+              "index": 12,
+              "response_id": "resp_01f07d7c77f9b567016aeaa292273487d09d58f15296b0f83a",
+              "status": "completed",
+              "model": "gpt-6.1-sol",
+              "effort": "xhigh",
+              "tier": "default",
+              "input": 31114,
+              "cached": 30976,
+              "output": 158,
+              "reasoning": 108,
+              "error": null,
+              "key_echo_matches": true,
+              "rewritten_prior_input": false,
+              "previous_items": 59,
+              "matched_items": 59,
+              "changed_fields": [],
+              "request_sha256": "8508c796925411567b84cd8d0bb22c9e5cb03f466f186369594f90516f556ab1"
+            },
+            {
+              "index": 13,
+              "response_id": null,
+              "status": null,
+              "model": null,
+              "effort": null,
+              "tier": null,
+              "input": null,
+              "cached": null,
+              "output": null,
+              "reasoning": null,
+              "error": {
+                "code": "cancelled",
+                "message": "provider request cancelled"
+              },
+              "key_echo_matches": null,
+              "rewritten_prior_input": false,
+              "previous_items": 64,
+              "matched_items": 64,
+              "changed_fields": [],
+              "request_sha256": "191081ae8a3de8a757d69b3b890601deba34eb28bf1be2eb1fef58c37e8ba9a9"
+            }
+          ]
+        },
+        {
+          "runner": "harness",
+          "seconds": 600.063,
+          "timed_out": true,
+          "exit_code": 1,
+          "state": "stopped",
+          "model_calls": 12,
+          "tool_calls": 22,
+          "usage": {
+            "input_tokens": 147258,
+            "cached_input_tokens": 124800,
+            "output_tokens": 26897,
+            "reasoning_output_tokens": 4949,
+            "uncached_input_tokens": 22458,
+            "input_plus_output": 174155
+          },
+          "confirmed_model_responses": 11,
+          "observed_tool_actions": 22,
+          "tool_active_minutes": [
+            0,
+            2,
+            3,
+            5,
+            7,
+            9
+          ],
+          "last_tool_started_seconds": 599.869,
+          "served_models": [
+            "gpt-6.1-sol"
+          ],
+          "served_reasoning_efforts": [
+            "xhigh"
+          ],
+          "errors": [
+            {
+              "error": "model returned after cancellation or deadline"
+            }
+          ],
+          "usage_complete": false,
+          "trial": 2,
+          "model": "gpt-6.1-sol",
+          "reasoning": "xhigh",
+          "frozen_checks": {
+            "passed": 33,
+            "total": 33,
+            "protected_inputs_unchanged": true,
+            "readme_written": false,
+            "additional_test_files": 4
+          },
+          "frozen_check_failures": [],
+          "quality_original": {
+            "passed": 16,
+            "total": 17,
+            "failures": [
+              {
+                "test": "test_unmatched_join_field_does_not_collide",
+                "passed": false,
+                "error": "ValidationError: join output collides with a left key"
+              }
+            ]
+          },
+          "quality_corrected": {
+            "passed": 16,
+            "total": 17,
+            "failures": [
+              {
+                "test": "test_unmatched_join_field_does_not_collide",
+                "passed": false,
+                "error": "ValidationError: join output collides with a left key"
+              }
+            ],
+            "unscored_ambiguity": [
+              {
+                "test": "observe_idempotency_changed_dependencies_conflict",
+                "passed": true
+              }
+            ]
+          },
+          "own_tests": {
+            "returncode": 1,
+            "passed": false,
+            "tests": 35
+          },
+          "own_test_failures": [
+            "ERROR: test_lease_ownership_boundary_and_heartbeat (test_store.StoreTests)",
+            "TypeError: 'NoneType' object is not subscriptable"
+          ],
+          "workspace_unchanged_by_audit": true,
+          "source_sha256": {
+            "README.md": "f9af2e301856744dd995cd4b1d1d08f5cd5982685e96c5dad63979133c29513c",
+            "tests/test_smoke.py": "fb6867aa47ff9e5a21dbe28ce2b6f631ae3eeb2f9a7a34d6f32d4190e335648c",
+            "tests/test_store.py": "e783660c2b6524ccb160175bc91dade1a70216e3a9f7035a9d8e26516c37a4aa",
+            "tests/test_query.py": "941369d88bafde17882a206ce7f919761b2a82eed6217582210903b0ef14e21f",
+            "tests/test_cli.py": "e5bec2e0562201ff7c3a05914adcf854273646cc423e867e41fa13f6dacf7fe0",
+            "tests/test_planning.py": "c6b9152079f0dde1fcab0c7b0c648f64e3ef8c51d3d906d85e51cd4e339ce6d6",
+            "workboard/store.py": "a7c8495891f3655bbb3164d3c1011a42a82405e8a4a0032ae013377e056224f9",
+            "workboard/persistence.py": "1de9438d89e0961bc4a60017ce86733c4cf955b300ca3b3f8bc53316f13652a1",
+            "workboard/query.py": "6065006556ba0b7b20d802867233906a4d2ec895e0307b9cf906fa11812bd2b7",
+            "workboard/__init__.py": "519ebf7cbcb56e097bbb04da4d24ef79dce9104d0f89e0e2a2e0fedca2cb25cc",
+            "workboard/planning.py": "83b58308d8a41f1bf87f1c5009452b328a59b0768bcd53187c04e2ac00fd87d3",
+            "workboard/errors.py": "2fdfb745c92217304c289b79b20c0ca0410f29dee4aa3e9b8f9bd775f1aff098",
+            "workboard/__main__.py": "bf1920b44340cbd8eba65ec6bca9387511cf0eddf2a55b7a5fa562d947355ace",
+            "workboard/validation.py": "ada1b6d2179d0b48c98f87ceee078fab835016455dace608876f7ad25c8bda82"
+          },
+          "max_python_file_lines": 405,
+          "python_files": 13,
+          "cache_responses": [
+            {
+              "index": 1,
+              "response_id": "resp_08a59f39ce08ced0016aeaa0489a9887d08cbfba9929a15655",
+              "status": "completed",
+              "model": "gpt-6.1-sol",
+              "effort": "xhigh",
+              "tier": "default",
+              "input": 743,
+              "cached": 0,
+              "output": 18,
+              "reasoning": 0,
+              "error": null,
+              "key_echo_matches": true,
+              "rewritten_prior_input": false,
+              "previous_items": 0,
+              "matched_items": 0,
+              "changed_fields": [],
+              "request_sha256": "6297637b9164c0cf5dbf08a9872b90ba258e9f7c27f454c80146afb74a383cf8"
+            },
+            {
+              "index": 2,
+              "response_id": "resp_08a59f39ce08ced0016aeaa04c6f2887d08f30ebdb698d7f87",
+              "status": "completed",
+              "model": "gpt-6.1-sol",
+              "effort": "xhigh",
+              "tier": "default",
+              "input": 803,
+              "cached": 0,
+              "output": 79,
+              "reasoning": 0,
+              "error": null,
+              "key_echo_matches": true,
+              "rewritten_prior_input": false,
+              "previous_items": 1,
+              "matched_items": 1,
+              "changed_fields": [],
+              "request_sha256": "0f37f2da5e7925127829a80995c0974fab98adfc49547eb58239d4f2169fc43d"
+            },
+            {
+              "index": 3,
+              "response_id": "resp_08a59f39ce08ced0016aeaa050e12c87d0ae4fd409da3a4e9e",
+              "status": "completed",
+              "model": "gpt-6.1-sol",
+              "effort": "xhigh",
+              "tier": "default",
+              "input": 4018,
+              "cached": 0,
+              "output": 92,
+              "reasoning": 0,
+              "error": null,
+              "key_echo_matches": true,
+              "rewritten_prior_input": false,
+              "previous_items": 3,
+              "matched_items": 3,
+              "changed_fields": [],
+              "request_sha256": "35454fdca43d1153352ede6b7110c62d0fe1328ce038e4f96ebe82b9828b21fc"
+            },
+            {
+              "index": 4,
+              "response_id": "resp_08a59f39ce08ced0016aeaa056b34087d0aae86172e3dfbb19",
+              "status": "completed",
+              "model": "gpt-6.1-sol",
+              "effort": "xhigh",
+              "tier": "default",
+              "input": 4925,
+              "cached": 3968,
+              "output": 4952,
+              "reasoning": 2913,
+              "error": null,
+              "key_echo_matches": true,
+              "rewritten_prior_input": false,
+              "previous_items": 11,
+              "matched_items": 11,
+              "changed_fields": [],
+              "request_sha256": "3fe4cbd5a6f90082819d0cdce3de47e39ff96d2a035f22a3e36de471691081af"
+            },
+            {
+              "index": 5,
+              "response_id": "resp_08a59f39ce08ced0016aeaa0d066a087d09bea040f4358a6b7",
+              "status": "completed",
+              "model": "gpt-6.1-sol",
+              "effort": "xhigh",
+              "tier": "default",
+              "input": 9981,
+              "cached": 9728,
+              "output": 4573,
+              "reasoning": 0,
+              "error": null,
+              "key_echo_matches": true,
+              "rewritten_prior_input": false,
+              "previous_items": 19,
+              "matched_items": 19,
+              "changed_fields": [],
+              "request_sha256": "0fad26cfaa8a9f51f1a62403be0753fde7340738aa755137ddf70ac2027e3a2e"
+            },
+            {
+              "index": 6,
+              "response_id": "resp_08a59f39ce08ced0016aeaa12f66f487d08ad4d6085d1a62a9",
+              "status": "completed",
+              "model": "gpt-6.1-sol",
+              "effort": "xhigh",
+              "tier": "default",
+              "input": 14582,
+              "cached": 0,
+              "output": 3354,
+              "reasoning": 137,
+              "error": null,
+              "key_echo_matches": true,
+              "rewritten_prior_input": false,
+              "previous_items": 34,
+              "matched_items": 34,
+              "changed_fields": [],
+              "request_sha256": "ca8ec2df0f32e35b3a5e01a59a19eb331a692f96c62f166614ba700d54f7f5fa"
+            },
+            {
+              "index": 7,
+              "response_id": "resp_08a59f39ce08ced0016aeaa176912887d098b9693d6e99252f",
+              "status": "completed",
+              "model": "gpt-6.1-sol",
+              "effort": "xhigh",
+              "tier": "default",
+              "input": 17990,
+              "cached": 17792,
+              "output": 1070,
+              "reasoning": 83,
+              "error": null,
+              "key_echo_matches": true,
+              "rewritten_prior_input": false,
+              "previous_items": 36,
+              "matched_items": 36,
+              "changed_fields": [],
+              "request_sha256": "a56f1b551adf70bc5856671a9eca0a06190ca4d374a3008cd0ca79af4fc0a2b7"
+            },
+            {
+              "index": 8,
+              "response_id": "resp_08a59f39ce08ced0016aeaa190ce8887d085302bd94b060d5f",
+              "status": "completed",
+              "model": "gpt-6.1-sol",
+              "effort": "xhigh",
+              "tier": "default",
+              "input": 19088,
+              "cached": 18944,
+              "output": 38,
+              "reasoning": 0,
+              "error": null,
+              "key_echo_matches": true,
+              "rewritten_prior_input": false,
+              "previous_items": 41,
+              "matched_items": 41,
+              "changed_fields": [],
+              "request_sha256": "121113e06859c3e93e37687cc5d2422ea1dc9a0e392f6bdfdc16b81050095b60"
+            },
+            {
+              "index": 9,
+              "response_id": "resp_08a59f39ce08ced0016aeaa195a5a087d08b3884c61b66d269",
+              "status": "completed",
+              "model": "gpt-6.1-sol",
+              "effort": "xhigh",
+              "tier": "default",
+              "input": 19290,
+              "cached": 18944,
+              "output": 6634,
+              "reasoning": 1463,
+              "error": null,
+              "key_echo_matches": true,
+              "rewritten_prior_input": false,
+              "previous_items": 44,
+              "matched_items": 44,
+              "changed_fields": [],
+              "request_sha256": "216ffb63164f2e6775946654df267da92a45d4f73ab95c58e03348e8bed53e12"
+            },
+            {
+              "index": 10,
+              "response_id": "resp_08a59f39ce08ced0016aeaa21dbd2c87d0a3a20633c9b4624a",
+              "status": "completed",
+              "model": "gpt-6.1-sol",
+              "effort": "xhigh",
+              "tier": "default",
+              "input": 25952,
+              "cached": 25728,
+              "output": 3880,
+              "reasoning": 58,
+              "error": null,
+              "key_echo_matches": true,
+              "rewritten_prior_input": false,
+              "previous_items": 46,
+              "matched_items": 46,
+              "changed_fields": [],
+              "request_sha256": "8a83a691dc17345a75f52d595f8233c0b74ad73a4aecba62c5ff3d6bc3cbb327"
+            },
+            {
+              "index": 11,
+              "response_id": "resp_08a59f39ce08ced0016aeaa26fa60c87d09236def44ea01963",
+              "status": "completed",
+              "model": "gpt-6.1-sol",
+              "effort": "xhigh",
+              "tier": "default",
+              "input": 29886,
+              "cached": 29696,
+              "output": 2207,
+              "reasoning": 295,
+              "error": null,
+              "key_echo_matches": true,
+              "rewritten_prior_input": false,
+              "previous_items": 52,
+              "matched_items": 52,
+              "changed_fields": [],
+              "request_sha256": "ee0a036422ed85155470ef5ea28129d438952c6577f3f7a7d955711c1ea54ec6"
+            },
+            {
+              "index": 12,
+              "response_id": null,
+              "status": null,
+              "model": null,
+              "effort": null,
+              "tier": null,
+              "input": null,
+              "cached": null,
+              "output": null,
+              "reasoning": null,
+              "error": {
+                "code": "cancelled",
+                "message": "provider request cancelled"
+              },
+              "key_echo_matches": null,
+              "rewritten_prior_input": false,
+              "previous_items": 57,
+              "matched_items": 57,
+              "changed_fields": [],
+              "request_sha256": "47a087d344e1ede16ff8c84c6d07739a1165cf83c3d1e1658c0c8b61a99a1755"
+            }
+          ]
+        },
+        {
+          "runner": "harness",
+          "seconds": 600.068,
+          "timed_out": true,
+          "exit_code": 1,
+          "state": "stopped",
+          "model_calls": 14,
+          "tool_calls": 22,
+          "usage": {
+            "input_tokens": 149310,
+            "cached_input_tokens": 121856,
+            "output_tokens": 24713,
+            "reasoning_output_tokens": 4135,
+            "uncached_input_tokens": 27454,
+            "input_plus_output": 174023
+          },
+          "confirmed_model_responses": 13,
+          "observed_tool_actions": 22,
+          "tool_active_minutes": [
+            0,
+            1,
+            2,
+            4,
+            5,
+            8,
+            9
+          ],
+          "last_tool_started_seconds": 578.259,
+          "served_models": [
+            "gpt-6.1-sol"
+          ],
+          "served_reasoning_efforts": [
+            "xhigh"
+          ],
+          "errors": [
+            {
+              "error": "model returned after cancellation or deadline"
+            }
+          ],
+          "usage_complete": false,
+          "trial": 3,
+          "model": "gpt-6.1-sol",
+          "reasoning": "xhigh",
+          "frozen_checks": {
+            "passed": 33,
+            "total": 33,
+            "protected_inputs_unchanged": true,
+            "readme_written": false,
+            "additional_test_files": 2
+          },
+          "frozen_check_failures": [],
+          "quality_original": {
+            "passed": 15,
+            "total": 17,
+            "failures": [
+              {
+                "test": "test_history_matches_current_job",
+                "passed": false,
+                "error": "KeyError: 0"
+              },
+              {
+                "test": "test_unmatched_join_field_does_not_collide",
+                "passed": false,
+                "error": "ValidationError: join output collides with a left field"
+              }
+            ]
+          },
+          "quality_corrected": {
+            "passed": 16,
+            "total": 17,
+            "failures": [
+              {
+                "test": "test_unmatched_join_field_does_not_collide",
+                "passed": false,
+                "error": "ValidationError: join output collides with a left field"
+              }
+            ],
+            "unscored_ambiguity": [
+              {
+                "test": "observe_idempotency_changed_dependencies_conflict",
+                "passed": false,
+                "error": "NotFound: 'absent'"
+              }
+            ]
+          },
+          "own_tests": {
+            "returncode": 1,
+            "passed": false,
+            "tests": 39
+          },
+          "own_test_failures": [
+            "ERROR: test_ownership_heartbeat_expiration_and_no_implicit_reap (test_store.StoreTests)",
+            "TypeError: 'NoneType' object is not subscriptable"
+          ],
+          "workspace_unchanged_by_audit": true,
+          "source_sha256": {
+            "README.md": "f9af2e301856744dd995cd4b1d1d08f5cd5982685e96c5dad63979133c29513c",
+            "tests/test_smoke.py": "fb6867aa47ff9e5a21dbe28ce2b6f631ae3eeb2f9a7a34d6f32d4190e335648c",
+            "tests/test_store.py": "903c4f921545132973848f2d7770ca07bede5fe37eaafd62aa33ac8c64e66be3",
+            "tests/test_query.py": "0ec110a5baa86ea93fa94495f14d3b4bf28b33baa355ed1f0970ad928da23fde",
+            "workboard/store.py": "b9a3a764ee1325d0cb89181c0c46c28bdba4fb137f5d0b0c56e578d3c16f67c1",
+            "workboard/persistence.py": "588e70996446ce1753ea7b20557d92662ba68ea23bedb70e1b83e84c43589525",
+            "workboard/query.py": "b76da3ec8755e168a33ac94006070803fc848a6d9f2ebf07fb7e4467e9590c96",
+            "workboard/__init__.py": "9cda26a40469ca557a4fcc1d910a56b7dfbb721d3a7b32212a8178ddaa231033",
+            "workboard/cli.py": "dc905034f9b7b0887eec31ce8a57afb48e033db45ad43db95485d7c141ce5f98",
+            "workboard/planning.py": "5c838d696db260ccb03f674422c98770a8157f8ceb134996edadb0b83dfff167",
+            "workboard/errors.py": "cc0901e80971e347c86a66a6e8683dd2cee7a970794efa7decec2c16c01494c6",
+            "workboard/__main__.py": "bd045ddd5242d002f692dac452be9afba38deef5cde541a5fc074bfef5987b91",
+            "workboard/validation.py": "e7cbcf7e6c1b89f53fabe0271d0f3da7714ba9c601382cbefd4de172c9600bfc"
+          },
+          "max_python_file_lines": 410,
+          "python_files": 12,
+          "cache_responses": [
+            {
+              "index": 1,
+              "response_id": "resp_0b3c54f733090d0d016aeaa048591487d0a67dff12202d8e30",
+              "status": "completed",
+              "model": "gpt-6.1-sol",
+              "effort": "xhigh",
+              "tier": "default",
+              "input": 743,
+              "cached": 0,
+              "output": 18,
+              "reasoning": 0,
+              "error": null,
+              "key_echo_matches": true,
+              "rewritten_prior_input": false,
+              "previous_items": 0,
+              "matched_items": 0,
+              "changed_fields": [],
+              "request_sha256": "d75587430711980b41bf6ad08779280ea5ddc54906d970a23430c9fac6866281"
+            },
+            {
+              "index": 2,
+              "response_id": "resp_0b3c54f733090d0d016aeaa04c254c87d0b7861f52a360eeff",
+              "status": "completed",
+              "model": "gpt-6.1-sol",
+              "effort": "xhigh",
+              "tier": "default",
+              "input": 803,
+              "cached": 0,
+              "output": 85,
+              "reasoning": 0,
+              "error": null,
+              "key_echo_matches": true,
+              "rewritten_prior_input": false,
+              "previous_items": 1,
+              "matched_items": 1,
+              "changed_fields": [],
+              "request_sha256": "f7f2b352ddcbd8a9cc1c9e9d08d7bea1f44d2c78b177c506136150a809064f3d"
+            },
+            {
+              "index": 3,
+              "response_id": "resp_0b3c54f733090d0d016aeaa050d96887d093a4114002517938",
+              "status": "completed",
+              "model": "gpt-6.1-sol",
+              "effort": "xhigh",
+              "tier": "default",
+              "input": 4024,
+              "cached": 0,
+              "output": 116,
+              "reasoning": 0,
+              "error": null,
+              "key_echo_matches": true,
+              "rewritten_prior_input": false,
+              "previous_items": 3,
+              "matched_items": 3,
+              "changed_fields": [],
+              "request_sha256": "a77ef13e485b5e7be02492337c8c73da14e3f33af47c55b62f7bd0d8e7011988"
+            },
+            {
+              "index": 4,
+              "response_id": "resp_0b3c54f733090d0d016aeaa0585ef887d0804d82487ae402aa",
+              "status": "completed",
+              "model": "gpt-6.1-sol",
+              "effort": "xhigh",
+              "tier": "default",
+              "input": 4955,
+              "cached": 0,
+              "output": 2231,
+              "reasoning": 2072,
+              "error": null,
+              "key_echo_matches": true,
+              "rewritten_prior_input": false,
+              "previous_items": 11,
+              "matched_items": 11,
+              "changed_fields": [],
+              "request_sha256": "8652f35e165dbf7f8efdda375e576b328e66c7bdf40bb2b59d5f4367d6417b4e"
+            },
+            {
+              "index": 5,
+              "response_id": "resp_0b3c54f733090d0d016aeaa0a6ec4087d0a3ed18f598c6d0b9",
+              "status": "completed",
+              "model": "gpt-6.1-sol",
+              "effort": "xhigh",
+              "tier": "default",
+              "input": 7213,
+              "cached": 7040,
+              "output": 1329,
+              "reasoning": 0,
+              "error": null,
+              "key_echo_matches": true,
+              "rewritten_prior_input": false,
+              "previous_items": 19,
+              "matched_items": 19,
+              "changed_fields": [],
+              "request_sha256": "4c77efd572724a42e589b3b835e196ec0087b49e3afb45e67aad81288feb7327"
+            },
+            {
+              "index": 6,
+              "response_id": "resp_0b3c54f733090d0d016aeaa0c4d36c87d0b92fa5c87005ba86",
+              "status": "completed",
+              "model": "gpt-6.1-sol",
+              "effort": "xhigh",
+              "tier": "default",
+              "input": 8570,
+              "cached": 8448,
+              "output": 466,
+              "reasoning": 0,
+              "error": null,
+              "key_echo_matches": true,
+              "rewritten_prior_input": false,
+              "previous_items": 26,
+              "matched_items": 26,
+              "changed_fields": [],
+              "request_sha256": "26a627e605f7f088d73e928641212065cb284e5366f1ddee42eb8fdf5947d5d8"
+            },
+            {
+              "index": 7,
+              "response_id": "resp_0b3c54f733090d0d016aeaa0d25e7c87d086416f68dd1eeff8",
+              "status": "completed",
+              "model": "gpt-6.1-sol",
+              "effort": "xhigh",
+              "tier": "default",
+              "input": 9064,
+              "cached": 8832,
+              "output": 5035,
+              "reasoning": 681,
+              "error": null,
+              "key_echo_matches": true,
+              "rewritten_prior_input": false,
+              "previous_items": 28,
+              "matched_items": 28,
+              "changed_fields": [],
+              "request_sha256": "c3d6690f2847916adc596699c328412b7bb7d6acdb546931a6c2f740adb24ac8"
+            },
+            {
+              "index": 8,
+              "response_id": "resp_0b3c54f733090d0d016aeaa13b7ec087d0a5b48a4b9bb6eb47",
+              "status": "completed",
+              "model": "gpt-6.1-sol",
+              "effort": "xhigh",
+              "tier": "default",
+              "input": 14127,
+              "cached": 13952,
+              "output": 2647,
+              "reasoning": 141,
+              "error": null,
+              "key_echo_matches": true,
+              "rewritten_prior_input": false,
+              "previous_items": 30,
+              "matched_items": 30,
+              "changed_fields": [],
+              "request_sha256": "23edcdbba361fc7c3ed59637d8df678f1d0072db6dc803e2522b37d9123d9490"
+            },
+            {
+              "index": 9,
+              "response_id": "resp_0b3c54f733090d0d016aeaa1738cd887d0958d6c4f650dacd3",
+              "status": "completed",
+              "model": "gpt-6.1-sol",
+              "effort": "xhigh",
+              "tier": "default",
+              "input": 16802,
+              "cached": 16640,
+              "output": 1833,
+              "reasoning": 76,
+              "error": null,
+              "key_echo_matches": true,
+              "rewritten_prior_input": false,
+              "previous_items": 34,
+              "matched_items": 34,
+              "changed_fields": [],
+              "request_sha256": "f60dd0cc1fdfdb46d3d73f89e9bb3115b233fd16bfba5c713b6a40a67ef29658"
+            },
+            {
+              "index": 10,
+              "response_id": "resp_0b3c54f733090d0d016aeaa19c223887d0b0ba899511a7fa5b",
+              "status": "completed",
+              "model": "gpt-6.1-sol",
+              "effort": "xhigh",
+              "tier": "default",
+              "input": 18739,
+              "cached": 18432,
+              "output": 38,
+              "reasoning": 0,
+              "error": null,
+              "key_echo_matches": true,
+              "rewritten_prior_input": false,
+              "previous_items": 37,
+              "matched_items": 37,
+              "changed_fields": [],
+              "request_sha256": "b5000a0103ad9e986946ce406f9adfd3e669b77c6450b17a256ed9b47dadd6f1"
+            },
+            {
+              "index": 11,
+              "response_id": "resp_0b3c54f733090d0d016aeaa1a1903487d08517a7a7e263a32b",
+              "status": "completed",
+              "model": "gpt-6.1-sol",
+              "effort": "xhigh",
+              "tier": "default",
+              "input": 18941,
+              "cached": 18688,
+              "output": 174,
+              "reasoning": 124,
+              "error": null,
+              "key_echo_matches": true,
+              "rewritten_prior_input": false,
+              "previous_items": 46,
+              "matched_items": 46,
+              "changed_fields": [],
+              "request_sha256": "8a71dce93040d1e755e5db58ab5912c00cd96a7d3ef8f3ee3ec2a7f27e7fba93"
+            },
+            {
+              "index": 12,
+              "response_id": "resp_0b3c54f733090d0d016aeaa1aba6f487d0878cfc0ae98d392a",
+              "status": "completed",
+              "model": "gpt-6.1-sol",
+              "effort": "xhigh",
+              "tier": "default",
+              "input": 19259,
+              "cached": 3968,
+              "output": 6783,
+              "reasoning": 893,
+              "error": null,
+              "key_echo_matches": true,
+              "rewritten_prior_input": false,
+              "previous_items": 48,
+              "matched_items": 48,
+              "changed_fields": [],
+              "request_sha256": "b53b1b679b11c6a40204c162a4972950ee4d2651ccb4d8fcc993945f192174b3"
+            },
+            {
+              "index": 13,
+              "response_id": "resp_0b3c54f733090d0d016aeaa2371d4087d0818c20cd6d000bfd",
+              "status": "completed",
+              "model": "gpt-6.1-sol",
+              "effort": "xhigh",
+              "tier": "default",
+              "input": 26070,
+              "cached": 25856,
+              "output": 3958,
+              "reasoning": 148,
+              "error": null,
+              "key_echo_matches": true,
+              "rewritten_prior_input": false,
+              "previous_items": 51,
+              "matched_items": 51,
+              "changed_fields": [],
+              "request_sha256": "64e7d26b48a174966d63271f4e3a4cd4d5cf10081df43e4b006cbeb6af6afd0b"
+            },
+            {
+              "index": 14,
+              "response_id": null,
+              "status": null,
+              "model": null,
+              "effort": null,
+              "tier": null,
+              "input": null,
+              "cached": null,
+              "output": null,
+              "reasoning": null,
+              "error": {
+                "code": "cancelled",
+                "message": "provider request cancelled"
+              },
+              "key_echo_matches": null,
+              "rewritten_prior_input": false,
+              "previous_items": 56,
+              "matched_items": 56,
+              "changed_fields": [],
+              "request_sha256": "18f90cdc6bfe276f1eaa13849740e028a3943e7d0e839ba9ff29dd8a63ddd2e0"
+            }
+          ]
+        }
+      ],
+      "preflights": [
+        {
+          "runner": "harness",
+          "seconds": 10.035,
+          "timed_out": false,
+          "exit_code": 0,
+          "state": "completed",
+          "model_calls": 2,
+          "tool_calls": 1,
+          "usage": {
+            "input_tokens": 1395,
+            "cached_input_tokens": 0,
+            "output_tokens": 24,
+            "reasoning_output_tokens": 0
+          },
+          "confirmed_model_responses": 2,
+          "observed_tool_actions": 1,
+          "tool_active_minutes": [
+            0
+          ],
+          "last_tool_started_seconds": 6.381,
+          "served_models": [
+            "gpt-6.1-sol"
+          ],
+          "served_reasoning_efforts": [
+            "xhigh"
+          ],
+          "errors": [],
+          "usage_complete": true
+        },
+        {
+          "runner": "codex",
+          "seconds": 11.909,
+          "timed_out": false,
+          "exit_code": 0,
+          "state": "completed",
+          "reported_model": "gpt-6.1-sol",
+          "failure": null,
+          "usage": {
+            "input_tokens": 21599,
+            "output_tokens": 57,
+            "cached_input_tokens": 19200,
+            "reasoning_output_tokens": 0
+          },
+          "confirmed_model_responses": 2,
+          "observed_tool_actions": 1,
+          "tool_active_minutes": [
+            0
+          ],
+          "last_tool_started_seconds": 7.424,
+          "served_models": [],
+          "served_reasoning_efforts": [],
+          "errors": [],
+          "usage_complete": true
+        }
+      ]
+    }
+  },
+  "audit_correction": {
+    "reason": "Internal jobs may be a map; export list shape is not mandatory for persistence",
+    "old_sha256": "d1cd2564b0a0562b27bd5c53f682a45dbf2140f6d229205d1ca138d020e91bd2",
+    "corrected_sha256": "1abcc137fa2a64fa71f128a75ed46af07915c875ec0301bbdf9df1259e576ae4",
+    "criteria_changed": false,
+    "raw_scores_retained": true
+  },
+  "diagnostic": {
+    "model": "gpt-6.1-sol",
+    "effort": "xhigh",
+    "seconds": 4.853075165767223,
+    "usage": {
+      "input_tokens": 57,
+      "output_tokens": 19,
+      "total_tokens": 76
+    },
+    "completed_output_items": 0,
+    "streamed_done_items": 1
+  },
+  "usage_by_stage": {
+    "initial_stream_bug": {
+      "input_tokens": 530094,
+      "cached_input_tokens": 479488,
+      "output_tokens": 70783,
+      "reasoning_output_tokens": 13243,
+      "input_plus_output": 600877
+    },
+    "initial_stream_bug_preflights": {
+      "input_tokens": 11372,
+      "cached_input_tokens": 3328,
+      "output_tokens": 66,
+      "reasoning_output_tokens": 52,
+      "input_plus_output": 11438
+    },
+    "fixed": {
+      "input_tokens": 1024841,
+      "cached_input_tokens": 884096,
+      "output_tokens": 154556,
+      "reasoning_output_tokens": 27314,
+      "input_plus_output": 1179397
+    },
+    "fixed_preflights": {
+      "input_tokens": 22994,
+      "cached_input_tokens": 19200,
+      "output_tokens": 81,
+      "reasoning_output_tokens": 0,
+      "input_plus_output": 23075
+    },
+    "diagnostic": {
+      "input_tokens": 57,
+      "cached_input_tokens": 0,
+      "output_tokens": 19,
+      "reasoning_output_tokens": 0,
+      "input_plus_output": 76
+    }
+  },
+  "total_observed_usage_lower_bound": {
+    "input_tokens": 1589358,
+    "cached_input_tokens": 1386112,
+    "output_tokens": 225505,
+    "reasoning_output_tokens": 40609,
+    "input_plus_output": 1814863
+  },
+  "source_configurations": {
+    "initial": {
+      "source_commit": "105d18afa9a9ea4fa450d182dbf7230d825a430c",
+      "date": "2026-11-04",
+      "model": "gpt-6.1-sol",
+      "reasoning_effort": "xhigh",
+      "duration_seconds": 600,
+      "repetitions_per_runner": 3,
+      "concurrent_runners": 6,
+      "automatic_retries": false,
+      "additional_quality_checks_frozen_before_run": true,
+      "prompt_sha256": "beaebfe35323ba1b9f3525f5e7423389e9ca0a6e9ba1a3038ab024bead417d9e",
+      "spec_sha256": "e63c2c104b8a4698b6c78e0a741d638b8d163248ab916ab96cff7e73d3911801",
+      "grader_sha256": "c20a46c7a84d7464d795abebc39d6148edbeea67936c0f6fbee626b7fd73d200",
+      "additional_audit_sha256": "d1cd2564b0a0562b27bd5c53f682a45dbf2140f6d229205d1ca138d020e91bd2"
+    },
+    "fixed": {
+      "source_commit": "6c147be1a925bbdf358b12fc94c2b1cc0c06bf04",
+      "date": "2026-11-04",
+      "model": "gpt-6.1-sol",
+      "reasoning_effort": "xhigh",
+      "duration_seconds": 600,
+      "repetitions_per_runner": 3,
+      "concurrent_runners": 6,
+      "automatic_retries": false,
+      "additional_quality_checks_frozen_before_run": true,
+      "prompt_sha256": "beaebfe35323ba1b9f3525f5e7423389e9ca0a6e9ba1a3038ab024bead417d9e",
+      "spec_sha256": "e63c2c104b8a4698b6c78e0a741d638b8d163248ab916ab96cff7e73d3911801",
+      "grader_sha256": "c20a46c7a84d7464d795abebc39d6148edbeea67936c0f6fbee626b7fd73d200",
+      "additional_audit_sha256": "d1cd2564b0a0562b27bd5c53f682a45dbf2140f6d229205d1ca138d020e91bd2",
+      "original_source_commit": "105d18afa9a9ea4fa450d182dbf7230d825a430c",
+      "stream_fix": true,
+      "fixed_driver_sha256": "3ce49992d7b1e60085d0f9b2f31040fed115d70b0c8726634d67d9278751a428"
+    }
+  },
+  "reproductions": [
+    {
+      "run": "codex-1",
+      "claim_before_availability_is_none": true,
+      "heterogeneous_join": {
+        "result": [
+          {
+            "k": 1,
+            "right.x": 9,
+            "right.id": 1,
+            "right.y": 2
+          }
+        ],
+        "correct": true
+      },
+      "readme_bytes": 63
+    },
+    {
+      "run": "codex-2",
+      "claim_before_availability_is_none": true,
+      "heterogeneous_join": {
+        "result": [
+          {
+            "k": 1,
+            "right.x": 9,
+            "right.id": 1,
+            "right.y": 2
+          }
+        ],
+        "correct": true
+      },
+      "readme_bytes": 63
+    },
+    {
+      "run": "codex-3",
+      "claim_before_availability_is_none": true,
+      "heterogeneous_join": {
+        "result": [
+          {
+            "k": 1,
+            "right.x": 9,
+            "right.id": 1,
+            "right.y": 2
+          }
+        ],
+        "correct": true
+      },
+      "readme_bytes": 63
+    },
+    {
+      "run": "harness-1",
+      "claim_before_availability_is_none": true,
+      "heterogeneous_join": {
+        "result": [
+          {
+            "k": 1,
+            "right.x": 9,
+            "right.id": 1,
+            "right.y": 2
+          }
+        ],
+        "correct": true
+      },
+      "readme_bytes": 63
+    },
+    {
+      "run": "harness-2",
+      "claim_before_availability_is_none": true,
+      "heterogeneous_join": {
+        "error_type": "ValidationError",
+        "error": "join output collides with a left key",
+        "correct": false
+      },
+      "readme_bytes": 63
+    },
+    {
+      "run": "harness-3",
+      "claim_before_availability_is_none": true,
+      "heterogeneous_join": {
+        "error_type": "ValidationError",
+        "error": "join output collides with a left field",
+        "correct": false
+      },
+      "readme_bytes": 63
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+if(AH_LIVE_EVAL)
+  add_executable(live_driver drivers/agent.c drivers/trace.c ${PROJECT_SOURCE_DIR}/src/cli/signals.c)
+  add_executable(cache_driver drivers/cache.c)
+  foreach(target live_driver cache_driver)
+    ah_compile_target(${target})
+    target_include_directories(${target} PRIVATE ${PROJECT_SOURCE_DIR}/src)
+    target_link_libraries(${target} PRIVATE ah ah_json)
+  endforeach()
+endif()
+
+if(BUILD_TESTING)
+  add_test(NAME eval_cases COMMAND ${Python3_EXECUTABLE} -B -m unittest evals.smoke.test_cases)
+  add_test(NAME eval_endurance COMMAND ${Python3_EXECUTABLE} -B -m unittest evals.endurance.test_endurance)
+  add_test(NAME cache_trace COMMAND ${Python3_EXECUTABLE} -B -m unittest evals.cache.test_cache)
+  set_tests_properties(eval_cases eval_endurance cache_trace PROPERTIES
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR} TIMEOUT 30)
+  if(AH_LIVE_EVAL)
+    add_test(NAME cache_transport COMMAND ${Python3_EXECUTABLE} -B
+      ${CMAKE_CURRENT_SOURCE_DIR}/cache/test_transport.py $<TARGET_FILE:cache_driver> $<TARGET_FILE:live_driver>)
+    set_tests_properties(cache_transport PROPERTIES TIMEOUT 45)
+  endif()
+endif()

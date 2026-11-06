@@ -1,0 +1,2130 @@
+{
+  "baseline_commit": "3ae5824090000ed1653b1ad28d15c1c98a835dde",
+  "model": "gpt-6.1-sol",
+  "effort": "xhigh",
+  "runs": [
+    {
+      "runner": "harness",
+      "seconds": 53.091,
+      "timed_out": false,
+      "exit_code": 0,
+      "state": "completed",
+      "model_calls": 4,
+      "tool_calls": 6,
+      "transport_metrics": [],
+      "runtime_metrics": [],
+      "tool_names": [
+        "list_directory",
+        "read_file",
+        "read_file",
+        "read_file",
+        "read_file",
+        "exec"
+      ],
+      "argument_bytes": [
+        {
+          "tool": "list_directory",
+          "bytes": 12
+        },
+        {
+          "tool": "read_file",
+          "bytes": 39
+        },
+        {
+          "tool": "read_file",
+          "bytes": 39
+        },
+        {
+          "tool": "read_file",
+          "bytes": 40
+        },
+        {
+          "tool": "read_file",
+          "bytes": 34
+        },
+        {
+          "tool": "exec",
+          "bytes": 4496
+        }
+      ],
+      "usage": {
+        "input_tokens": 7885,
+        "cached_input_tokens": 0,
+        "output_tokens": 1686,
+        "reasoning_output_tokens": 269
+      },
+      "confirmed_model_responses": 4,
+      "observed_tool_actions": 6,
+      "tool_active_minutes": [
+        0
+      ],
+      "last_tool_started_seconds": 47.956,
+      "served_models": [
+        "gpt-6.1-sol"
+      ],
+      "served_reasoning_efforts": [
+        "xhigh"
+      ],
+      "errors": [],
+      "usage_complete": true,
+      "case": "reconcile",
+      "variant": "baseline",
+      "grade": {
+        "pass": true,
+        "details": [
+          "All contract checks passed"
+        ]
+      },
+      "prompt_sha256": "4d72fa0f1eee066df40c349242146516617be8da15790e05d0878c74e5eee392"
+    },
+    {
+      "runner": "harness",
+      "seconds": 57.489,
+      "timed_out": false,
+      "exit_code": 0,
+      "state": "completed",
+      "model_calls": 4,
+      "tool_calls": 6,
+      "transport_metrics": [
+        {
+          "attempt": 1,
+          "code": "ok",
+          "http_status": 200,
+          "request_bytes": 7991,
+          "response_bytes": 26923,
+          "retry_planned": false,
+          "elapsed_us": 5966262,
+          "new_connections": 1,
+          "first_byte_us": 510660,
+          "upload_complete_us": 1046405,
+          "first_content_us": 5631602,
+          "first_item_us": 5868205,
+          "terminal_us": 5940630,
+          "dns_us": 61,
+          "connect_us": 233,
+          "tls_us": 1046089,
+          "pretransfer_us": 1046404,
+          "curl_first_byte_us": 3437219,
+          "curl_total_us": 5966249
+        },
+        {
+          "attempt": 1,
+          "code": "ok",
+          "http_status": 200,
+          "request_bytes": 8444,
+          "response_bytes": 30530,
+          "retry_planned": false,
+          "elapsed_us": 5762667,
+          "new_connections": 0,
+          "first_byte_us": 1813808,
+          "upload_complete_us": 644,
+          "first_content_us": 5386754,
+          "first_item_us": 5495913,
+          "terminal_us": 5762571,
+          "dns_us": 76,
+          "connect_us": 0,
+          "tls_us": 0,
+          "pretransfer_us": 405,
+          "curl_first_byte_us": 1813569,
+          "curl_total_us": 5762623
+        },
+        {
+          "attempt": 1,
+          "code": "ok",
+          "http_status": 200,
+          "request_bytes": 12199,
+          "response_bytes": 362615,
+          "retry_planned": false,
+          "elapsed_us": 38210268,
+          "new_connections": 0,
+          "first_byte_us": 4014377,
+          "upload_complete_us": 427,
+          "first_content_us": 15616184,
+          "first_item_us": 15596703,
+          "terminal_us": 38210196,
+          "dns_us": 88,
+          "connect_us": 0,
+          "tls_us": 0,
+          "pretransfer_us": 415,
+          "curl_first_byte_us": 4014367,
+          "curl_total_us": 38210296
+        },
+        {
+          "attempt": 1,
+          "code": "ok",
+          "http_status": 200,
+          "request_bytes": 22384,
+          "response_bytes": 43544,
+          "retry_planned": false,
+          "elapsed_us": 5020762,
+          "new_connections": 0,
+          "first_byte_us": 1694829,
+          "upload_complete_us": 185,
+          "first_content_us": 3660989,
+          "first_item_us": 4824219,
+          "terminal_us": 5020712,
+          "dns_us": 19,
+          "connect_us": 0,
+          "tls_us": 0,
+          "pretransfer_us": 182,
+          "curl_first_byte_us": 1694827,
+          "curl_total_us": 5020745
+        }
+      ],
+      "runtime_metrics": [
+        {
+          "session_id": "",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460227404436,
+            "duration_us": 513,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460227405813,
+            "duration_us": 253,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dcb64f33-d470-486f-82b0-33652edf48a4",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460227406280,
+            "duration_us": 215,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dcb64f33-d470-486f-82b0-33652edf48a4",
+          "data": {
+            "phase": "request",
+            "started_us": 6460227406544,
+            "duration_us": 48,
+            "bytes": 7960,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dcb64f33-d470-486f-82b0-33652edf48a4",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460227406740,
+            "duration_us": 187,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dcb64f33-d470-486f-82b0-33652edf48a4",
+          "data": {
+            "phase": "model",
+            "started_us": 6460227406947,
+            "duration_us": 5966372,
+            "bytes": 8593,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dcb64f33-d470-486f-82b0-33652edf48a4",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460233375470,
+            "duration_us": 990,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dcb64f33-d470-486f-82b0-33652edf48a4",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460233379397,
+            "duration_us": 894,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dcb64f33-d470-486f-82b0-33652edf48a4",
+          "operation_id": "4624f6f0-cbf5-4437-b8f0-9636411995d7",
+          "data": {
+            "phase": "tool",
+            "started_us": 6460233380442,
+            "duration_us": 127,
+            "bytes": 97,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dcb64f33-d470-486f-82b0-33652edf48a4",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460233381277,
+            "duration_us": 811,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dcb64f33-d470-486f-82b0-33652edf48a4",
+          "data": {
+            "phase": "request",
+            "started_us": 6460233382377,
+            "duration_us": 277,
+            "bytes": 8413,
+            "count": 2,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dcb64f33-d470-486f-82b0-33652edf48a4",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460233383242,
+            "duration_us": 606,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dcb64f33-d470-486f-82b0-33652edf48a4",
+          "data": {
+            "phase": "model",
+            "started_us": 6460233383926,
+            "duration_us": 5762840,
+            "bytes": 10135,
+            "count": 2,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dcb64f33-d470-486f-82b0-33652edf48a4",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460239148851,
+            "duration_us": 964,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dcb64f33-d470-486f-82b0-33652edf48a4",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460239150939,
+            "duration_us": 648,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dcb64f33-d470-486f-82b0-33652edf48a4",
+          "operation_id": "6141c42b-9f96-4225-8f80-d36da75f13fa",
+          "data": {
+            "phase": "tool",
+            "started_us": 6460239151877,
+            "duration_us": 0,
+            "bytes": 684,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dcb64f33-d470-486f-82b0-33652edf48a4",
+          "operation_id": "a2c8829a-5120-48cc-aeee-7ad319effe02",
+          "data": {
+            "phase": "tool",
+            "started_us": 6460239151884,
+            "duration_us": 0,
+            "bytes": 449,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dcb64f33-d470-486f-82b0-33652edf48a4",
+          "operation_id": "38251610-e77d-4222-bf8f-df3496903ee6",
+          "data": {
+            "phase": "tool",
+            "started_us": 6460239151894,
+            "duration_us": 0,
+            "bytes": 658,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dcb64f33-d470-486f-82b0-33652edf48a4",
+          "operation_id": "6a31863c-2cca-4360-88d2-69a522944b78",
+          "data": {
+            "phase": "tool",
+            "started_us": 6460239151972,
+            "duration_us": 0,
+            "bytes": 323,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dcb64f33-d470-486f-82b0-33652edf48a4",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460239153312,
+            "duration_us": 905,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dcb64f33-d470-486f-82b0-33652edf48a4",
+          "data": {
+            "phase": "request",
+            "started_us": 6460239154387,
+            "duration_us": 196,
+            "bytes": 12168,
+            "count": 3,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dcb64f33-d470-486f-82b0-33652edf48a4",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460239155014,
+            "duration_us": 706,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dcb64f33-d470-486f-82b0-33652edf48a4",
+          "data": {
+            "phase": "model",
+            "started_us": 6460239155819,
+            "duration_us": 38210468,
+            "bytes": 19964,
+            "count": 3,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dcb64f33-d470-486f-82b0-33652edf48a4",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460277369236,
+            "duration_us": 1055,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dcb64f33-d470-486f-82b0-33652edf48a4",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460277371945,
+            "duration_us": 599,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dcb64f33-d470-486f-82b0-33652edf48a4",
+          "operation_id": "fb1f72a6-be34-4d1e-94d2-43e017276fa7",
+          "data": {
+            "phase": "tool",
+            "started_us": 6460277372630,
+            "duration_us": 170894,
+            "bytes": 413,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dcb64f33-d470-486f-82b0-33652edf48a4",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460277543958,
+            "duration_us": 362,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dcb64f33-d470-486f-82b0-33652edf48a4",
+          "data": {
+            "phase": "request",
+            "started_us": 6460277544386,
+            "duration_us": 102,
+            "bytes": 22353,
+            "count": 4,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dcb64f33-d470-486f-82b0-33652edf48a4",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460277544644,
+            "duration_us": 209,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dcb64f33-d470-486f-82b0-33652edf48a4",
+          "data": {
+            "phase": "model",
+            "started_us": 6460277544875,
+            "duration_us": 5020886,
+            "bytes": 11250,
+            "count": 4,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460282567166,
+            "duration_us": 1131,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        }
+      ],
+      "tool_names": [
+        "list_directory",
+        "read_file",
+        "read_file",
+        "read_file",
+        "read_file",
+        "exec"
+      ],
+      "argument_bytes": [
+        {
+          "tool": "list_directory",
+          "bytes": 12
+        },
+        {
+          "tool": "read_file",
+          "bytes": 39
+        },
+        {
+          "tool": "read_file",
+          "bytes": 40
+        },
+        {
+          "tool": "read_file",
+          "bytes": 39
+        },
+        {
+          "tool": "read_file",
+          "bytes": 34
+        },
+        {
+          "tool": "exec",
+          "bytes": 4158
+        }
+      ],
+      "usage": {
+        "input_tokens": 9850,
+        "cached_input_tokens": 6912,
+        "output_tokens": 1750,
+        "reasoning_output_tokens": 291
+      },
+      "confirmed_model_responses": 4,
+      "observed_tool_actions": 6,
+      "tool_active_minutes": [
+        0
+      ],
+      "last_tool_started_seconds": 52.289,
+      "served_models": [
+        "gpt-6.1-sol"
+      ],
+      "served_reasoning_efforts": [
+        "xhigh"
+      ],
+      "errors": [],
+      "usage_complete": true,
+      "case": "reconcile",
+      "variant": "candidate",
+      "grade": {
+        "pass": true,
+        "details": [
+          "All contract checks passed"
+        ]
+      },
+      "prompt_sha256": "4d72fa0f1eee066df40c349242146516617be8da15790e05d0878c74e5eee392"
+    },
+    {
+      "runner": "harness",
+      "seconds": 76.399,
+      "timed_out": false,
+      "exit_code": 0,
+      "state": "completed",
+      "model_calls": 5,
+      "tool_calls": 5,
+      "transport_metrics": [
+        {
+          "attempt": 1,
+          "code": "ok",
+          "http_status": 200,
+          "request_bytes": 7367,
+          "response_bytes": 26923,
+          "retry_planned": false,
+          "elapsed_us": 3985160,
+          "new_connections": 1,
+          "first_byte_us": 474124,
+          "upload_complete_us": 711596,
+          "first_content_us": 3672504,
+          "first_item_us": 3964636,
+          "terminal_us": 3964962,
+          "dns_us": 71,
+          "connect_us": 189,
+          "tls_us": 711176,
+          "pretransfer_us": 711595,
+          "curl_first_byte_us": 2573623,
+          "curl_total_us": 3985138
+        },
+        {
+          "attempt": 1,
+          "code": "ok",
+          "http_status": 200,
+          "request_bytes": 7787,
+          "response_bytes": 27645,
+          "retry_planned": false,
+          "elapsed_us": 5155578,
+          "new_connections": 0,
+          "first_byte_us": 1985301,
+          "upload_complete_us": 331,
+          "first_content_us": 4672190,
+          "first_item_us": 4724255,
+          "terminal_us": 5155511,
+          "dns_us": 61,
+          "connect_us": 0,
+          "tls_us": 0,
+          "pretransfer_us": 319,
+          "curl_first_byte_us": 1985289,
+          "curl_total_us": 5155553
+        },
+        {
+          "attempt": 1,
+          "code": "ok",
+          "http_status": 200,
+          "request_bytes": 9515,
+          "response_bytes": 173957,
+          "retry_planned": false,
+          "elapsed_us": 28813566,
+          "new_connections": 0,
+          "first_byte_us": 2571620,
+          "upload_complete_us": 401,
+          "first_content_us": 21999512,
+          "first_item_us": 21984812,
+          "terminal_us": 28813539,
+          "dns_us": 63,
+          "connect_us": 0,
+          "tls_us": 0,
+          "pretransfer_us": 382,
+          "curl_first_byte_us": 2571605,
+          "curl_total_us": 28813592
+        },
+        {
+          "attempt": 1,
+          "code": "ok",
+          "http_status": 200,
+          "request_bytes": 19930,
+          "response_bytes": 359770,
+          "retry_planned": false,
+          "elapsed_us": 30249175,
+          "new_connections": 0,
+          "first_byte_us": 2707298,
+          "upload_complete_us": 215,
+          "first_content_us": 3978605,
+          "first_item_us": 30248880,
+          "terminal_us": 30249096,
+          "dns_us": 22,
+          "connect_us": 0,
+          "tls_us": 0,
+          "pretransfer_us": 207,
+          "curl_first_byte_us": 2707292,
+          "curl_total_us": 30249185
+        },
+        {
+          "attempt": 1,
+          "code": "ok",
+          "http_status": 200,
+          "request_bytes": 24326,
+          "response_bytes": 58620,
+          "retry_planned": false,
+          "elapsed_us": 7913963,
+          "new_connections": 0,
+          "first_byte_us": 1945938,
+          "upload_complete_us": 172,
+          "first_content_us": 5551335,
+          "first_item_us": 5546297,
+          "terminal_us": 7913898,
+          "dns_us": 17,
+          "connect_us": 0,
+          "tls_us": 0,
+          "pretransfer_us": 169,
+          "curl_first_byte_us": 1945935,
+          "curl_total_us": 7913947
+        }
+      ],
+      "runtime_metrics": [
+        {
+          "session_id": "",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460282600556,
+            "duration_us": 357,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460282601501,
+            "duration_us": 391,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "3b6efcad-1eba-4d50-b99f-16b1db751007",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460282602256,
+            "duration_us": 277,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "3b6efcad-1eba-4d50-b99f-16b1db751007",
+          "data": {
+            "phase": "request",
+            "started_us": 6460282602614,
+            "duration_us": 76,
+            "bytes": 7336,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "3b6efcad-1eba-4d50-b99f-16b1db751007",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460282602920,
+            "duration_us": 248,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "3b6efcad-1eba-4d50-b99f-16b1db751007",
+          "data": {
+            "phase": "model",
+            "started_us": 6460282603205,
+            "duration_us": 3985285,
+            "bytes": 8593,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "3b6efcad-1eba-4d50-b99f-16b1db751007",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460286590094,
+            "duration_us": 966,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "3b6efcad-1eba-4d50-b99f-16b1db751007",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460286592042,
+            "duration_us": 505,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "3b6efcad-1eba-4d50-b99f-16b1db751007",
+          "operation_id": "0ee7ef3d-d399-433b-8171-c1c1dc93e8cf",
+          "data": {
+            "phase": "tool",
+            "started_us": 6460286592607,
+            "duration_us": 86,
+            "bytes": 68,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "3b6efcad-1eba-4d50-b99f-16b1db751007",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460286593236,
+            "duration_us": 539,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "3b6efcad-1eba-4d50-b99f-16b1db751007",
+          "data": {
+            "phase": "request",
+            "started_us": 6460286593901,
+            "duration_us": 124,
+            "bytes": 7756,
+            "count": 2,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "3b6efcad-1eba-4d50-b99f-16b1db751007",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460286594392,
+            "duration_us": 443,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "3b6efcad-1eba-4d50-b99f-16b1db751007",
+          "data": {
+            "phase": "model",
+            "started_us": 6460286594889,
+            "duration_us": 5155712,
+            "bytes": 9331,
+            "count": 2,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "3b6efcad-1eba-4d50-b99f-16b1db751007",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460291752709,
+            "duration_us": 967,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "3b6efcad-1eba-4d50-b99f-16b1db751007",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460291755441,
+            "duration_us": 596,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "3b6efcad-1eba-4d50-b99f-16b1db751007",
+          "operation_id": "b31c630f-1e36-4a80-9f61-b07b531067b7",
+          "data": {
+            "phase": "tool",
+            "started_us": 6460291756357,
+            "duration_us": 1,
+            "bytes": 622,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "3b6efcad-1eba-4d50-b99f-16b1db751007",
+          "operation_id": "755e7778-32bb-4228-9851-854db6b51450",
+          "data": {
+            "phase": "tool",
+            "started_us": 6460291756365,
+            "duration_us": 1,
+            "bytes": 324,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "3b6efcad-1eba-4d50-b99f-16b1db751007",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460291757429,
+            "duration_us": 1579,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "3b6efcad-1eba-4d50-b99f-16b1db751007",
+          "data": {
+            "phase": "request",
+            "started_us": 6460291759188,
+            "duration_us": 143,
+            "bytes": 9484,
+            "count": 3,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "3b6efcad-1eba-4d50-b99f-16b1db751007",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460291760288,
+            "duration_us": 789,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "3b6efcad-1eba-4d50-b99f-16b1db751007",
+          "data": {
+            "phase": "model",
+            "started_us": 6460291761169,
+            "duration_us": 28813711,
+            "bytes": 19987,
+            "count": 3,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "3b6efcad-1eba-4d50-b99f-16b1db751007",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460320575619,
+            "duration_us": 690,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "3b6efcad-1eba-4d50-b99f-16b1db751007",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460320576979,
+            "duration_us": 359,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "3b6efcad-1eba-4d50-b99f-16b1db751007",
+          "operation_id": "abdbc5e9-d049-4722-bd2d-2cae8f622aa2",
+          "data": {
+            "phase": "tool",
+            "started_us": 6460320577393,
+            "duration_us": 518,
+            "bytes": 121,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "3b6efcad-1eba-4d50-b99f-16b1db751007",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460320578239,
+            "duration_us": 340,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "3b6efcad-1eba-4d50-b99f-16b1db751007",
+          "data": {
+            "phase": "request",
+            "started_us": 6460320578650,
+            "duration_us": 110,
+            "bytes": 19899,
+            "count": 4,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "3b6efcad-1eba-4d50-b99f-16b1db751007",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460320578949,
+            "duration_us": 270,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "3b6efcad-1eba-4d50-b99f-16b1db751007",
+          "data": {
+            "phase": "model",
+            "started_us": 6460320579247,
+            "duration_us": 30249303,
+            "bytes": 14116,
+            "count": 4,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "3b6efcad-1eba-4d50-b99f-16b1db751007",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460350830441,
+            "duration_us": 1005,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "3b6efcad-1eba-4d50-b99f-16b1db751007",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460350832555,
+            "duration_us": 623,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "3b6efcad-1eba-4d50-b99f-16b1db751007",
+          "operation_id": "6e1519af-ab2b-4d20-bc5b-624352b99220",
+          "data": {
+            "phase": "tool",
+            "started_us": 6460350833288,
+            "duration_us": 225871,
+            "bytes": 330,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "3b6efcad-1eba-4d50-b99f-16b1db751007",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460351059631,
+            "duration_us": 460,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "3b6efcad-1eba-4d50-b99f-16b1db751007",
+          "data": {
+            "phase": "request",
+            "started_us": 6460351060170,
+            "duration_us": 102,
+            "bytes": 24295,
+            "count": 5,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "3b6efcad-1eba-4d50-b99f-16b1db751007",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460351060476,
+            "duration_us": 241,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "3b6efcad-1eba-4d50-b99f-16b1db751007",
+          "data": {
+            "phase": "model",
+            "started_us": 6460351060741,
+            "duration_us": 7914099,
+            "bytes": 14154,
+            "count": 5,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460358977197,
+            "duration_us": 976,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        }
+      ],
+      "tool_names": [
+        "list_directory",
+        "read_file",
+        "read_file",
+        "edit_file",
+        "exec"
+      ],
+      "argument_bytes": [
+        {
+          "tool": "list_directory",
+          "bytes": 12
+        },
+        {
+          "tool": "read_file",
+          "bytes": 23
+        },
+        {
+          "tool": "read_file",
+          "bytes": 20
+        },
+        {
+          "tool": "edit_file",
+          "bytes": 1765
+        },
+        {
+          "tool": "exec",
+          "bytes": 3613
+        }
+      ],
+      "usage": {
+        "input_tokens": 11622,
+        "cached_input_tokens": 6400,
+        "output_tokens": 2522,
+        "reasoning_output_tokens": 511
+      },
+      "confirmed_model_responses": 5,
+      "observed_tool_actions": 5,
+      "tool_active_minutes": [
+        0,
+        1
+      ],
+      "last_tool_started_seconds": 68.249,
+      "served_models": [
+        "gpt-6.1-sol"
+      ],
+      "served_reasoning_efforts": [
+        "xhigh"
+      ],
+      "errors": [],
+      "usage_complete": true,
+      "case": "intervals",
+      "variant": "candidate",
+      "grade": {
+        "pass": true,
+        "details": [
+          "All contract checks passed"
+        ]
+      },
+      "prompt_sha256": "983652946a7198fbcc724ddfb6d86185b0c0367ca1e5d04ae91f7dc60737e610"
+    },
+    {
+      "runner": "harness",
+      "seconds": 91.579,
+      "timed_out": false,
+      "exit_code": 0,
+      "state": "completed",
+      "model_calls": 6,
+      "tool_calls": 6,
+      "transport_metrics": [],
+      "runtime_metrics": [],
+      "tool_names": [
+        "list_directory",
+        "read_file",
+        "read_file",
+        "write_file",
+        "exec",
+        "list_directory"
+      ],
+      "argument_bytes": [
+        {
+          "tool": "list_directory",
+          "bytes": 12
+        },
+        {
+          "tool": "read_file",
+          "bytes": 23
+        },
+        {
+          "tool": "read_file",
+          "bytes": 20
+        },
+        {
+          "tool": "write_file",
+          "bytes": 1452
+        },
+        {
+          "tool": "exec",
+          "bytes": 3998
+        },
+        {
+          "tool": "list_directory",
+          "bytes": 12
+        }
+      ],
+      "usage": {
+        "input_tokens": 12058,
+        "cached_input_tokens": 8576,
+        "output_tokens": 2304,
+        "reasoning_output_tokens": 402
+      },
+      "confirmed_model_responses": 6,
+      "observed_tool_actions": 6,
+      "tool_active_minutes": [
+        0,
+        1
+      ],
+      "last_tool_started_seconds": 82.525,
+      "served_models": [
+        "gpt-6.1-sol"
+      ],
+      "served_reasoning_efforts": [
+        "xhigh"
+      ],
+      "errors": [],
+      "usage_complete": true,
+      "case": "intervals",
+      "variant": "baseline",
+      "grade": {
+        "pass": true,
+        "details": [
+          "All contract checks passed"
+        ]
+      },
+      "prompt_sha256": "983652946a7198fbcc724ddfb6d86185b0c0367ca1e5d04ae91f7dc60737e610"
+    },
+    {
+      "runner": "harness",
+      "seconds": 35.539,
+      "timed_out": false,
+      "exit_code": 0,
+      "state": "completed",
+      "model_calls": 4,
+      "tool_calls": 3,
+      "transport_metrics": [],
+      "runtime_metrics": [],
+      "tool_names": [
+        "list_directory",
+        "exec",
+        "exec"
+      ],
+      "argument_bytes": [
+        {
+          "tool": "list_directory",
+          "bytes": 12
+        },
+        {
+          "tool": "exec",
+          "bytes": 280
+        },
+        {
+          "tool": "exec",
+          "bytes": 2343
+        }
+      ],
+      "usage": {
+        "input_tokens": 5673,
+        "cached_input_tokens": 0,
+        "output_tokens": 893,
+        "reasoning_output_tokens": 0
+      },
+      "confirmed_model_responses": 4,
+      "observed_tool_actions": 3,
+      "tool_active_minutes": [
+        0
+      ],
+      "last_tool_started_seconds": 29.152,
+      "served_models": [
+        "gpt-6.1-sol"
+      ],
+      "served_reasoning_efforts": [
+        "xhigh"
+      ],
+      "errors": [],
+      "usage_complete": true,
+      "case": "update",
+      "variant": "baseline",
+      "grade": {
+        "pass": true,
+        "details": [
+          "All contract checks passed"
+        ]
+      },
+      "prompt_sha256": "c7ec812c8cbddb8cd01f423bce707d784cfb3375ce5e00978901a04cb4af104d"
+    },
+    {
+      "runner": "harness",
+      "seconds": 51.553,
+      "timed_out": false,
+      "exit_code": 0,
+      "state": "completed",
+      "model_calls": 5,
+      "tool_calls": 8,
+      "transport_metrics": [
+        {
+          "attempt": 1,
+          "code": "ok",
+          "http_status": 200,
+          "request_bytes": 7324,
+          "response_bytes": 26923,
+          "retry_planned": false,
+          "elapsed_us": 7211438,
+          "new_connections": 1,
+          "first_byte_us": 486359,
+          "upload_complete_us": 2124461,
+          "first_content_us": 7210847,
+          "first_item_us": 7211130,
+          "terminal_us": 7211382,
+          "dns_us": 49,
+          "connect_us": 189,
+          "tls_us": 2124163,
+          "pretransfer_us": 2124463,
+          "curl_first_byte_us": 5235368,
+          "curl_total_us": 7211428
+        },
+        {
+          "attempt": 1,
+          "code": "ok",
+          "http_status": 200,
+          "request_bytes": 7797,
+          "response_bytes": 30993,
+          "retry_planned": false,
+          "elapsed_us": 8330598,
+          "new_connections": 0,
+          "first_byte_us": 3140274,
+          "upload_complete_us": 349,
+          "first_content_us": 8185100,
+          "first_item_us": 8187893,
+          "terminal_us": 8330534,
+          "dns_us": 64,
+          "connect_us": 0,
+          "tls_us": 0,
+          "pretransfer_us": 338,
+          "curl_first_byte_us": 3140267,
+          "curl_total_us": 8330582
+        },
+        {
+          "attempt": 1,
+          "code": "ok",
+          "http_status": 200,
+          "request_bytes": 11895,
+          "response_bytes": 32829,
+          "retry_planned": false,
+          "elapsed_us": 11970266,
+          "new_connections": 0,
+          "first_byte_us": 2081508,
+          "upload_complete_us": 134,
+          "first_content_us": 11816478,
+          "first_item_us": 11831996,
+          "terminal_us": 11959275,
+          "dns_us": 18,
+          "connect_us": 0,
+          "tls_us": 0,
+          "pretransfer_us": 129,
+          "curl_first_byte_us": 2081505,
+          "curl_total_us": 11970258
+        },
+        {
+          "attempt": 1,
+          "code": "ok",
+          "http_status": 200,
+          "request_bytes": 14850,
+          "response_bytes": 213244,
+          "retry_planned": false,
+          "elapsed_us": 18361152,
+          "new_connections": 0,
+          "first_byte_us": 2099934,
+          "upload_complete_us": 374,
+          "first_content_us": 3840676,
+          "first_item_us": 18360824,
+          "terminal_us": 18361090,
+          "dns_us": 45,
+          "connect_us": 0,
+          "tls_us": 0,
+          "pretransfer_us": 365,
+          "curl_first_byte_us": 2099926,
+          "curl_total_us": 18361149
+        },
+        {
+          "attempt": 1,
+          "code": "ok",
+          "http_status": 200,
+          "request_bytes": 18084,
+          "response_bytes": 64015,
+          "retry_planned": false,
+          "elapsed_us": 5324495,
+          "new_connections": 0,
+          "first_byte_us": 1726080,
+          "upload_complete_us": 161,
+          "first_content_us": 2940623,
+          "first_item_us": 5249550,
+          "terminal_us": 5294977,
+          "dns_us": 20,
+          "connect_us": 0,
+          "tls_us": 0,
+          "pretransfer_us": 157,
+          "curl_first_byte_us": 1726076,
+          "curl_total_us": 5324475
+        }
+      ],
+      "runtime_metrics": [
+        {
+          "session_id": "",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460374226787,
+            "duration_us": 226,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460374227343,
+            "duration_us": 215,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460374227760,
+            "duration_us": 173,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "data": {
+            "phase": "request",
+            "started_us": 6460374227984,
+            "duration_us": 49,
+            "bytes": 7293,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460374228178,
+            "duration_us": 172,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "data": {
+            "phase": "model",
+            "started_us": 6460374228371,
+            "duration_us": 7211523,
+            "bytes": 8593,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460381441710,
+            "duration_us": 843,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460381443459,
+            "duration_us": 423,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "operation_id": "79f124c4-0ce1-4c3d-8e54-30a047f95c9e",
+          "data": {
+            "phase": "tool",
+            "started_us": 6460381443957,
+            "duration_us": 97,
+            "bytes": 115,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460381444672,
+            "duration_us": 486,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "data": {
+            "phase": "request",
+            "started_us": 6460381445278,
+            "duration_us": 135,
+            "bytes": 7766,
+            "count": 2,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460381445767,
+            "duration_us": 397,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "data": {
+            "phase": "model",
+            "started_us": 6460381446215,
+            "duration_us": 8330741,
+            "bytes": 10283,
+            "count": 2,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460389778751,
+            "duration_us": 849,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460389780663,
+            "duration_us": 566,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "operation_id": "50845703-20e7-4ca9-b66b-bdf48f2763a6",
+          "data": {
+            "phase": "tool",
+            "started_us": 6460389781619,
+            "duration_us": 0,
+            "bytes": 410,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "operation_id": "55176472-7a82-41c0-9014-628c9a5bd884",
+          "data": {
+            "phase": "tool",
+            "started_us": 6460389781773,
+            "duration_us": 0,
+            "bytes": 499,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "operation_id": "f9eea8b6-10b6-4f11-92ba-f0fa60cfcdc9",
+          "data": {
+            "phase": "tool",
+            "started_us": 6460389781820,
+            "duration_us": 0,
+            "bytes": 436,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460389783134,
+            "duration_us": 923,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460389784916,
+            "duration_us": 549,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "operation_id": "8a303403-0474-488f-aa21-f4b748c5ea18",
+          "data": {
+            "phase": "tool",
+            "started_us": 6460389785587,
+            "duration_us": 146736,
+            "bytes": 852,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460389932748,
+            "duration_us": 344,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "data": {
+            "phase": "request",
+            "started_us": 6460389933171,
+            "duration_us": 76,
+            "bytes": 11864,
+            "count": 3,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460389933424,
+            "duration_us": 216,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "data": {
+            "phase": "model",
+            "started_us": 6460389933665,
+            "duration_us": 11970372,
+            "bytes": 12036,
+            "count": 3,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460401905969,
+            "duration_us": 950,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460401908271,
+            "duration_us": 876,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460401909865,
+            "duration_us": 343,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460401911270,
+            "duration_us": 397,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460401912062,
+            "duration_us": 385,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460401913498,
+            "duration_us": 469,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460401914351,
+            "duration_us": 399,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460401915664,
+            "duration_us": 471,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "operation_id": "9d200ed6-c5d5-4bb8-a4d5-bf2cbebf94e6",
+          "data": {
+            "phase": "tool",
+            "started_us": 6460401909246,
+            "duration_us": 6981,
+            "bytes": 806,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460401916947,
+            "duration_us": 839,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460401918484,
+            "duration_us": 466,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "operation_id": "9b4144cd-c353-44e8-87ec-0a2f7f53e554",
+          "data": {
+            "phase": "tool",
+            "started_us": 6460401919039,
+            "duration_us": 801,
+            "bytes": 119,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460401920838,
+            "duration_us": 799,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "data": {
+            "phase": "request",
+            "started_us": 6460401921812,
+            "duration_us": 213,
+            "bytes": 14819,
+            "count": 4,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460401922424,
+            "duration_us": 451,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "data": {
+            "phase": "model",
+            "started_us": 6460401922933,
+            "duration_us": 18361381,
+            "bytes": 13571,
+            "count": 4,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460420286578,
+            "duration_us": 1213,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460420289143,
+            "duration_us": 559,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "operation_id": "41e736b8-0df3-4aa7-a2df-2634308ec73f",
+          "data": {
+            "phase": "tool",
+            "started_us": 6460420289789,
+            "duration_us": 148221,
+            "bytes": 462,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460420438455,
+            "duration_us": 689,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "data": {
+            "phase": "request",
+            "started_us": 6460420439222,
+            "duration_us": 91,
+            "bytes": 18053,
+            "count": 5,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460420439494,
+            "duration_us": 270,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "dea8f0a8-ae21-4cad-8632-9236178041a2",
+          "data": {
+            "phase": "model",
+            "started_us": 6460420439788,
+            "duration_us": 5324616,
+            "bytes": 12218,
+            "count": 5,
+            "code": "ok"
+          }
+        },
+        {
+          "session_id": "",
+          "data": {
+            "phase": "commit",
+            "started_us": 6460425765790,
+            "duration_us": 920,
+            "bytes": 0,
+            "count": 1,
+            "code": "ok"
+          }
+        }
+      ],
+      "tool_names": [
+        "list_directory",
+        "read_file",
+        "read_file",
+        "read_file",
+        "exec",
+        "apply_changes",
+        "write_file",
+        "exec"
+      ],
+      "argument_bytes": [
+        {
+          "tool": "list_directory",
+          "bytes": 12
+        },
+        {
+          "tool": "read_file",
+          "bytes": 22
+        },
+        {
+          "tool": "read_file",
+          "bytes": 20
+        },
+        {
+          "tool": "read_file",
+          "bytes": 22
+        },
+        {
+          "tool": "exec",
+          "bytes": 256
+        },
+        {
+          "tool": "apply_changes",
+          "bytes": 991
+        },
+        {
+          "tool": "write_file",
+          "bytes": 126
+        },
+        {
+          "tool": "exec",
+          "bytes": 2315
+        }
+      ],
+      "usage": {
+        "input_tokens": 12504,
+        "cached_input_tokens": 7680,
+        "output_tokens": 1435,
+        "reasoning_output_tokens": 0
+      },
+      "confirmed_model_responses": 5,
+      "observed_tool_actions": 8,
+      "tool_active_minutes": [
+        0
+      ],
+      "last_tool_started_seconds": 46.072,
+      "served_models": [
+        "gpt-6.1-sol"
+      ],
+      "served_reasoning_efforts": [
+        "xhigh"
+      ],
+      "errors": [],
+      "usage_complete": true,
+      "case": "update",
+      "variant": "candidate",
+      "grade": {
+        "pass": true,
+        "details": [
+          "All contract checks passed"
+        ]
+      },
+      "prompt_sha256": "c7ec812c8cbddb8cd01f423bce707d784cfb3375ce5e00978901a04cb4af104d"
+    }
+  ],
+  "candidate_source_sha256": {
+    "src/common.c": "b39c24dfed6202cdaff38c002deb36c461d3b3b189ffccf7049d161b9495d17e",
+    "src/internal.h": "1506c432be2fd0536d7b9c8f1a2f6961b84241f5754be6d81a7900727b50d9ce",
+    "src/hash.c": "bfc83977dde6e14dddaeb702e76b4ccc9332eda958b67322fd0d8ab965f9defa",
+    "src/hash.h": "e7186bd265300410631bc890e8501fe0dd9b364a8551bb32a82bc6260afcaef0",
+    "src/tools/exec.c": "fd5dde92bf43a0305cdc6057a74233d761f8949bf690aab241fffea9111bdb79",
+    "src/tools/local_internal.h": "05a93b328cfcbdce0e18a761a8dbf2c0c56d86dc1ca34804684e0ac752bd28a1",
+    "src/tools/changes.c": "27903392bf602adee234c4cb781b9aae25fed7ab40385d7061a2174fa0c0c302",
+    "src/tools/check.c": "6bcaf6e8df47bf37343721b77f60c39e5c696b9535a404bfe118296d8eee81db",
+    "src/tools/local.c": "6d3808c92f8f165ae7e52201b474b93d62a5b9f4798b6bc6aa770d2e62c53291",
+    "src/tools/diagnostics.c": "9028a55c6d1127458ebfa85d11518027734971a8e74fc1e60c8397d9977c48a9",
+    "src/tools/check_registry.c": "dfa6d80bc6cec173cbf245deb7b74db3e622bf907d24c9aef3517b3be7301458",
+    "src/tools/search.c": "fb7c0b993e07ce67f7cbedb96dd91afbec1d701b9d66a64b83b15700deb95907",
+    "src/tools/walk.c": "ee2ae2beaa1438c780bd04aa631e93cf6b97185cec81931593fb0acf4b8b6504",
+    "src/tools/file_read.c": "7896904bd017fe8617a206eceea4e7e2a23f787f4a995c959fdce3ce9a4cfd48",
+    "src/tools/source.c": "d8b85e681037fe308453dbc1480b9b9c551b044b75c0a3c8475c9bb839767929",
+    "src/tools/file.c": "4fd21e44edc262096f5ae4be1efbc8d7deb727c8d607aa70233ecaeaccce5d90",
+    "src/tools/schema.c": "f3581bc7aa4e64b60d7edacca79bdaeba3da5f07a6bcaaf30522b7378c994da5",
+    "src/core/session.c": "8c6cba082b45c86724d06cd1b5dceff8104cf109633a56f04102c4c13dfd2c3d",
+    "src/core/runtime.c": "12119e8b30c6964d9a251fca3afcd8c91d03e0845f156160016b96da43c0b384",
+    "src/core/core.h": "f1315374ab4c34911b508f4998ad0653e50c2ba4dc6f73a680ae12c9837adc03",
+    "src/core/recovery.c": "152ee133a762c2a2e34b0ee2b5eb0a2b5da125e3574710b1671f1ca32897c10c",
+    "src/core/task_verify.c": "056ed42a4045ef326ee5087514e211b5b7fc2b37acfc825ee1e3cb6873c39779",
+    "src/core/execute.c": "998c099f1bbab0663f92178936cb6191020b07a8ced3aafaed3d4ffbf4387e25",
+    "src/core/results.c": "8d34f1e071babbe1c6bbac002e3187a4fdabd589bdc2d3fdbdd63e6a0a7e99bf",
+    "src/core/task_budget.c": "cf85d14dac85d6d3f4053d7ea10c96eda1cabb3bdcc88fa8575ec07da2557480",
+    "src/core/telemetry.c": "bcb9dc0ed7d30bc133f8c36e3406b44cbc7c41b1cebf300160074d013e9ba19f",
+    "src/core/store.c": "5ba837a6eb7c6183792e72f9ff6af8451c21d21460fcb4c7476c8adc957e4db4",
+    "src/core/parallel.c": "84322147e84c43bb3470e7e76582e937c187f4acabeff91cc39dc8fe27c20329",
+    "src/core/task.c": "f850c143c3bb1c97f176a29dc4434bfee08a95b09bd34d0c6dac306786db4c05",
+    "src/core/engine.c": "0d80d54d78fb5f66672f66c742ff2e0f5829d41d580c6990e34533817ed0bd01",
+    "src/core/operations.c": "59f085df1677f0d25707b0623f22b122b5a7bbfe26ecb242aa9961cffee2e9a6",
+    "src/core/task_store.c": "c6760268fd7533833160f69bc46bac23e2290008c9511a9a312458b063cfe7c0",
+    "src/core/response.c": "497b38784385c872a25829d4351d328b3b043c18c34f4b06f077f4e60556c2fd",
+    "src/core/observations.c": "86da22c67090b49c9bd2a48b2335359f932650869390b6876b215850bb65e932",
+    "src/core/context.c": "bec1e4dd745bbd6a94e6b5deb047029a36b5b0eb30228a1cec9c40f82cb2682f",
+    "src/core/mailbox.c": "24f3c528eb51137bf3b5f96aec2c8e0978aed96f556868ca8795c5149a4948bb",
+    "src/providers/responses_metrics.c": "9a8dc83289bc03980d862620986ba39388a03fc8d773cecfab4aa43ffcb09c29",
+    "src/providers/responses_http.c": "14bf6df851831d32ac0a695d07d308b71a42a1ad73b26900682472f57302d1f6",
+    "src/providers/stream.h": "0f80e8b1c2be051546d22c14227bfd94018140f6904eded33cb5747ed89afcc2",
+    "src/providers/responses_internal.h": "0561beaa6cf610836d89ee60c9a303305220a19433ae9512d8653fd5f851fed5",
+    "src/providers/responses.c": "e658c76afa5f9985347c87a0f120849cdd56c3eaed02bc9d5be3acc910b34dae",
+    "src/providers/stream_items.c": "0ff700a7df84fc955850d58671fe5983dc34f2fe2a5cbd2292aefb8cad21a9b3",
+    "src/providers/stream.c": "bb2a1088cc97d0ad39cdcb979a1dc2fee4de22355cc35923cacdfac95989c66f",
+    "src/cli/rpc.c": "0d0b14faf36af46a4fb2097657cc71bf46184120656aeba214b8b76d2cb5df27",
+    "src/cli/credential.c": "471393ce8352662db13061516c68e2275f28cbe5182dcd24ff9c89b3326d7500",
+    "src/cli/cli.h": "25a5e695d924219514b257edb7497a81c1a14a792ed59cccc754c3089cd0b4a1",
+    "src/cli/main.c": "aca40734a90e5ef66930dbe436c1d88c98cb1f5c9176a669593ec6aad3217051",
+    "src/cli/output.c": "8da3c5b6fa62dccdc715742d648363a5ef2332ca3df38e0f4565200b891a7192",
+    "src/cli/signals.c": "ada08d42f7dfe5a3451923b7344dc1a87d211b29d31b0437f560028375464842",
+    "include/ah/task.h": "e04a37906ae365fd089b2095187f705964bf7a5bdeb199e53794cd45dcd0dc3b",
+    "include/ah/responses.h": "cb5ae123bdbe796619c95fd76c4d6acbd3d6545f5bd0c78948576e8c0bf97b06",
+    "include/ah/ah.h": "d3622d5ace85916cf2b4651f8facbc3d3b1cb8d25cbf964c8cdced1d2dba2e68",
+    "include/ah/tools.h": "f49b507530d55efd8ab1dea274274a692efbdd1c128f02326a48bf29e5bf3c48",
+    "evals/drivers/agent.c": "4adfcd11d76006f2946f3246362d90f8a86c07e18802a1899c54224c9e89a988",
+    "evals/drivers/trace.c": "2328fe210637d54f20d5145b54259b5a9ddfbbbed833758dcfcee6915634c912",
+    "evals/drivers/trace.h": "52703f2c27d7e49893eabcbe3e93e65f3892ad2fcd92d028fea34e19158fe917",
+    "evals/drivers/cache.c": "84669b99c9f48de0b345dc4d982c2a0c4b0214ab943fd0151fbad32aaa952bbe"
+  },
+  "baseline_binary_sha256": "f828dd80d0f281315687ad65fac4e6e9111156f3474561ff3bf982f0c103ccab",
+  "candidate_binary_sha256": "7b133bda1b926022ffae7158d7eccfe10a34e24156b40d18e9f0cecfe83dcac4",
+  "date": "2026-11-05",
+  "scope": "One paired run of each existing smoke task, old default vs expanded workflow profile; task controller and check presets not enabled",
+  "protocol": "Same subscription route, gpt-6.1-sol xhigh; two variants concurrently per task, tasks sequential, 300s external ceiling",
+  "system": {
+    "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+    "architecture": "arm64",
+    "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)"
+  },
+  "defaults_after_measurement": "Expanded tools are now opt-in via enable_workflows; live_driver explicitly enables this measured profile",
+  "confirmed_usage": {
+    "input_tokens": 59592,
+    "cached_input_tokens": 29568,
+    "output_tokens": 10590,
+    "reasoning_output_tokens": 1473,
+    "model_responses": 28,
+    "total_tokens": 70182
+  },
+  "local_hash_microbenchmark": {
+    "scope": "One 100-run Release sample per implementation, 20 warmups; not an end-to-end or baseline-0.2 comparison",
+    "portable_p50_us": {
+      "read4k": 70,
+      "read64k": 415,
+      "write4k_atomic": 169
+    },
+    "native_p50_us": {
+      "read4k": 51,
+      "read64k": 162,
+      "write4k_atomic": 174
+    },
+    "reference_validation": "Both backends matched Python hashlib on 12 boundary/large inputs; native CommonCrypto uses libSystem, no new dependency"
+  }
+}

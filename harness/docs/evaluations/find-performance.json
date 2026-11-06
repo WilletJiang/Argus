@@ -1,0 +1,935 @@
+{
+  "primary": {
+    "baseline_commit": "331fa7116ad81e16df891fec44224c4371646f16",
+    "date": "2026-11-05",
+    "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+    "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
+    "scope": "Warm-cache Release callback-only; no model, network, journal, or concurrent builds/tests; host not exclusive",
+    "binaries": {
+      "before": "088c94bf2f28b313c685f70dee2efdadff2ff53a716c55ec520fe917d26a5ceb",
+      "after": "fd13b75a67d40c794a42682ef763ff8bc1c9039325e7920095ee871cee543fdc"
+    },
+    "source_sha256": {
+      "harness/benchmarks/find.c": "6f4f1af76871cc52d655f57a2f8e5935f8bfed14cb010efd2f710a1c5b95747d",
+      "harness/src/tools/find.c": "edc54f650a369d49c0a7dccc6c96535a58efe94fa7c224410b958e2be1423d11",
+      "harness/src/tools/source.c": "97fa4521253b2236f3d16cfd9a59a5a53f10cb7065217da594d11e035da40f9c",
+      "harness/src/tools/local.c": "39355b49eaa90ab4b7f0a7d9bb5c64dba0c903b84e750104eb781d953d6ac047"
+    },
+    "cases": [
+      {
+        "name": "small",
+        "files": 30,
+        "bytes": 30720,
+        "rounds": 101,
+        "warmups": 3,
+        "trials": [
+          {
+            "before": {
+              "rounds": 101,
+              "warmup": 3,
+              "p50_us": 607.0,
+              "p95_us": 1097.0,
+              "result_bytes": 2734,
+              "is_error": false
+            },
+            "after": {
+              "rounds": 101,
+              "warmup": 3,
+              "p50_us": 582.0,
+              "p95_us": 1204.0,
+              "result_bytes": 2734,
+              "is_error": false
+            }
+          },
+          {
+            "after": {
+              "rounds": 101,
+              "warmup": 3,
+              "p50_us": 412.0,
+              "p95_us": 457.0,
+              "result_bytes": 2734,
+              "is_error": false
+            },
+            "before": {
+              "rounds": 101,
+              "warmup": 3,
+              "p50_us": 446.0,
+              "p95_us": 729.0,
+              "result_bytes": 2734,
+              "is_error": false
+            }
+          },
+          {
+            "before": {
+              "rounds": 101,
+              "warmup": 3,
+              "p50_us": 443.0,
+              "p95_us": 450.0,
+              "result_bytes": 2734,
+              "is_error": false
+            },
+            "after": {
+              "rounds": 101,
+              "warmup": 3,
+              "p50_us": 401.0,
+              "p95_us": 414.0,
+              "result_bytes": 2734,
+              "is_error": false
+            }
+          },
+          {
+            "after": {
+              "rounds": 101,
+              "warmup": 3,
+              "p50_us": 399.0,
+              "p95_us": 409.0,
+              "result_bytes": 2734,
+              "is_error": false
+            },
+            "before": {
+              "rounds": 101,
+              "warmup": 3,
+              "p50_us": 447.0,
+              "p95_us": 466.0,
+              "result_bytes": 2734,
+              "is_error": false
+            }
+          },
+          {
+            "before": {
+              "rounds": 101,
+              "warmup": 3,
+              "p50_us": 444.0,
+              "p95_us": 458.0,
+              "result_bytes": 2734,
+              "is_error": false
+            },
+            "after": {
+              "rounds": 101,
+              "warmup": 3,
+              "p50_us": 438.0,
+              "p95_us": 448.0,
+              "result_bytes": 2734,
+              "is_error": false
+            }
+          },
+          {
+            "after": {
+              "rounds": 101,
+              "warmup": 3,
+              "p50_us": 402.0,
+              "p95_us": 448.0,
+              "result_bytes": 2734,
+              "is_error": false
+            },
+            "before": {
+              "rounds": 101,
+              "warmup": 3,
+              "p50_us": 444.0,
+              "p95_us": 464.0,
+              "result_bytes": 2734,
+              "is_error": false
+            }
+          },
+          {
+            "before": {
+              "rounds": 101,
+              "warmup": 3,
+              "p50_us": 444.0,
+              "p95_us": 466.0,
+              "result_bytes": 2734,
+              "is_error": false
+            },
+            "after": {
+              "rounds": 101,
+              "warmup": 3,
+              "p50_us": 401.0,
+              "p95_us": 420.0,
+              "result_bytes": 2734,
+              "is_error": false
+            }
+          },
+          {
+            "after": {
+              "rounds": 101,
+              "warmup": 3,
+              "p50_us": 401.0,
+              "p95_us": 434.0,
+              "result_bytes": 2734,
+              "is_error": false
+            },
+            "before": {
+              "rounds": 101,
+              "warmup": 3,
+              "p50_us": 442.0,
+              "p95_us": 457.0,
+              "result_bytes": 2734,
+              "is_error": false
+            }
+          },
+          {
+            "before": {
+              "rounds": 101,
+              "warmup": 3,
+              "p50_us": 443.0,
+              "p95_us": 477.0,
+              "result_bytes": 2734,
+              "is_error": false
+            },
+            "after": {
+              "rounds": 101,
+              "warmup": 3,
+              "p50_us": 400.0,
+              "p95_us": 419.0,
+              "result_bytes": 2734,
+              "is_error": false
+            }
+          }
+        ],
+        "receipt_sha256": "3346ff65288d464d1c3de1f8b10d14c3b89b90a3ceee55de6fcae4e2e2467158",
+        "p50_us": {
+          "before": 444.0,
+          "after": 401.0
+        },
+        "reduction_percent": 9.68
+      },
+      {
+        "name": "medium",
+        "files": 300,
+        "bytes": 1228800,
+        "rounds": 21,
+        "warmups": 3,
+        "trials": [
+          {
+            "before": {
+              "rounds": 21,
+              "warmup": 3,
+              "p50_us": 5883.0,
+              "p95_us": 5965.0,
+              "result_bytes": 2744,
+              "is_error": false
+            },
+            "after": {
+              "rounds": 21,
+              "warmup": 3,
+              "p50_us": 4553.0,
+              "p95_us": 4576.0,
+              "result_bytes": 2744,
+              "is_error": false
+            }
+          },
+          {
+            "after": {
+              "rounds": 21,
+              "warmup": 3,
+              "p50_us": 4559.0,
+              "p95_us": 4682.0,
+              "result_bytes": 2744,
+              "is_error": false
+            },
+            "before": {
+              "rounds": 21,
+              "warmup": 3,
+              "p50_us": 5807.0,
+              "p95_us": 5940.0,
+              "result_bytes": 2744,
+              "is_error": false
+            }
+          },
+          {
+            "before": {
+              "rounds": 21,
+              "warmup": 3,
+              "p50_us": 5826.0,
+              "p95_us": 5958.0,
+              "result_bytes": 2744,
+              "is_error": false
+            },
+            "after": {
+              "rounds": 21,
+              "warmup": 3,
+              "p50_us": 4577.0,
+              "p95_us": 4627.0,
+              "result_bytes": 2744,
+              "is_error": false
+            }
+          }
+        ],
+        "receipt_sha256": "8c2e934b38d742324e53747792d73601df9260ead2871058272742567a7b4516",
+        "p50_us": {
+          "before": 5826.0,
+          "after": 4559.0
+        },
+        "reduction_percent": 21.75
+      },
+      {
+        "name": "large",
+        "files": 1200,
+        "bytes": 19660800,
+        "rounds": 21,
+        "warmups": 3,
+        "trials": [
+          {
+            "before": {
+              "rounds": 21,
+              "warmup": 3,
+              "p50_us": 49625.0,
+              "p95_us": 51254.0,
+              "result_bytes": 2745,
+              "is_error": false
+            },
+            "after": {
+              "rounds": 21,
+              "warmup": 3,
+              "p50_us": 30869.0,
+              "p95_us": 31300.0,
+              "result_bytes": 2745,
+              "is_error": false
+            }
+          },
+          {
+            "after": {
+              "rounds": 21,
+              "warmup": 3,
+              "p50_us": 30693.0,
+              "p95_us": 33735.0,
+              "result_bytes": 2745,
+              "is_error": false
+            },
+            "before": {
+              "rounds": 21,
+              "warmup": 3,
+              "p50_us": 48825.0,
+              "p95_us": 49324.0,
+              "result_bytes": 2745,
+              "is_error": false
+            }
+          },
+          {
+            "before": {
+              "rounds": 21,
+              "warmup": 3,
+              "p50_us": 49778.0,
+              "p95_us": 50689.0,
+              "result_bytes": 2745,
+              "is_error": false
+            },
+            "after": {
+              "rounds": 21,
+              "warmup": 3,
+              "p50_us": 30937.0,
+              "p95_us": 31457.0,
+              "result_bytes": 2745,
+              "is_error": false
+            }
+          }
+        ],
+        "receipt_sha256": "a0aafd63392ef9ff7989e3e741d7cbef84f6c9312e85b9b73dcbf946ba6ba147",
+        "p50_us": {
+          "before": 49625.0,
+          "after": 30869.0
+        },
+        "reduction_percent": 37.8
+      },
+      {
+        "name": "large_no_match",
+        "files": 1200,
+        "bytes": 19660800,
+        "rounds": 21,
+        "warmups": 3,
+        "trials": [
+          {
+            "before": {
+              "rounds": 21,
+              "warmup": 3,
+              "p50_us": 48788.0,
+              "p95_us": 49254.0,
+              "result_bytes": 220,
+              "is_error": false
+            },
+            "after": {
+              "rounds": 21,
+              "warmup": 3,
+              "p50_us": 30623.0,
+              "p95_us": 30841.0,
+              "result_bytes": 220,
+              "is_error": false
+            }
+          },
+          {
+            "after": {
+              "rounds": 21,
+              "warmup": 3,
+              "p50_us": 30801.0,
+              "p95_us": 31558.0,
+              "result_bytes": 220,
+              "is_error": false
+            },
+            "before": {
+              "rounds": 21,
+              "warmup": 3,
+              "p50_us": 49410.0,
+              "p95_us": 50082.0,
+              "result_bytes": 220,
+              "is_error": false
+            }
+          },
+          {
+            "before": {
+              "rounds": 21,
+              "warmup": 3,
+              "p50_us": 48908.0,
+              "p95_us": 49170.0,
+              "result_bytes": 220,
+              "is_error": false
+            },
+            "after": {
+              "rounds": 21,
+              "warmup": 3,
+              "p50_us": 30761.0,
+              "p95_us": 30971.0,
+              "result_bytes": 220,
+              "is_error": false
+            }
+          }
+        ],
+        "receipt_sha256": "936fe08971b921a4501e92dc073efa13f1aaaab898701f50045092a01455e6e9",
+        "p50_us": {
+          "before": 48908.0,
+          "after": 30761.0
+        },
+        "reduction_percent": 37.1
+      },
+      {
+        "name": "unicode",
+        "files": 300,
+        "bytes": 4617621,
+        "rounds": 21,
+        "warmups": 3,
+        "trials": [
+          {
+            "before": {
+              "rounds": 21,
+              "warmup": 3,
+              "p50_us": 13297.0,
+              "p95_us": 13375.0,
+              "result_bytes": 3728,
+              "is_error": false
+            },
+            "after": {
+              "rounds": 21,
+              "warmup": 3,
+              "p50_us": 10971.0,
+              "p95_us": 11702.0,
+              "result_bytes": 3728,
+              "is_error": false
+            }
+          },
+          {
+            "after": {
+              "rounds": 21,
+              "warmup": 3,
+              "p50_us": 11056.0,
+              "p95_us": 11161.0,
+              "result_bytes": 3728,
+              "is_error": false
+            },
+            "before": {
+              "rounds": 21,
+              "warmup": 3,
+              "p50_us": 13338.0,
+              "p95_us": 13570.0,
+              "result_bytes": 3728,
+              "is_error": false
+            }
+          },
+          {
+            "before": {
+              "rounds": 21,
+              "warmup": 3,
+              "p50_us": 13339.0,
+              "p95_us": 13406.0,
+              "result_bytes": 3728,
+              "is_error": false
+            },
+            "after": {
+              "rounds": 21,
+              "warmup": 3,
+              "p50_us": 10939.0,
+              "p95_us": 11015.0,
+              "result_bytes": 3728,
+              "is_error": false
+            }
+          }
+        ],
+        "receipt_sha256": "a614163ba00be3aaf18fbf02d5e83d1dc2b6d50cad8be83f8310815ce372192e",
+        "p50_us": {
+          "before": 13338.0,
+          "after": 10971.0
+        },
+        "reduction_percent": 17.75
+      },
+      {
+        "name": "dense_line",
+        "files": 1,
+        "bytes": 65536,
+        "rounds": 21,
+        "warmups": 3,
+        "trials": [
+          {
+            "before": {
+              "rounds": 21,
+              "warmup": 3,
+              "p50_us": 1475.0,
+              "p95_us": 1520.0,
+              "result_bytes": 8621,
+              "is_error": false
+            },
+            "after": {
+              "rounds": 21,
+              "warmup": 3,
+              "p50_us": 65.0,
+              "p95_us": 74.0,
+              "result_bytes": 8621,
+              "is_error": false
+            }
+          },
+          {
+            "after": {
+              "rounds": 21,
+              "warmup": 3,
+              "p50_us": 64.0,
+              "p95_us": 68.0,
+              "result_bytes": 8621,
+              "is_error": false
+            },
+            "before": {
+              "rounds": 21,
+              "warmup": 3,
+              "p50_us": 1473.0,
+              "p95_us": 1532.0,
+              "result_bytes": 8621,
+              "is_error": false
+            }
+          },
+          {
+            "before": {
+              "rounds": 21,
+              "warmup": 3,
+              "p50_us": 1477.0,
+              "p95_us": 1496.0,
+              "result_bytes": 8621,
+              "is_error": false
+            },
+            "after": {
+              "rounds": 21,
+              "warmup": 3,
+              "p50_us": 65.0,
+              "p95_us": 70.0,
+              "result_bytes": 8621,
+              "is_error": false
+            }
+          }
+        ],
+        "receipt_sha256": "52bfb6a3c7d750f60937e14f89c399e41506932198c5c78edd493d3b3483608c",
+        "p50_us": {
+          "before": 1475.0,
+          "after": 65.0
+        },
+        "reduction_percent": 95.59
+      }
+    ]
+  },
+  "development": {
+    "word_scan_trial": {
+      "baseline_commit": "331fa7116ad81e16df891fec44224c4371646f16",
+      "scope": "Release callback-only warm-cache timing; identical complete receipts; no model or network",
+      "rounds": 21,
+      "warmups": 3,
+      "repetitions": 3,
+      "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+      "binaries": {
+        "before": "e2e908b10ea71de032dff680508e6fa1994442d74c762cd256f601c2244f4ebd",
+        "after": "e59a993431dd700411987298e494923a0c6c5106a8eaa6ed6e6b2a7e4df2adc2"
+      },
+      "cases": [
+        {
+          "name": "small",
+          "files": 30,
+          "bytes": 30720,
+          "trials": [
+            {
+              "before": {
+                "rounds": 21,
+                "warmup": 3,
+                "p50_us": 448.0,
+                "p95_us": 486.0,
+                "result_bytes": 2734,
+                "is_error": false
+              },
+              "after": {
+                "rounds": 21,
+                "warmup": 3,
+                "p50_us": 969.0,
+                "p95_us": 1219.0,
+                "result_bytes": 2734,
+                "is_error": false
+              }
+            },
+            {
+              "after": {
+                "rounds": 21,
+                "warmup": 3,
+                "p50_us": 638.0,
+                "p95_us": 724.0,
+                "result_bytes": 2734,
+                "is_error": false
+              },
+              "before": {
+                "rounds": 21,
+                "warmup": 3,
+                "p50_us": 581.0,
+                "p95_us": 628.0,
+                "result_bytes": 2734,
+                "is_error": false
+              }
+            },
+            {
+              "before": {
+                "rounds": 21,
+                "warmup": 3,
+                "p50_us": 506.0,
+                "p95_us": 528.0,
+                "result_bytes": 2734,
+                "is_error": false
+              },
+              "after": {
+                "rounds": 21,
+                "warmup": 3,
+                "p50_us": 424.0,
+                "p95_us": 448.0,
+                "result_bytes": 2734,
+                "is_error": false
+              }
+            }
+          ],
+          "receipt_sha256": "3346ff65288d464d1c3de1f8b10d14c3b89b90a3ceee55de6fcae4e2e2467158"
+        },
+        {
+          "name": "medium",
+          "files": 300,
+          "bytes": 1228800,
+          "trials": [
+            {
+              "before": {
+                "rounds": 21,
+                "warmup": 3,
+                "p50_us": 5818.0,
+                "p95_us": 5903.0,
+                "result_bytes": 2744,
+                "is_error": false
+              },
+              "after": {
+                "rounds": 21,
+                "warmup": 3,
+                "p50_us": 4567.0,
+                "p95_us": 5153.0,
+                "result_bytes": 2744,
+                "is_error": false
+              }
+            },
+            {
+              "after": {
+                "rounds": 21,
+                "warmup": 3,
+                "p50_us": 4677.0,
+                "p95_us": 5086.0,
+                "result_bytes": 2744,
+                "is_error": false
+              },
+              "before": {
+                "rounds": 21,
+                "warmup": 3,
+                "p50_us": 5852.0,
+                "p95_us": 5903.0,
+                "result_bytes": 2744,
+                "is_error": false
+              }
+            },
+            {
+              "before": {
+                "rounds": 21,
+                "warmup": 3,
+                "p50_us": 5807.0,
+                "p95_us": 5875.0,
+                "result_bytes": 2744,
+                "is_error": false
+              },
+              "after": {
+                "rounds": 21,
+                "warmup": 3,
+                "p50_us": 4593.0,
+                "p95_us": 4712.0,
+                "result_bytes": 2744,
+                "is_error": false
+              }
+            }
+          ],
+          "receipt_sha256": "8c2e934b38d742324e53747792d73601df9260ead2871058272742567a7b4516"
+        },
+        {
+          "name": "large",
+          "files": 1200,
+          "bytes": 19660800,
+          "trials": [
+            {
+              "before": {
+                "rounds": 21,
+                "warmup": 3,
+                "p50_us": 49100.0,
+                "p95_us": 50114.0,
+                "result_bytes": 2745,
+                "is_error": false
+              },
+              "after": {
+                "rounds": 21,
+                "warmup": 3,
+                "p50_us": 31227.0,
+                "p95_us": 65987.0,
+                "result_bytes": 2745,
+                "is_error": false
+              }
+            },
+            {
+              "after": {
+                "rounds": 21,
+                "warmup": 3,
+                "p50_us": 30600.0,
+                "p95_us": 31268.0,
+                "result_bytes": 2745,
+                "is_error": false
+              },
+              "before": {
+                "rounds": 21,
+                "warmup": 3,
+                "p50_us": 49211.0,
+                "p95_us": 50084.0,
+                "result_bytes": 2745,
+                "is_error": false
+              }
+            },
+            {
+              "before": {
+                "rounds": 21,
+                "warmup": 3,
+                "p50_us": 49211.0,
+                "p95_us": 50301.0,
+                "result_bytes": 2745,
+                "is_error": false
+              },
+              "after": {
+                "rounds": 21,
+                "warmup": 3,
+                "p50_us": 31142.0,
+                "p95_us": 31533.0,
+                "result_bytes": 2745,
+                "is_error": false
+              }
+            }
+          ],
+          "receipt_sha256": "a0aafd63392ef9ff7989e3e741d7cbef84f6c9312e85b9b73dcbf946ba6ba147"
+        },
+        {
+          "name": "large_no_match",
+          "files": 1200,
+          "bytes": 19660800,
+          "trials": [
+            {
+              "before": {
+                "rounds": 21,
+                "warmup": 3,
+                "p50_us": 48843.0,
+                "p95_us": 49194.0,
+                "result_bytes": 220,
+                "is_error": false
+              },
+              "after": {
+                "rounds": 21,
+                "warmup": 3,
+                "p50_us": 30641.0,
+                "p95_us": 31683.0,
+                "result_bytes": 220,
+                "is_error": false
+              }
+            },
+            {
+              "after": {
+                "rounds": 21,
+                "warmup": 3,
+                "p50_us": 31359.0,
+                "p95_us": 31627.0,
+                "result_bytes": 220,
+                "is_error": false
+              },
+              "before": {
+                "rounds": 21,
+                "warmup": 3,
+                "p50_us": 49461.0,
+                "p95_us": 49954.0,
+                "result_bytes": 220,
+                "is_error": false
+              }
+            },
+            {
+              "before": {
+                "rounds": 21,
+                "warmup": 3,
+                "p50_us": 48832.0,
+                "p95_us": 50226.0,
+                "result_bytes": 220,
+                "is_error": false
+              },
+              "after": {
+                "rounds": 21,
+                "warmup": 3,
+                "p50_us": 30881.0,
+                "p95_us": 31582.0,
+                "result_bytes": 220,
+                "is_error": false
+              }
+            }
+          ],
+          "receipt_sha256": "936fe08971b921a4501e92dc073efa13f1aaaab898701f50045092a01455e6e9"
+        },
+        {
+          "name": "dense_line",
+          "files": 1,
+          "bytes": 65536,
+          "trials": [
+            {
+              "before": {
+                "rounds": 21,
+                "warmup": 3,
+                "p50_us": 1494.0,
+                "p95_us": 1595.0,
+                "result_bytes": 8621,
+                "is_error": false
+              },
+              "after": {
+                "rounds": 21,
+                "warmup": 3,
+                "p50_us": 65.0,
+                "p95_us": 69.0,
+                "result_bytes": 8621,
+                "is_error": false
+              }
+            },
+            {
+              "after": {
+                "rounds": 21,
+                "warmup": 3,
+                "p50_us": 64.0,
+                "p95_us": 69.0,
+                "result_bytes": 8621,
+                "is_error": false
+              },
+              "before": {
+                "rounds": 21,
+                "warmup": 3,
+                "p50_us": 1509.0,
+                "p95_us": 1548.0,
+                "result_bytes": 8621,
+                "is_error": false
+              }
+            },
+            {
+              "before": {
+                "rounds": 21,
+                "warmup": 3,
+                "p50_us": 1510.0,
+                "p95_us": 1549.0,
+                "result_bytes": 8621,
+                "is_error": false
+              },
+              "after": {
+                "rounds": 21,
+                "warmup": 3,
+                "p50_us": 66.0,
+                "p95_us": 81.0,
+                "result_bytes": 8621,
+                "is_error": false
+              }
+            }
+          ],
+          "receipt_sha256": "52bfb6a3c7d750f60937e14f89c399e41506932198c5c78edd493d3b3483608c"
+        }
+      ]
+    },
+    "unicode_probe": {
+      "bytes": 4617621,
+      "trials": [
+        {
+          "before": {
+            "rounds": 21,
+            "warmup": 3,
+            "p50_us": 13375.0,
+            "p95_us": 14003.0,
+            "result_bytes": 3728,
+            "is_error": false
+          },
+          "after": {
+            "rounds": 21,
+            "warmup": 3,
+            "p50_us": 11005.0,
+            "p95_us": 11457.0,
+            "result_bytes": 3728,
+            "is_error": false
+          }
+        },
+        {
+          "after": {
+            "rounds": 21,
+            "warmup": 3,
+            "p50_us": 11113.0,
+            "p95_us": 11624.0,
+            "result_bytes": 3728,
+            "is_error": false
+          },
+          "before": {
+            "rounds": 21,
+            "warmup": 3,
+            "p50_us": 14659.0,
+            "p95_us": 15498.0,
+            "result_bytes": 3728,
+            "is_error": false
+          }
+        },
+        {
+          "before": {
+            "rounds": 21,
+            "warmup": 3,
+            "p50_us": 14848.0,
+            "p95_us": 19269.0,
+            "result_bytes": 3728,
+            "is_error": false
+          },
+          "after": {
+            "rounds": 21,
+            "warmup": 3,
+            "p50_us": 14303.0,
+            "p95_us": 16468.0,
+            "result_bytes": 3728,
+            "is_error": false
+          }
+        }
+      ]
+    },
+    "note": "Exploratory measurements before the final isolated run; retain the small-case slowdown and latency spikes. The Unicode probe overlapped a local test build and is not the primary timing evidence."
+  },
+  "correctness": {
+    "preliminary_differential_cases": 80,
+    "independent_context_oracle_cases": 208,
+    "utf8_boundary_cases": 363,
+    "dense_overlap_case_bytes": 1048576
+  }
+}
