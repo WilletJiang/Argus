@@ -56,11 +56,12 @@ ah_code ah_local_input_revision(ah_local_tools *tools, yyjson_val *path, const a
     if (!directory || code != AH_OK)
         return code;
     ah_paths paths;
-    code = ah_local_paths(tools, path, call, &paths);
+    ah_hash tree;
+    code = ah_local_paths(tools, path, call, &paths, &tree);
     if (code == AH_OK && (paths.truncated || paths.skipped))
         code = AH_LIMIT;
     char topology[65];
-    ah_hash_finish(&paths.topology, topology);
+    ah_hash_finish(&tree, topology);
     ah_hash hash;
     ah_hash_init(&hash);
     ah_hash_update(&hash, topology, 64);
@@ -100,34 +101,6 @@ ah_code ah_local_input_revision(ah_local_tools *tools, yyjson_val *path, const a
     if (code == AH_OK)
         ah_hash_finish(&hash, revision);
     return code;
-}
-
-ah_code ah_local_conflict(const ah_tool_call *call, ah_tool_result *result, ah_error *error,
-                          const char *path, const char *source, size_t length,
-                          const char *message) {
-    yyjson_mut_doc *doc = ah_mut_doc_new();
-    yyjson_mut_val *out = yyjson_mut_obj(doc);
-    yyjson_mut_doc_set_root(doc, out);
-    char revision[65];
-    ah_hash_bytes(source, length, revision);
-    size_t limit = ah_local_view_limit(call), keep = limit > 1024 ? (limit - 1024) / 6 : 0,
-           complete;
-    if (keep > 4096)
-        keep = 4096;
-    if (keep > length)
-        keep = length;
-    ah_local_utf8(source, keep, &complete);
-    keep = complete;
-    yyjson_mut_obj_add_bool(doc, out, "ok", false);
-    yyjson_mut_obj_add_str(doc, out, "error", "conflict");
-    yyjson_mut_obj_add_strcpy(doc, out, "path", path);
-    yyjson_mut_obj_add_strcpy(doc, out, "message", message);
-    yyjson_mut_obj_add_strcpy(doc, out, "revision", revision);
-    yyjson_mut_obj_add_strncpy(doc, out, "content", source, keep);
-    yyjson_mut_obj_add_bool(doc, out, "truncated", keep < length);
-    yyjson_mut_obj_add_uint(doc, out, "next_offset_bytes", keep);
-    result->is_error = true;
-    return ah_local_finish(call, result, doc, error);
 }
 
 ah_code ah_local_revision(int fd, const ah_tool_call *call, char revision[65]) {
@@ -186,7 +159,8 @@ bool ah_local_same_file(const struct stat *a, const struct stat *b) {
 }
 
 ah_code ah_local_source(int parent, const char *leaf, const ah_tool_call *call,
-                        struct stat *original, char **text, size_t *length) {
+                        struct stat *original, char **text, size_t *length,
+                        ah_scan_budget *budget) {
     int fd = openat(parent, leaf, O_RDONLY | O_NOFOLLOW | O_NONBLOCK | O_CLOEXEC);
     if (fd < 0)
         return AH_IO;
@@ -196,6 +170,14 @@ ah_code ah_local_source(int parent, const char *leaf, const ah_tool_call *call,
     else if (original->st_size < 0 || original->st_size > AH_LOCAL_MAX_BYTES)
         code = AH_LIMIT;
     size_t expected = code == AH_OK ? (size_t)original->st_size : 0;
+    if (code == AH_OK && budget) {
+        /* Charge the opened file even if its contents later fail UTF-8 validation. */
+        if (expected > budget->remaining) {
+            budget->exhausted = true;
+            code = AH_LIMIT;
+        } else
+            budget->remaining -= expected;
+    }
     char *data = code == AH_OK ? malloc(expected + 1) : NULL;
     if (code == AH_OK && !data)
         code = AH_IO;

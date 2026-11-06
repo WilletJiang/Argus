@@ -19,6 +19,8 @@ char *ah_mut_write(yyjson_mut_doc *doc);
 bool ah_json_valid(const char *json);
 ah_code ah_json_check(yyjson_val *value, ah_error *error);
 ah_code ah_schema_check(const char *schema, ah_error *error);
+ah_code ah_schema_parse(const char *schema, const char *value, yyjson_doc **parsed,
+                        ah_error *error);
 void ah_error_clear(ah_error *error);
 uint64_t ah_now_us(void);
 #endif

@@ -19,6 +19,9 @@ typedef struct {
     bool cancel_before_launch;
     bool entered[CALLS + 1], finished[CALLS + 1], unknown[CALLS + 1], timed_out;
     bool expect_owner, wait_deadline;
+    bool verify_timing;
+    unsigned timed;
+    uint64_t began[CALLS + 1], ended[CALLS + 1];
     bool interrupt_intent, interrupted;
     const char *interrupt_event;
     char *last_request;

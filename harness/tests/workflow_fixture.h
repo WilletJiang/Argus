@@ -24,7 +24,11 @@ typedef struct {
     yyjson_val *root;
 } wf_result;
 void wf_open(workflow *, const char *);
+static inline bool wf_field(yyjson_val *root, const char *name, const char *value) {
+    return yyjson_equals_str(yyjson_obj_get(root, name), value);
+}
 void wf_close(workflow *);
+void wf_reset_changes(workflow *);
 void wf_put(workflow *, const char *, const char *);
 char *wf_read(workflow *, const char *);
 void wf_expect_file(workflow *, const char *, const char *);

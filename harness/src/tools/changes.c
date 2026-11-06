@@ -20,17 +20,33 @@ typedef struct {
     char leaf[4097], before[65], after[65];
     int parent;
     struct stat stat;
-    char *source, *edited;
-    size_t old_size, new_size;
+    ah_edit_text edited;
+    size_t old_size;
     bool changed;
 } change;
-typedef struct {
-    size_t position, old_size, new_size;
-    const char *text;
-} hunk;
-static int order_hunks(const void *a, const void *b) {
-    size_t x = ((const hunk *)a)->position, y = ((const hunk *)b)->position;
-    return x < y ? -1 : x > y;
+static void conflict_receipt(const change *c, const ah_edit_text *source, const char *message,
+                             const ah_tool_call *call, ah_tool_result *result, ah_error *error) {
+    yyjson_mut_doc *doc = ah_mut_doc_new();
+    yyjson_mut_val *out = yyjson_mut_obj(doc);
+    yyjson_mut_doc_set_root(doc, out);
+    size_t limit = ah_local_view_limit(call), keep = limit > 1024 ? (limit - 1024) / 6 : 0,
+           complete;
+    if (keep > 4096)
+        keep = 4096;
+    if (keep > source->length)
+        keep = source->length;
+    ah_local_utf8(source->text, keep, &complete);
+    keep = complete;
+    yyjson_mut_obj_add_bool(doc, out, "ok", false);
+    yyjson_mut_obj_add_str(doc, out, "error", "conflict");
+    yyjson_mut_obj_add_strcpy(doc, out, "path", c->path);
+    yyjson_mut_obj_add_strcpy(doc, out, "message", message);
+    yyjson_mut_obj_add_strcpy(doc, out, "revision", c->before);
+    yyjson_mut_obj_add_strncpy(doc, out, "content", source->text, keep);
+    yyjson_mut_obj_add_bool(doc, out, "truncated", keep < source->length);
+    yyjson_mut_obj_add_uint(doc, out, "next_offset_bytes", keep);
+    result->is_error = true;
+    ah_local_finish(call, result, doc, error);
 }
 
 static ah_code prepare(ah_local_tools *tools, change *c, yyjson_val *file, const ah_tool_call *call,
@@ -38,85 +54,30 @@ static ah_code prepare(ah_local_tools *tools, change *c, yyjson_val *file, const
     yyjson_val *path = yyjson_obj_get(file, "path");
     c->path = yyjson_get_str(path);
     c->parent = ah_local_parent_fd(tools, path, c->leaf);
+    ah_edit_text source = {0};
     ah_code code = c->parent < 0 ? AH_INVALID
-                                 : ah_local_source(c->parent, c->leaf, call, &c->stat, &c->source,
-                                                   &c->old_size);
+                                 : ah_local_source(c->parent, c->leaf, call, &c->stat, &source.text,
+                                                   &source.length, NULL);
     if (code != AH_OK)
         return ah_fail(error, code, "Cannot read stable edit source");
-    ah_hash_bytes(c->source, c->old_size, c->before);
+    c->old_size = source.length;
+    ah_hash_bytes(source.text, source.length, c->before);
     const char *conflict = NULL;
     yyjson_val *base = yyjson_obj_get(file, "base_revision");
-    if (base && !yyjson_equals_str(base, c->before))
+    if (base && !yyjson_equals_str(base, c->before)) {
         conflict = "Base revision changed";
-    hunk hunks[64];
-    size_t i, n, removed = 0, added = 0;
-    yyjson_val *edits = yyjson_obj_get(file, "edits"), *item;
-    yyjson_arr_foreach(edits, i, n, item) {
-        if (conflict)
-            break;
-        yyjson_val *old = yyjson_obj_get(item, "old_text"), *new = yyjson_obj_get(item, "new_text");
-        const char *needle = yyjson_get_str(old), *text = yyjson_get_str(new);
-        size_t a = yyjson_get_len(old), b = yyjson_get_len(new);
-        if (a > AH_LOCAL_MAX_BYTES || b > AH_LOCAL_MAX_BYTES)
-            return ah_fail(error, AH_LIMIT, "Edit text exceeds 1 MiB");
-        if (memchr(needle, 0, a) || memchr(text, 0, b))
-            return ah_fail(error, AH_INVALID, "NUL in edit");
-        const char *match = strstr(c->source, needle);
-        if (!match || strstr(match + 1, needle)) {
-            conflict = "Every old_text must match exactly once in the base file";
-            break;
-        }
-        hunks[i] = (hunk){(size_t)(match - c->source), a, b, text};
+        code = AH_INVALID;
+    } else
+        code = ah_local_edit(&source, yyjson_obj_get(file, "edits"), call, &c->edited, &conflict,
+                             error);
+    if (conflict)
+        conflict_receipt(c, &source, conflict, call, result, error);
+    free(source.text);
+    if (code == AH_OK) {
+        ah_hash_bytes(c->edited.text, c->edited.length, c->after);
+        c->changed = strcmp(c->before, c->after) != 0;
     }
-    if (!conflict) {
-        n = yyjson_arr_size(edits);
-        qsort(hunks, n, sizeof(hunks[0]), order_hunks);
-        for (i = 0; i < n; i++) {
-            if (i && hunks[i].position < hunks[i - 1].position + hunks[i - 1].old_size) {
-                conflict = "Edit hunks overlap";
-                break;
-            }
-            removed += hunks[i].old_size;
-            added += hunks[i].new_size;
-        }
-    }
-    if (conflict) {
-        ah_local_conflict(call, result, error, c->path, c->source, c->old_size, conflict);
-        return AH_INVALID;
-    }
-    if (added > AH_LOCAL_MAX_BYTES - (c->old_size - removed))
-        return ah_fail(error, AH_LIMIT, "Edited file exceeds 1 MiB");
-    c->new_size = c->old_size - removed + added;
-    c->edited = malloc(c->new_size + 1);
-    if (!c->edited)
-        return ah_fail(error, AH_IO, "Out of memory");
-    size_t read = 0, written = 0;
-    for (i = 0; i < n; i++) {
-        size_t prefix = hunks[i].position - read;
-        memcpy(c->edited + written, c->source + read, prefix);
-        written += prefix;
-        memcpy(c->edited + written, hunks[i].text, hunks[i].new_size);
-        written += hunks[i].new_size;
-        read = hunks[i].position + hunks[i].old_size;
-    }
-    memcpy(c->edited + written, c->source + read, c->old_size - read);
-    c->edited[c->new_size] = 0;
-    ah_hash_bytes(c->edited, c->new_size, c->after);
-    c->changed = strcmp(c->before, c->after) != 0;
-    return AH_OK;
-}
-
-static ah_code validate_checks(ah_local_tools *tools, yyjson_val *names, ah_error *error) {
-    size_t i, n;
-    yyjson_val *name;
-    yyjson_arr_foreach(names, i, n, name) {
-        if (!ah_local_check_find(tools, yyjson_get_str(name)))
-            return ah_fail(error, AH_INVALID, "Unknown check preset");
-        for (size_t j = 0; j < i; j++)
-            if (yyjson_equals(name, yyjson_arr_get(names, j)))
-                return ah_fail(error, AH_INVALID, "Duplicate check preset");
-    }
-    return AH_OK;
+    return code;
 }
 
 ah_code ah_local_apply(void *context, const ah_tool_call *call, ah_tool_result *result,
@@ -134,7 +95,7 @@ ah_code ah_local_apply(void *context, const ah_tool_call *call, ah_tool_result *
     for (size_t i = 0; i < 16; i++)
         changes[i].parent = -1;
     size_t count = yyjson_arr_size(files), i, n;
-    ah_code code = validate_checks(tools, checks, error);
+    ah_code code = ah_local_validate_checks(tools, checks, error);
     if (code == AH_OK && !call->checkpoint)
         code = ah_fail(error, AH_INVALID, "Durable checkpoints are required");
     if (code == AH_OK && ah_local_limit(call) < 4096)
@@ -163,14 +124,14 @@ ah_code ah_local_apply(void *context, const ah_tool_call *call, ah_tool_result *
         yyjson_mut_obj_add_strcpy(doc, row, "before_revision", c->before);
         yyjson_mut_obj_add_strcpy(doc, row, "revision", c->after);
         yyjson_mut_obj_add_uint(doc, row, "before_bytes", c->old_size);
-        yyjson_mut_obj_add_uint(doc, row, "bytes", c->new_size);
+        yyjson_mut_obj_add_uint(doc, row, "bytes", c->edited.length);
         if (c->changed) {
             code = ah_local_phase(call, "file.started", c->path, c->before, c->after, error);
             if (code != AH_OK)
                 break;
             ah_tool_result written = {0};
-            code = ah_local_replace(c->parent, c->leaf, c->edited, c->new_size, &c->stat, call,
-                                    &written, error);
+            code = ah_local_replace(c->parent, c->leaf, c->edited.text, c->edited.length, &c->stat,
+                                    call, &written, error);
             unknown |= written.outcome_unknown;
             bool committed = code == AH_OK && !written.is_error;
             if (committed)
@@ -228,8 +189,7 @@ ah_code ah_local_apply(void *context, const ah_tool_call *call, ah_tool_result *
     for (size_t j = 0; j < count; j++) {
         if (changes[j].parent >= 0)
             close(changes[j].parent);
-        free(changes[j].source);
-        free(changes[j].edited);
+        free(changes[j].edited.text);
     }
     yyjson_doc_free(args);
     result->is_error = code != AH_OK || failed || unknown;

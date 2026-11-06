@@ -9,14 +9,16 @@ consume subscription/API quotas. Tests create temporary state and clean it up.
 | alloc | Per-document allocation budgets, sticky builder failure, serialization/realloc failure, no partial JSON |
 | stream | Every fragmentation width, UTF-8/CRLF/BOM, duplicate/oversized/deep JSON, terminal barriers |
 | stream_items | Completed item reconstruction when terminal output is empty; out-of-order indices, gaps, duplicate/conflicting identities and snapshots, encrypted reasoning, failure/EOF barriers |
-| tools | Descriptor-relative paths, traversal/symlinks/FIFOs, UTF-8 line/byte paging, exact edits, atomic writes, schema numeric edges, process environment/FD isolation, cancellation/flood/descendant cleanup |
-| parallel | Opt-in concurrency, write/input/approval barriers, cancellation/deadlines, budget enforcement, ordered receipts/model input |
+| tools | Descriptor-relative paths, traversal/symlinks/FIFOs, UTF-8 line/byte paging with complete-file revisions, atomic writes, schema numeric edges, process environment/FD isolation, cancellation/flood/descendant cleanup |
+| parallel | Opt-in concurrency, write/input/approval barriers, cancellation/deadlines, budget enforcement, receipt replay after task budget exhaustion, ordered receipts and worker timing |
 | context | Over-budget/failed-turn compaction recovery, retained user constraints/steering, unresolved exchange rejection, transactional forks |
 | results | Bounded previews, exact UTF-8 retrieval, session/fork access, stable history, new/legacy pause names |
 | recovery | Whole-batch process-crash recovery, no silent retries, version 1 schema migration/backfill |
 | cache | Stable per-session keys across reopen/resume/checkpoint; fork and new-session isolation |
 | observations | SHA-256 known-answer/boundary behavior, active-content reuse, forced reads, changed revisions, compaction/fork invalidation, no reuse of generic previews |
-| workflow | Real dispatch and durable phase evidence, contextual search/pagination, stale/overlapping/partial edits, checkpoint faults, fixed checks/cache invalidation, unknown effects |
+| workflow | Real dispatch and durable phase evidence, contextual search/pagination, edit-plus-check, fixed checks/cache invalidation, unknown effects |
+| changes | Exact bytes after multi-hunk edits, duplicates/overlap, stale bases, UTF-8 at file edges, preflight and checkpoint faults during multi-file writes |
+| bench_parallel_receipts (AH_BENCHMARK) | End-to-end ordered contents of four distinct files and four delayed callbacks at concurrency 1 and 4 |
 | find | Independent line-mask oracle, seeded Unicode/CR/overlap cases, dense matches, unaligned ASCII/UTF-8 validation boundaries |
 | task | Bounded repair, revision/policy validation, budgets across submissions/restarts, killed verification/repair-intent recovery, explicit reconciliation and local-check adapter |
 | http | Scripted real HTTP/SSE, rate/transport retries, no retry after output, auth/MIME/redirect rejection, deadline/cancellation, connection reuse |

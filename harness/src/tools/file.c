@@ -73,6 +73,11 @@ ah_code ah_local_replace(int parent, const char *leaf, const char *content, size
                               committed
                                   ? "File replaced, but directory durability is uncertain"
                                   : "Write failed, target changed, or cancelled before commit");
+    return AH_OK;
+}
+
+static ah_code write_receipt(const ah_tool_call *call, const char *content, size_t length,
+                             ah_tool_result *result, ah_error *error) {
     yyjson_mut_doc *doc = ah_mut_doc_new();
     yyjson_mut_val *output = yyjson_mut_obj(doc);
     yyjson_mut_doc_set_root(doc, output);
@@ -83,7 +88,7 @@ ah_code ah_local_replace(int parent, const char *leaf, const char *content, size
     yyjson_mut_obj_add_strcpy(doc, output, "revision", revision);
     yyjson_mut_obj_add_str(doc, output, "status", "applied");
     result->outcome_unknown = true;
-    code = ah_local_finish(call, result, doc, error);
+    ah_code code = ah_local_finish(call, result, doc, error);
     if (code == AH_OK)
         result->outcome_unknown = false;
     return code;
@@ -123,6 +128,8 @@ ah_code ah_local_write_file(void *context, const ah_tool_call *call, ah_tool_res
                                           result, error);
     if (parent >= 0)
         close(parent);
+    if (code == AH_OK && !result->is_error)
+        code = write_receipt(call, yyjson_get_str(content), length, result, error);
     yyjson_doc_free(args);
     return code;
 }

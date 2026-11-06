@@ -19,7 +19,7 @@ typedef struct {
     bool files, invalid;
     unsigned models, intents, receipts;
     char operations[CALLS][AH_ID_CAP];
-    const char *content;
+    char (*content)[FILE_BYTES + 1];
     char *calls;
 } fixture;
 
@@ -57,7 +57,7 @@ static bool verify_outputs(fixture *f, const char *request) {
         valid = valid && outputs < CALLS && matching_text(item, "call_id", id) && root &&
                 yyjson_is_false(yyjson_obj_get(root, "is_error"));
         if (f->files)
-            valid = valid && matching_text(result, "content", f->content) &&
+            valid = valid && matching_text(result, "content", f->content[outputs]) &&
                     yyjson_get_uint(yyjson_obj_get(result, "bytes")) == FILE_BYTES &&
                     yyjson_is_false(yyjson_obj_get(result, "truncated"));
         else
@@ -134,7 +134,7 @@ static char *model_calls(bool files) {
         snprintf(id, sizeof(id), "call_%u", i);
         if (files)
             snprintf(args, sizeof(args),
-                     "{\"path\":\"fixture.txt\",\"offset_line\":1,\"max_lines\":1000}");
+                     "{\"path\":\"fixture-%u.txt\",\"offset_line\":1,\"max_lines\":1000}", i);
         else
             snprintf(args, sizeof(args), "{\"index\":%u}", i);
         yyjson_mut_val *item = yyjson_mut_obj(doc);
@@ -164,7 +164,7 @@ static void report(const char *store, bool files, unsigned parallel, const doubl
            "\"max_model_tool_bytes\":0,\"network\":false,\"model_inference\":false,"
            "\"correctness_checked\":true,\"ordered_receipts_checked\":%u,"
            "\"p50_ms\":%.3f,\"p95_ms\":%.3f,\"max_ms\":%.3f,\"raw_ms\":[",
-           store, files ? "four_reads_same_4KiB_file_warm" : "four_synthetic_latency_reads",
+           store, files ? "four_independent_4KiB_files_warm" : "four_synthetic_latency_reads",
            parallel, count, WARMUPS, CALLS, files ? FILE_BYTES : 0, files ? 0 : DELAY_MS,
            count * CALLS, sorted[(count + 1) / 2 - 1], sorted[(count * 95 + 99) / 100 - 1],
            sorted[count - 1]);
@@ -173,7 +173,7 @@ static void report(const char *store, bool files, unsigned parallel, const doubl
     puts("]}");
 }
 static int benchmark(const char *workspace, const char *database, const char *store,
-                     const char *content, bool files, unsigned parallel) {
+                     char content[][FILE_BYTES + 1], bool files, unsigned parallel) {
     fixture f = {.files = files, .content = content, .calls = model_calls(files)};
     if (!f.calls)
         return 1;
@@ -244,21 +244,23 @@ int main(int argc, char **argv) {
     char root[] = "/tmp/ah-parallel-benchmark-XXXXXX";
     if (!mkdtemp(root))
         return 1;
-    char file[256], database[256], lock[272], journal[272], content[FILE_BYTES + 1];
-    snprintf(file, sizeof(file), "%s/fixture.txt", root);
+    char file[256], database[256], lock[272], journal[272], content[CALLS][FILE_BYTES + 1];
     snprintf(database, sizeof(database), "%s/state.db", root);
     snprintf(lock, sizeof(lock), "%s.lock", database);
     snprintf(journal, sizeof(journal), "%s-journal", database);
-    for (size_t i = 0; i < FILE_BYTES; i++)
-        content[i] = i % 64 == 63 ? '\n' : 'x';
-    content[FILE_BYTES] = 0;
-    FILE *output = fopen(file, "wb");
-    int rc = 1;
-    if (output) {
-        bool written = fwrite(content, 1, FILE_BYTES, output) == FILE_BYTES;
-        int closed = fclose(output);
-        if (written && !closed)
-            rc = 0;
+    int rc = 0;
+    for (unsigned i = 0; i < CALLS && !rc; i++) {
+        for (size_t j = 0; j < FILE_BYTES; j++)
+            content[i][j] = j % 64 == 63 ? '\n' : (char)('a' + i);
+        content[i][FILE_BYTES] = 0;
+        snprintf(file, sizeof(file), "%s/fixture-%u.txt", root, i);
+        FILE *output = fopen(file, "wb");
+        if (!output)
+            rc = 1;
+        else {
+            bool written = fwrite(content[i], 1, FILE_BYTES, output) == FILE_BYTES;
+            rc = fclose(output) || !written;
+        }
     }
     for (unsigned store = 0; store <= (unsigned)file_store && !rc; store++)
         for (unsigned workload = 0; workload < 2 && !rc; workload++)
@@ -270,7 +272,10 @@ int main(int argc, char **argv) {
                 unlink(lock);
                 unlink(journal);
             }
-    unlink(file);
+    for (unsigned i = 0; i < CALLS; i++) {
+        snprintf(file, sizeof(file), "%s/fixture-%u.txt", root, i);
+        unlink(file);
+    }
     unlink(database);
     unlink(lock);
     unlink(journal);

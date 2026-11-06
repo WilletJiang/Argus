@@ -45,9 +45,9 @@ not create a new API key or authorization flow.
 Candidate model-call intervals sum to 54.961, 76.118 and 51.199 seconds respectively.
 Request assembly sums to **0.623 / 0.555 / 0.564 milliseconds**. Durable commits sum
 to **11.048 / 12.621 / 16.878 milliseconds**. Tool interval sums are
-171.021 / 226.477 / 302.836 milliseconds. Parallel tool sums are not the tool critical
-path, and these categories do not cover every host/startup interval; do not subtract
-them as an exact end-to-end decomposition. They do show that local request assembly
+171.021 / 226.477 / 302.836 milliseconds. A November 6 audit found that each
+cancellation probe in a parallel read reset its recorded start. Reported tool sums
+can consequently undercount batched reads. The wall and model durations were measured independently. The original ledger retains the emitted values. They do show that local request assembly
 is not the primary measured wait in these examples.
 
 Every candidate transport receipt reports a successful HTTP response and ordered

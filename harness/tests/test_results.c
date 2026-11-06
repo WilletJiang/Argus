@@ -267,6 +267,18 @@ static void reconstruction_and_access(void) {
     assert(read_page(&f, sid, leading, 1, 65536, &result) == AH_INVALID);
     assert(read_page(&f, sid, 0, 4096, 32, &result) == AH_LIMIT);
     assert(!result.json);
+    /* The first Chinese character uses three bytes. A page ending inside
+     * the following character must stop at the exact same boundary. */
+    for (size_t limit = 3; limit <= 5; ++limit) {
+        ok(read_page(&f, sid, leading, limit, 65536, &result), &error);
+        yyjson_doc *doc = parse(result.json);
+        yyjson_val *body = yyjson_doc_get_root(doc);
+        assert(yyjson_equals_str(yyjson_obj_get(body, "content"), "地"));
+        assert(yyjson_get_uint(yyjson_obj_get(body, "next_offset")) == leading + 3);
+        yyjson_doc_free(doc);
+        free(result.json);
+        result.json = NULL;
+    }
     ok(read_page(&f, sid, total, 4096, 65536, &result), &error);
     yyjson_doc *page = parse(result.json);
     yyjson_val *root = yyjson_doc_get_root(page);

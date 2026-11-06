@@ -95,12 +95,19 @@ static size_t output_prefix(const read_page *page, const char *text, size_t leng
 
 static ah_code read_page_from_fd(int fd, const ah_tool_call *call, read_page *page,
                                  size_t max_lines, size_t budget) {
-    char buffer[8192];
+    char buffer[16384];
+    bool revision = page->file_bytes <= AH_LOCAL_MAX_BYTES;
+    ah_hash hash;
+    uint64_t skip_bytes = revision ? page->offset : 0;
+    size_t hashed = 0;
+    if (revision)
+        ah_hash_init(&hash);
+    else if (page->offset && lseek(fd, (off_t)page->offset, SEEK_SET) < 0)
+        return AH_IO;
     uint64_t line = 1;
     size_t encoded = 0, accounted = 0, newlines = 0;
-    bool stopped = false;
     ah_code code = AH_OK;
-    while (!stopped) {
+    while (revision || !page->truncated) {
         code = ah_local_stopped(call);
         if (code != AH_OK)
             break;
@@ -114,6 +121,16 @@ static ah_code read_page_from_fd(int fd, const ah_tool_call *call, read_page *pa
         if (!count)
             break;
         size_t offset = 0, length = (size_t)count;
+        if (revision) {
+            hashed += length;
+            if (hashed > AH_LOCAL_MAX_BYTES)
+                return AH_LIMIT;
+            ah_hash_update(&hash, buffer, length);
+            if (page->truncated)
+                continue;
+            offset = skip_bytes < length ? (size_t)skip_bytes : length;
+            skip_bytes -= offset;
+        }
         while (offset < length && line < page->start) {
             const char *newline = memchr(buffer + offset, '\n', length - offset);
             size_t skip = newline ? (size_t)(newline - buffer) + 1 - offset : length - offset;
@@ -126,7 +143,7 @@ static ah_code read_page_from_fd(int fd, const ah_tool_call *call, read_page *pa
             continue;
         if (newlines == max_lines || page->length == READ_MAX_BYTES) {
             page->truncated = true;
-            break;
+            continue;
         }
         size_t available = length - offset, capacity = READ_MAX_BYTES - page->length;
         size_t selected_lines;
@@ -139,10 +156,12 @@ static ah_code read_page_from_fd(int fd, const ah_tool_call *call, read_page *pa
         page->length += fits;
         newlines += selected_lines;
         if (fits < available)
-            page->truncated = stopped = true;
+            page->truncated = true;
     }
     if (code != AH_OK)
         return code;
+    if (revision)
+        ah_hash_finish(&hash, page->revision);
     size_t complete;
     if (memchr(page->content, '\0', page->length) ||
         !ah_local_utf8(page->content, page->length, &complete) ||
@@ -202,23 +221,14 @@ ah_code ah_local_read_file(void *context, const ah_tool_call *call, ah_tool_resu
                               "Cannot read a regular file without following symlinks");
     }
     page.file_bytes = (uint64_t)st.st_size;
-    if (st.st_size <= AH_LOCAL_MAX_BYTES)
-        code = ah_local_revision(fd, call, page.revision);
-    if (code != AH_OK) {
-        close(fd);
-        yyjson_doc_free(args);
-        return ah_local_error(call, result, error, code, "File changed or revision read failed");
-    }
-    if (byte_offset && lseek(fd, (off_t)page.offset, SEEK_SET) < 0) {
-        close(fd);
-        yyjson_doc_free(args);
-        return ah_local_error(call, result, error, AH_IO, "Cannot seek to byte offset");
-    }
     yyjson_mut_doc *sizing = page_receipt(yyjson_get_str(path), &page);
     char *empty = ah_mut_write(sizing);
     ah_mut_doc_free(sizing);
     /* Allow for larger byte, line, and continuation numbers in the final receipt. */
     size_t overhead = empty ? strlen(empty) + 64 : 0;
+    /* The quoted 64-digit revision will replace the four bytes of JSON null. */
+    if (overhead && page.file_bytes <= AH_LOCAL_MAX_BYTES)
+        overhead += 62;
     free(empty);
     size_t limit = ah_local_view_limit(call), budget = limit > overhead ? limit - overhead : 0;
     page.content = overhead && budget ? malloc(READ_MAX_BYTES) : NULL;

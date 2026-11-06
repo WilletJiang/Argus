@@ -9,7 +9,7 @@ static int compare_paths(const void *a, const void *b) {
 }
 
 static ah_code collect(int fd, const char *prefix, unsigned depth, const ah_tool_call *call,
-                       ah_paths *paths) {
+                       ah_paths *paths, ah_hash *topology) {
     if (depth > 32) {
         paths->truncated = true;
         close(fd);
@@ -48,27 +48,39 @@ static ah_code collect(int fd, const char *prefix, unsigned depth, const ah_tool
             paths->skipped++;
             continue;
         }
-        struct stat st;
-        if (fstatat(dirfd(dir), entry->d_name, &st, AT_SYMLINK_NOFOLLOW)) {
-            code = AH_IO;
-            break;
+        char kind;
+#if defined(_DIRENT_HAVE_D_TYPE) || defined(__APPLE__)
+        /* Search only needs entry kinds. Every later open still pins and checks
+         * the descriptor. Verification also needs directory metadata. */
+        if (!topology && entry->d_type != DT_UNKNOWN)
+            kind = entry->d_type == DT_DIR ? 'd' : entry->d_type == DT_REG ? 'f' : 'x';
+        else
+#endif
+        {
+            struct stat st;
+            if (fstatat(dirfd(dir), entry->d_name, &st, AT_SYMLINK_NOFOLLOW)) {
+                code = AH_IO;
+                break;
+            }
+            kind = S_ISDIR(st.st_mode) ? 'd' : S_ISREG(st.st_mode) ? 'f' : 'x';
+            if (topology) {
+                ah_hash_update(topology, path, strlen(path) + 1);
+                ah_hash_update(topology, &kind, 1);
+                if (kind == 'd')
+                    ah_local_stat_hash(topology, &st);
+            }
         }
-        ah_hash_update(&paths->topology, path, strlen(path) + 1);
-        const char kind = S_ISDIR(st.st_mode) ? 'd' : S_ISREG(st.st_mode) ? 'f' : 'x';
-        ah_hash_update(&paths->topology, &kind, 1);
-        if (S_ISDIR(st.st_mode))
-            ah_local_stat_hash(&paths->topology, &st);
-        if (S_ISDIR(st.st_mode)) {
+        if (kind == 'd') {
             int child =
                 openat(dirfd(dir), entry->d_name, O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
             if (child < 0) {
                 code = AH_IO;
                 break;
             }
-            code = collect(child, path, depth + 1, call, paths);
+            code = collect(child, path, depth + 1, call, paths, topology);
             if (code != AH_OK || paths->truncated)
                 break;
-        } else if (S_ISREG(st.st_mode)) {
+        } else if (kind == 'f') {
             char *copy = ah_strdup(path);
             if (!copy) {
                 code = AH_IO;
@@ -83,9 +95,10 @@ static ah_code collect(int fd, const char *prefix, unsigned depth, const ah_tool
 }
 
 ah_code ah_local_paths(ah_local_tools *tools, yyjson_val *scope, const ah_tool_call *call,
-                       ah_paths *paths) {
+                       ah_paths *paths, ah_hash *topology) {
     memset(paths, 0, sizeof(*paths));
-    ah_hash_init(&paths->topology);
+    if (topology)
+        ah_hash_init(topology);
     const char *path = yyjson_get_str(scope);
     if (!path || !*path || memchr(path, 0, yyjson_get_len(scope)))
         return AH_INVALID;
@@ -116,7 +129,7 @@ ah_code ah_local_paths(ah_local_tools *tools, yyjson_val *scope, const ah_tool_c
             paths->count = 1;
         close(fd);
     } else if (S_ISDIR(st.st_mode))
-        code = collect(fd, !strcmp(path, ".") ? "" : path, 0, call, paths);
+        code = collect(fd, !strcmp(path, ".") ? "" : path, 0, call, paths, topology);
     else {
         close(fd);
         code = AH_INVALID;

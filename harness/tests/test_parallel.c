@@ -30,6 +30,17 @@ static unsigned argument_id(const char *json) {
 static void observe(void *context, const ah_event *event) {
     fixture *f = context;
     assert(pthread_equal(pthread_self(), f->owner));
+    if (f->verify_timing && !strcmp(event->type, "runtime.metrics")) {
+        yyjson_doc *doc = yyjson_read(event->json, strlen(event->json), 0);
+        yyjson_val *root = yyjson_doc_get_root(doc);
+        if (yyjson_equals_str(yyjson_obj_get(root, "phase"), "tool")) {
+            unsigned id = ++f->timed; /* Metrics are delivered in call order after join. */
+            uint64_t start = yyjson_get_uint(yyjson_obj_get(root, "started_us"));
+            uint64_t duration = yyjson_get_uint(yyjson_obj_get(root, "duration_us"));
+            assert(id <= f->count && start <= f->began[id] && start + duration >= f->ended[id]);
+        }
+        yyjson_doc_free(doc);
+    }
     if (!strcmp(event->type, "tool.started")) {
         f->started++;
         if (f->started == 1 && f->expected_batch) {
@@ -110,6 +121,7 @@ static ah_code execute(void *context, const ah_tool_call *call, ah_tool_result *
                        ah_error *error) {
     fixture *f = context;
     unsigned id = argument_id(call->arguments_json);
+    f->began[id] = ah_now_us();
     assert(call->deadline_ms);
     assert(f->started >= f->expected_starts[id]);
     assert(f->receipts >= f->minimum_receipts[id]);
@@ -151,6 +163,7 @@ static ah_code execute(void *context, const ah_tool_call *call, ah_tool_result *
     f->finish_order[f->finished_count++] = id;
     pthread_cond_broadcast(&f->changed);
     pthread_mutex_unlock(&f->mutex);
+    f->ended[id] = ah_now_us();
     if (f->error_id == id)
         return ah_fail(error, AH_IO, "injected read error");
     char json[40];
@@ -286,6 +299,7 @@ static void concurrent_order_and_errors(void) {
                  .barrier_count = 3,
                  .expected_batch = 3};
     f.partner[1] = 3;
+    f.verify_timing = true;
     f.partner[2] = 3;
     f.partner[3] = 1;
     f.wait_finished[1] = 2;
@@ -296,6 +310,7 @@ static void concurrent_order_and_errors(void) {
     char sid[AH_ID_CAP];
     assert(run_fixture(&f, sid) == AH_OK);
     assert(f.max_active == 3 && f.executions == 3 && f.provider_calls == 2);
+    assert(f.timed == 3);
     assert(f.finish_order[0] == 3 && f.finish_order[1] == 2 && f.finish_order[2] == 1);
     assert(f.receipts == 3 && !f.late_receipts);
     assert(scalar(&f, "SELECT COUNT(*) FROM operations WHERE status='done' AND is_error=1") == 1);

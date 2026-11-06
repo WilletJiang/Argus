@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v4
       - if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev libsqlite3-dev
-      - run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DAH_SANITIZE=ON -DAH_LIVE_EVAL=ON
+      - run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DAH_SANITIZE=ON -DAH_LIVE_EVAL=ON -DAH_BENCHMARK=ON
       - run: cmake --build build --parallel 4
       - run: ctest --test-dir build --output-on-failure
       - run: ./scripts/check-standalone.sh

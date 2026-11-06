@@ -18,7 +18,6 @@ typedef struct {
 
 static bool worker_cancelled(void *context) {
     read_worker *worker = context;
-    worker->began = ah_now_us();
     return atomic_load_explicit(&worker->engine->cancelled, memory_order_relaxed) ||
            atomic_load_explicit(worker->aborted, memory_order_relaxed) ||
            ah_now_ms() >= worker->call.deadline_ms;
@@ -26,6 +25,7 @@ static bool worker_cancelled(void *context) {
 
 static void *execute_read(void *context) {
     read_worker *worker = context;
+    worker->began = ah_now_us();
     if (worker_cancelled(worker))
         worker->executed = ah_fail(&worker->error, AH_CANCELLED, "cancelled before execution");
     else
@@ -178,6 +178,10 @@ ah_code core_execute_parallel(ah_engine *e, core_session *session, const core_op
                               bool *handled, ah_error *err) {
     *handled = false;
     if (e->config.max_parallel_tools < 2 || session->tool_calls >= e->config.max_tool_calls)
+        return AH_OK;
+    /* Only new read callbacks consume batch budget. Replaying a saved receipt
+     * must still work after the last permitted callback has finished. */
+    if (first->effect != AH_EFFECT_READ || strcmp(first->status, "pending") || first->approval)
         return AH_OK;
     unsigned limit = e->config.max_parallel_tools;
     if (limit > MAX_PARALLEL_TOOLS)

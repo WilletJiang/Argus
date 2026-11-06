@@ -27,14 +27,17 @@ struct ah_local_tools {
 size_t ah_local_limit(const ah_tool_call *call);
 size_t ah_local_view_limit(const ah_tool_call *call);
 bool ah_local_same_file(const struct stat *a, const struct stat *b);
+typedef struct {
+    size_t remaining;
+    bool exhausted;
+} ah_scan_budget;
+
 ah_code ah_local_source(int parent, const char *leaf, const ah_tool_call *call,
-                        struct stat *original, char **text, size_t *length);
+                        struct stat *original, char **text, size_t *length, ah_scan_budget *budget);
 ah_code ah_local_revision(int fd, const ah_tool_call *call, char revision[65]);
 ah_code ah_local_replace(int parent, const char *leaf, const char *content, size_t length,
                          const struct stat *original, const ah_tool_call *call,
                          ah_tool_result *result, ah_error *error);
-ah_code ah_local_conflict(const ah_tool_call *, ah_tool_result *, ah_error *, const char *,
-                          const char *, size_t, const char *);
 ah_code ah_local_stopped(const ah_tool_call *call);
 ah_code ah_local_error(const ah_tool_call *call, ah_tool_result *result, ah_error *error,
                        ah_code code, const char *message);
@@ -49,9 +52,8 @@ typedef struct {
     char *items[2048];
     size_t count, visited, skipped;
     bool truncated;
-    ah_hash topology;
 } ah_paths;
-ah_code ah_local_paths(ah_local_tools *, yyjson_val *, const ah_tool_call *, ah_paths *);
+ah_code ah_local_paths(ah_local_tools *, yyjson_val *, const ah_tool_call *, ah_paths *, ah_hash *);
 void ah_local_paths_free(ah_paths *);
 ah_code ah_local_input_revision(ah_local_tools *, yyjson_val *, const ah_tool_call *, char[65]);
 void ah_local_stat_hash(ah_hash *, const struct stat *);
@@ -62,10 +64,17 @@ ah_code ah_local_check_run(ah_local_tools *, ah_local_check *, const ah_tool_cal
 ah_local_check *ah_local_check_find(ah_local_tools *, const char *);
 ah_code ah_local_checks_register(ah_local_tools *, ah_engine *, ah_error *);
 void ah_local_checks_free(ah_local_tools *);
+ah_code ah_local_validate_checks(ah_local_tools *, yyjson_val *, ah_error *);
 ah_code ah_local_check_names(ah_local_tools *, yyjson_val *, const ah_tool_call *, yyjson_mut_doc *,
                              yyjson_mut_val *, bool *, bool *, ah_error *);
 ah_code ah_local_phase(const ah_tool_call *, const char *, const char *, const char *, const char *,
                        ah_error *);
+typedef struct {
+    char *text;
+    size_t length;
+} ah_edit_text;
+ah_code ah_local_edit(const ah_edit_text *, yyjson_val *, const ah_tool_call *, ah_edit_text *,
+                      const char **conflict, ah_error *);
 ah_code ah_local_apply(void *, const ah_tool_call *, ah_tool_result *, ah_error *);
 extern const char ah_apply_schema[];
 extern const char ah_checks_schema[];

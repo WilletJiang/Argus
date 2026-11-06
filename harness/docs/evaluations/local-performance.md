@@ -55,8 +55,8 @@ universal speedup. Run `./build/bench_files [runs]` after configuring
 
 ## Read batch measurement (2026-11-03)
 
-`bench_parallel --file-store` compares concurrency 1 and 4 with the same current
-runtime. The provider is a mock; every run starts a fresh session and completes
+The November 3 build of `bench_parallel --file-store` compared concurrency
+1 and 4 on the same runtime. The provider is a mock; every run starts a fresh session and completes
 one model/tool/model cycle with four read calls. The timed interval includes
 submit, scheduling, SQLite and ordered receipts, plus correctness checks in the
 mock provider. Result projection is disabled equally in both modes. There are two

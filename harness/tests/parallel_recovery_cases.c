@@ -59,9 +59,16 @@ static void unknown_results_survive_restart(void) {
             f.wait_finished[3] = 2;
             f.wait_finished[4] = 3;
         }
-        open_fixture(&f, 4, 4, 10000);
+        open_fixture(&f, 4, 16, 10000);
         char sid[AH_ID_CAP];
-        assert(run_fixture(&f, sid) == AH_UNCERTAIN);
+        ah_error error = {0};
+        ok(ah_session_create(f.engine, "mock", "", sid, &error), &error);
+        const ah_task_config task = {
+            "{}", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", 4, 4, 0,
+            60000};
+        ok(ah_task_create(f.engine, sid, &task, &error), &error);
+        ok(ah_submit(f.engine, sid, "command", "run tools", &error), &error);
+        assert(ah_run(f.engine, sid, &error) == AH_UNCERTAIN);
         assert(f.executions == 4 && f.provider_calls == 1 && f.receipts == 1);
         assert(scalar(&f, "SELECT tool_calls FROM sessions") == 4);
         assert(scalar(&f, "SELECT COUNT(*) FROM operations WHERE status LIKE 'received%'") ==
@@ -80,10 +87,10 @@ static void unknown_results_survive_restart(void) {
         }
         assert(f.receipts == 1);
         reopen_fixture(&f);
-        ah_error error = {0};
         ok(ah_run(f.engine, sid, &error), &error);
         assert(f.executions == 4 && f.provider_calls == 2 && f.receipts == 4);
         assert(scalar(&f, "SELECT tool_calls FROM sessions") == 4);
+        assert(scalar(&f, "SELECT tool_used FROM tasks") == 4);
         assert(scalar(&f, "SELECT COUNT(*) FROM operations WHERE status='done'") == 4);
         assert_receipt_order(&f, 4);
         if (mode == 1)

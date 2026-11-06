@@ -284,7 +284,9 @@ ah_code ah_schema_check(const char *schema_json, ah_error *error) {
     return AH_OK;
 }
 
-ah_code ah_schema_validate(const char *schema_json, const char *value_json, ah_error *error) {
+ah_code ah_schema_parse(const char *schema_json, const char *value_json, yyjson_doc **parsed,
+                        ah_error *error) {
+    *parsed = NULL;
     if (!schema_json || !value_json || strlen(schema_json) > JSON_TEXT_LIMIT ||
         strlen(value_json) > JSON_TEXT_LIMIT)
         return ah_fail(error, AH_INVALID, "Missing or oversized JSON schema/value");
@@ -297,12 +299,21 @@ ah_code ah_schema_validate(const char *schema_json, const char *value_json, ah_e
     bool accepted = valid_schema && valid_value &&
                     validate(yyjson_doc_get_root(schema), yyjson_doc_get_root(value), 0);
     yyjson_doc_free(schema);
-    yyjson_doc_free(value);
-    if (!accepted)
+    if (!accepted) {
+        yyjson_doc_free(value);
         return ah_fail(error, AH_INVALID, "%s",
                        !valid_schema  ? "Unsupported or invalid JSON schema"
                        : !valid_value ? "Invalid, ambiguous, or excessive JSON value"
                                       : "Tool arguments do not match schema");
+    }
+    *parsed = value;
     ah_error_clear(error);
     return AH_OK;
+}
+
+ah_code ah_schema_validate(const char *schema_json, const char *value_json, ah_error *error) {
+    yyjson_doc *parsed;
+    ah_code code = ah_schema_parse(schema_json, value_json, &parsed, error);
+    yyjson_doc_free(parsed);
+    return code;
 }

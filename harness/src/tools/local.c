@@ -156,17 +156,16 @@ int ah_local_parent_path(ah_local_tools *tools, const char *text, size_t length,
 yyjson_doc *ah_local_arguments(const ah_tool_call *call, const char *schema, ah_tool_result *result,
                                ah_error *error) {
     memset(result, 0, sizeof(*result));
-    ah_code code = ah_schema_validate(schema, call->arguments_json, error);
+    yyjson_doc *doc;
+    ah_code code = ah_schema_parse(schema, call->arguments_json, &doc, error);
     if (code == AH_OK)
         code = ah_local_stopped(call);
     if (code != AH_OK) {
+        yyjson_doc_free(doc);
         ah_local_error(call, result, error, code,
                        "Invalid arguments or cancelled/deadline reached");
         return NULL;
     }
-    yyjson_doc *doc = yyjson_read(call->arguments_json, strlen(call->arguments_json), 0);
-    if (!doc)
-        ah_local_error(call, result, error, AH_IO, "Could not parse arguments");
     return doc;
 }
 

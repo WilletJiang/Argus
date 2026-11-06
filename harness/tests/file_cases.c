@@ -35,6 +35,8 @@ void test_file_pages(const char *workspace) {
                      NULL, NULL, AH_OK, false);
     yyjson_val *root = yyjson_doc_get_root(doc);
     CHECK(yyjson_equals_str(yyjson_obj_get(root, "content"), "世界\n"));
+    CHECK(yyjson_equals_str(yyjson_obj_get(root, "revision"),
+                            "47dfffbfb0b250ac3f8427075e09f2f6346b7182103c38c9ed764ffb1f2a6da4"));
     CHECK(yyjson_equals_str(yyjson_obj_get(root, "path"), "pages"));
     CHECK(yyjson_get_uint(yyjson_obj_get(root, "start_line")) == 2);
     CHECK(yyjson_get_uint(yyjson_obj_get(root, "next_line")) == 3);

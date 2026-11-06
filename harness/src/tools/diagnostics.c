@@ -24,7 +24,7 @@ void ah_local_diagnostics(ah_local_tools *tools, ah_local_check *check, const ah
             if (yyjson_mut_arr_size(excerpts) == 3 || ah_local_stopped(call) != AH_OK)
                 break;
             ah_paths paths;
-            if (ah_local_paths(tools, path, call, &paths) != AH_OK) {
+            if (ah_local_paths(tools, path, call, &paths, NULL) != AH_OK) {
                 ah_local_paths_free(&paths);
                 continue;
             }

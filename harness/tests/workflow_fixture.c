@@ -62,6 +62,13 @@ void wf_open(workflow *w, const char *program) {
     ah_error error;
     assert(ah_local_tools_open(&config, &w->tools, &error) == AH_OK);
 }
+void wf_reset_changes(workflow *w) {
+    wf_put(w, "a.txt", WF_BASE);
+    wf_put(w, "b.txt", WF_OTHER);
+    w->phase_count = w->applied_count = 0;
+    w->fail_phase = w->fail_target = NULL;
+    w->mutate_phase = w->mutate_target = NULL;
+}
 void wf_close(workflow *w) {
     ah_local_tools_close(w->tools);
     remove_tree(w->workspace);

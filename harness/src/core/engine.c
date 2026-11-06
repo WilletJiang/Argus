@@ -122,6 +122,8 @@ ah_code ah_open(const ah_config *config, ah_engine **out, ah_error *err) {
             "INSERT OR IGNORE INTO call_ids(session_id,call_id) SELECT session_id,call_id FROM "
             "operations;"
             "CREATE INDEX IF NOT EXISTS operations_session ON operations(session_id,seq);"
+            "CREATE INDEX IF NOT EXISTS operations_pending ON operations(session_id,seq) "
+            "WHERE status!='done';"
             "CREATE TABLE IF NOT EXISTS result_refs(session_id TEXT NOT NULL REFERENCES "
             "sessions(id),operation_id TEXT NOT NULL REFERENCES operations(id),"
             "PRIMARY KEY(session_id,operation_id));"

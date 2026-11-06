@@ -1,6 +1,5 @@
 #include "local_internal.h"
 #include <fnmatch.h>
-#include <fcntl.h>
 
 const char ah_find_schema[] =
     "{\"type\":\"object\",\"properties\":{"
@@ -158,7 +157,7 @@ ah_code ah_local_find(void *context, const ah_tool_call *call, ah_tool_result *r
     size_t limit = ah_local_view_limit(call);
     out.remaining = limit > 1024 ? limit - 1024 : 0;
     ah_paths paths;
-    ah_code code = ah_local_paths(context, scope, call, &paths);
+    ah_code code = ah_local_paths(context, scope, call, &paths, NULL);
     ah_hash hash;
     ah_hash_init(&hash);
     ah_hash_update(&hash, query, strlen(query) + 1);
@@ -166,7 +165,8 @@ ah_code ah_local_find(void *context, const ah_tool_call *call, ah_tool_result *r
     ah_hash_update(&hash, yyjson_get_str(scope), yyjson_get_len(scope) + 1);
     unsigned char context_lines = (unsigned char)out.context;
     ah_hash_update(&hash, &context_lines, 1);
-    size_t bytes = 0, scanned = 0, skipped = paths.skipped;
+    ah_scan_budget budget = {.remaining = 32 * 1024 * 1024};
+    size_t scanned = 0, skipped = paths.skipped;
     for (size_t i = 0; code == AH_OK && i < paths.count; i++) {
         if (fnmatch(glob, paths.items[i], 0))
             continue;
@@ -174,21 +174,15 @@ ah_code ah_local_find(void *context, const ah_tool_call *call, ah_tool_result *r
         size_t length = 0;
         struct stat st;
         int parent = ah_local_parent_path(context, paths.items[i], strlen(paths.items[i]), leaf);
-        code = parent < 0 || fstatat(parent, leaf, &st, AT_SYMLINK_NOFOLLOW) ? AH_IO : AH_OK;
-        if (code == AH_OK && S_ISREG(st.st_mode) && st.st_size >= 0 &&
-            st.st_size <= AH_LOCAL_MAX_BYTES) {
-            if ((size_t)st.st_size > 32 * 1024 * 1024 - bytes) {
-                paths.truncated = true;
-                close(parent);
-                break;
-            }
-            /* Invalid UTF-8/binary files consume scan budget too. */
-            bytes += (size_t)st.st_size;
-        }
-        if (code == AH_OK)
-            code = ah_local_source(parent, leaf, call, &st, &source, &length);
+        code = parent < 0 ? AH_IO
+                          : ah_local_source(parent, leaf, call, &st, &source, &length, &budget);
         if (parent >= 0)
             close(parent);
+        if (budget.exhausted) {
+            paths.truncated = true;
+            code = AH_OK;
+            break;
+        }
         if ((code == AH_INVALID || code == AH_LIMIT) && ah_local_stopped(call) == AH_OK) {
             skipped++;
             code = AH_OK;

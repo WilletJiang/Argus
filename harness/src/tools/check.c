@@ -140,9 +140,7 @@ ah_code ah_local_check_run(ah_local_tools *tools, ah_local_check *check, const a
                    : finished;
 }
 
-ah_code ah_local_check_names(ah_local_tools *tools, yyjson_val *names, const ah_tool_call *call,
-                             yyjson_mut_doc *doc, yyjson_mut_val *receipts, bool *failed,
-                             bool *unknown, ah_error *error) {
+ah_code ah_local_validate_checks(ah_local_tools *tools, yyjson_val *names, ah_error *error) {
     size_t i, n;
     yyjson_val *name;
     yyjson_arr_foreach(names, i, n, name) {
@@ -153,6 +151,14 @@ ah_code ah_local_check_names(ah_local_tools *tools, yyjson_val *names, const ah_
             if (yyjson_equals(name, yyjson_arr_get(names, j)))
                 return ah_fail(error, AH_INVALID, "Duplicate check preset");
     }
+    return AH_OK;
+}
+
+ah_code ah_local_check_names(ah_local_tools *tools, yyjson_val *names, const ah_tool_call *call,
+                             yyjson_mut_doc *doc, yyjson_mut_val *receipts, bool *failed,
+                             bool *unknown, ah_error *error) {
+    size_t i, n;
+    yyjson_val *name;
     ah_code code = AH_OK;
     yyjson_arr_foreach(names, i, n, name) {
         ah_tool_result result = {0};
@@ -184,9 +190,10 @@ ah_code ah_local_run_checks(void *context, const ah_tool_call *call, ah_tool_res
     yyjson_mut_doc_set_root(doc, root);
     yyjson_mut_val *receipts = yyjson_mut_obj_add_arr(doc, root, "checks");
     bool failed = false, unknown = false;
-    ah_code code =
-        ah_local_check_names(context, yyjson_obj_get(yyjson_doc_get_root(args), "checks"), call,
-                             doc, receipts, &failed, &unknown, error);
+    yyjson_val *names = yyjson_obj_get(yyjson_doc_get_root(args), "checks");
+    ah_code code = ah_local_validate_checks(context, names, error);
+    if (code == AH_OK)
+        code = ah_local_check_names(context, names, call, doc, receipts, &failed, &unknown, error);
     yyjson_doc_free(args);
     if (code != AH_OK && !yyjson_mut_arr_size(receipts)) {
         ah_mut_doc_free(doc);

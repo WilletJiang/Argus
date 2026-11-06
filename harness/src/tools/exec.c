@@ -209,16 +209,20 @@ ah_code ah_local_exec(void *context, const ah_tool_call *call, ah_tool_result *r
     memset(result, 0, sizeof(*result));
     if (!tools->enable_exec)
         return ah_local_error(call, result, error, AH_AUTH, "Process execution is disabled");
-    ah_code code = ah_schema_validate(ah_exec_schema, call->arguments_json, error);
+    yyjson_doc *args;
+    ah_code code = ah_schema_parse(ah_exec_schema, call->arguments_json, &args, error);
     if (code != AH_OK)
         return ah_local_error(call, result, error, code, "Invalid process arguments");
     code = ah_local_stopped(call);
-    if (code != AH_OK)
+    if (code != AH_OK) {
+        yyjson_doc_free(args);
         return ah_local_error(call, result, error, code, "Process cancelled before launch");
-    if (ah_local_limit(call) < 320)
+    }
+    if (ah_local_limit(call) < 320) {
+        yyjson_doc_free(args);
         return ah_local_error(call, result, error, AH_LIMIT,
                               "Output limit too small for process receipt");
-    yyjson_doc *args = yyjson_read(call->arguments_json, strlen(call->arguments_json), 0);
+    }
     yyjson_val *array = yyjson_obj_get(yyjson_doc_get_root(args), "argv");
     char *argv[129] = {0};
     size_t i, count, bytes = 0;
@@ -265,6 +269,7 @@ ah_code ah_local_exec(void *context, const ah_tool_call *call, ah_tool_result *r
     uint64_t stopped_at = 0;
     uint64_t fallback_deadline = ah_now_ms() + 60000;
     size_t remaining = capacity;
+    int reap_delay_ms = 1;
     while (!reaped || streams[0].fd >= 0 || streams[1].fd >= 0 || (stopped_at && !killing)) {
         if (code == AH_OK)
             code = ah_local_stopped(call);
@@ -302,7 +307,14 @@ ah_code ah_local_exec(void *context, const ah_tool_call *call, ah_tool_result *r
         if (reaped && streams[0].fd < 0 && streams[1].fd < 0 && (!stopped_at || killing))
             break;
         struct pollfd fds[2] = {{streams[0].fd, POLLIN, 0}, {streams[1].fd, POLLIN, 0}};
-        if (poll(fds, 2, 20) < 0 && errno != EINTR && code == AH_OK)
+        int timeout_ms = 20;
+        /* EOF can precede child exit. No pipe will wake poll once both are
+         * closed. Recheck promptly, then back off if the child keeps working. */
+        if (!reaped && streams[0].fd < 0 && streams[1].fd < 0) {
+            timeout_ms = reap_delay_ms;
+            reap_delay_ms = reap_delay_ms < 10 ? 2 * reap_delay_ms : 20;
+        }
+        if (poll(fds, 2, timeout_ms) < 0 && errno != EINTR && code == AH_OK)
             code = AH_IO;
     }
     yyjson_mut_doc *doc = ah_mut_doc_new();
