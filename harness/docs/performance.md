@@ -45,6 +45,8 @@ native search `find`, and makes `apply_changes` the unified editing entrypoint.
 Its [callback measurements](evaluations/find-performance.md) compare identical
 results against 0.3; those local improvements are not a model-task latency claim.
 
+The [November 6 tool audit](evaluations/tool-performance.md) covers all nine tools, independent read batching and long-lived session lookup.
+
 ## First: separate the time components
 
 Before choosing an optimization, record a monotonic timeline for request assembly,

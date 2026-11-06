@@ -8,6 +8,7 @@ The current entrypoints are documented in [evals](../../evals/README.md).
 | Record | Question |
 | --- | --- |
 | [Local performance](local-performance.md) | Local orchestration, file operations and read batching |
+| [All nine tools](tool-performance.md) | Paired local timings, real file batching, large edits, paging, recovery and output checks |
 | [Terra endurance](endurance-evaluation.md) | Three concurrent paired long tasks before the cache fix |
 | [Cache routing](cache-evaluation.md) | JSON key versus stable HTTP session identity |
 | [Sol endurance](sol-xhigh-evaluation.md) | Long tasks with cache routing and streamed-item fixes |
