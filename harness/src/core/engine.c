@@ -84,12 +84,15 @@ ah_code ah_open(const ah_config *config, ah_engine **out, ah_error *err) {
     sqlite3_stmt *s = NULL;
     int version = 0;
     if (rc == AH_OK)
-        rc = core_prepare(e, "PRAGMA user_version", &s, err);
+        rc = core_prepare(
+            e, "SELECT user_version, encoding='UTF-8' FROM pragma_user_version, pragma_encoding",
+            &s, err);
     if (rc == AH_OK) {
         if (sqlite3_step(s) != SQLITE_ROW)
             rc = ah_fail(err, AH_IO, "cannot read schema version");
         else {
             version = sqlite3_column_int(s, 0);
+            e->utf8_store = sqlite3_column_int(s, 1) != 0;
             if (version > 3)
                 rc = ah_fail(err, AH_PROTOCOL, "database schema is newer than this runtime");
         }

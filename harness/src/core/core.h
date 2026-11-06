@@ -19,6 +19,7 @@ typedef struct {
 struct ah_engine {
     ah_config config;
     sqlite3 *db;
+    bool utf8_store;
     int lock_fd;
     core_tool *tools;
     size_t tool_count;

@@ -1,6 +1,7 @@
 #include "core/core.h"
 #include <assert.h>
 #include <stdio.h>
+#include <unistd.h>
 
 static const char done[] =
     "{\"status\":\"completed\",\"output\":[{\"type\":\"message\",\"role\":\"assistant\","
@@ -10,7 +11,7 @@ static const char schema[] =
 
 typedef struct {
     ah_engine *engine;
-    const char *pause_name;
+    const char *pause_name, *database;
     char *payload, *last_request, *reconstructed;
     char operation[AH_ID_CAP];
     unsigned model_calls, pages;
@@ -172,7 +173,7 @@ static ah_code execute(void *context, const ah_tool_call *call, ah_tool_result *
 static void open_fixture(fixture *f, size_t budget) {
     ah_config config;
     ah_config_init(&config);
-    config.database_path = ":memory:";
+    config.database_path = f->database ? f->database : ":memory:";
     config.provider = (ah_provider){complete, f};
     config.max_model_tool_bytes = budget;
     ah_error error = {0};
@@ -314,6 +315,28 @@ static void reconstruction_and_access(void) {
     close_fixture(&f);
 }
 
+static void utf16_store(void) {
+    char path[] = "/tmp/ah-result-encoding-XXXXXX";
+    int fd = mkstemp(path);
+    assert(fd >= 0 && close(fd) == 0);
+    sqlite3 *db;
+    assert(sqlite3_open(path, &db) == SQLITE_OK);
+    assert(sqlite3_exec(db, "PRAGMA encoding='UTF-16be'; CREATE TABLE seed(x)", NULL, NULL, NULL) ==
+           SQLITE_OK);
+    assert(sqlite3_close(db) == SQLITE_OK);
+    fixture f = {.database = path, .payload = payload(512), .retrieve = true};
+    f.reconstructed = calloc(strlen(f.payload) + 1, 1);
+    assert(f.reconstructed);
+    open_fixture(&f, 1024);
+    char sid[AH_ID_CAP];
+    start(&f, sid);
+    assert(f.pages > 1 && !strcmp(f.reconstructed, f.payload));
+    close_fixture(&f);
+    char lock[sizeof(path) + 5];
+    snprintf(lock, sizeof(lock), "%s.lock", path);
+    assert(unlink(path) == 0 && unlink(lock) == 0);
+}
+
 static void pause_aliases(void) {
     const char *names[] = {"ask", "wait", "harness_ask", "harness_wait"};
     for (size_t i = 0; i < sizeof(names) / sizeof(names[0]); i++) {
@@ -341,6 +364,7 @@ static void pause_aliases(void) {
 int main(void) {
     bounded_views();
     reconstruction_and_access();
+    utf16_store();
     pause_aliases();
     puts("result tests passed");
     return 0;

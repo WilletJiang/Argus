@@ -88,12 +88,28 @@ static ah_code encode_page(const char *id, const char *page, size_t total, size_
     return ah_fail(error, AH_LIMIT, "cannot encode bounded result page");
 }
 
-static ah_code read_page(ah_engine *e, const ah_tool_call *call, const char *id, sqlite3_blob *blob,
+static ah_code read_page(ah_engine *e, const ah_tool_call *call, const char *id, sqlite3_stmt *row,
                          double offset_number, size_t limit, ah_tool_result *result,
                          ah_error *error) {
-    size_t total = (size_t)sqlite3_blob_bytes(blob);
-    if (offset_number > (double)total)
+    sqlite3_blob *blob = NULL;
+    const char *converted = NULL;
+    size_t total;
+    if (e->utf8_store) {
+        if (sqlite3_blob_open(e->db, "main", "operations", "result", sqlite3_column_int64(row, 0),
+                              0, &blob) != SQLITE_OK)
+            return ah_fail(error, AH_IO, "cannot open saved result");
+        total = (size_t)sqlite3_blob_bytes(blob);
+    } else {
+        /* Public offsets are UTF-8 bytes, including for existing UTF-16 stores. */
+        converted = (const char *)sqlite3_column_text(row, 0);
+        if (!converted)
+            return ah_fail(error, AH_IO, "cannot convert saved result to UTF-8");
+        total = (size_t)sqlite3_column_bytes(row, 0);
+    }
+    if (offset_number > (double)total) {
+        sqlite3_blob_close(blob);
         return ah_fail(error, AH_INVALID, "result offset exceeds length");
+    }
     size_t offset = (size_t)offset_number;
     size_t budget = e->config.max_model_tool_bytes;
     /* Leave room for the is_error/result envelope so pages never turn into
@@ -102,10 +118,14 @@ static ah_code read_page(ah_engine *e, const ah_tool_call *call, const char *id,
         budget = call->output_limit;
     if (limit > total - offset)
         limit = total - offset;
+    if (converted)
+        return encode_page(id, converted + offset, total, offset, limit, budget, result, error);
     /* One lookahead byte distinguishes an exact boundary from a split character. */
     char *page = malloc(limit + 1);
-    if (!page)
+    if (!page) {
+        sqlite3_blob_close(blob);
         return ah_fail(error, AH_IO, "cannot allocate result page");
+    }
     page[limit] = 0;
     size_t count = limit + (limit < total - offset);
     ah_code rc = AH_OK;
@@ -113,6 +133,7 @@ static ah_code read_page(ah_engine *e, const ah_tool_call *call, const char *id,
         rc = ah_fail(error, AH_IO, "cannot read saved result page");
     else
         rc = encode_page(id, page, total, offset, limit, budget, result, error);
+    sqlite3_blob_close(blob);
     free(page);
     return rc;
 }
@@ -131,24 +152,20 @@ ah_code core_read_result(void *context, const ah_tool_call *call, ah_tool_result
     double offset = offset_arg ? yyjson_get_num(offset_arg) : 0;
     size_t limit = limit_arg ? (size_t)yyjson_get_num(limit_arg) : 4096;
     sqlite3_stmt *s = NULL;
-    ah_code rc = core_prepare(e,
-                              "SELECT o.seq FROM result_refs r JOIN operations o "
-                              "ON o.id=r.operation_id WHERE r.session_id=? AND r.operation_id=? "
-                              "AND o.result IS NOT NULL",
-                              &s, error);
+    ah_code rc = core_prepare(
+        e,
+        "SELECT CASE WHEN ?3 THEN o.seq ELSE o.result END FROM result_refs r JOIN operations o "
+        "ON o.id=r.operation_id WHERE r.session_id=?1 AND r.operation_id=?2 "
+        "AND o.result IS NOT NULL",
+        &s, error);
     if (rc == AH_OK) {
         sqlite3_bind_text(s, 1, call->session_id, -1, SQLITE_TRANSIENT);
         sqlite3_bind_text(s, 2, id, -1, SQLITE_TRANSIENT);
+        sqlite3_bind_int(s, 3, e->utf8_store);
         int step = sqlite3_step(s);
-        if (step == SQLITE_ROW) {
-            sqlite3_blob *blob = NULL;
-            if (sqlite3_blob_open(e->db, "main", "operations", "result", sqlite3_column_int64(s, 0),
-                                  0, &blob) == SQLITE_OK)
-                rc = read_page(e, call, id, blob, offset, limit, result, error);
-            else
-                rc = ah_fail(error, AH_IO, "cannot open saved result");
-            sqlite3_blob_close(blob);
-        } else
+        if (step == SQLITE_ROW)
+            rc = read_page(e, call, id, s, offset, limit, result, error);
+        else
             rc = ah_fail(error, step == SQLITE_DONE ? AH_NOT_FOUND : AH_IO,
                          "saved result unavailable to this session");
     }
